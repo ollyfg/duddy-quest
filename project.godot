@@ -1,0 +1,20 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes in [] on its own line
+;   param=value ; parameter names and values must be on the same line
+;
+; Section names and parameter names are case sensitive.
+; Only spaces are valid delimiters, = is the only valid assignment operator.
+; C-style comments are not permitted.
+
+config_version=5
+
+[application]
+
+config/name="Duddy Quest"
+config/run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.3", "Forward Plus")
+config/icon="res://icon.svg"
