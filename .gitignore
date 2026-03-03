@@ -1,0 +1,11 @@
+# Godot 4+ specific ignores
+.godot/
+
+# Export artifacts
+*.apk
+*.ipa
+*.aab
+*.exe
+*.x86_64
+*.pck
+*.zip
