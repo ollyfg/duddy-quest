@@ -16,3 +16,6 @@ __pycache__/
 *.x86_64
 *.pck
 *.zip
+
+# Web build output
+build/
