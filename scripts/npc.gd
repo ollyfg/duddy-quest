@@ -151,12 +151,13 @@ func _keep_distance() -> void:
 func _fire_projectile() -> void:
 	if projectile_scene == null or _player_ref == null:
 		return
-	var projectile: CharacterBody2D = projectile_scene.instantiate()
+	var projectile: Node = projectile_scene.instantiate()
 	var dir: Vector2 = (_player_ref.global_position - global_position).normalized()
 	projectile.setup(dir, true)
-	# Add to the room node (grandparent of this NPC: Room → NPCs → NPC).
-	get_parent().get_parent().add_child(projectile)
-	projectile.global_position = global_position
+	# Add to the current scene root so the projectile shares the same space
+	# as the player regardless of the NPC's position in the hierarchy.
+	get_tree().current_scene.add_child(projectile)
+	(projectile as Node2D).global_position = global_position
 
 
 func take_damage(amount: int) -> void:

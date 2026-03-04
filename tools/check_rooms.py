@@ -34,6 +34,10 @@ WALL_THICK  = 24
 X_MARGIN    = 10   # extra px of slack when checking entry x bounds
 Y_TOLERANCE = 4    # px tolerance when comparing door y-coordinates
 
+# How many characters to scan after an Exit node declaration when looking for
+# a position = Vector2(...) property line.
+NODE_PROPERTY_SEARCH_WINDOW = 300
+
 REVERSE = {"east": "west", "west": "east", "north": "south", "south": "north"}
 
 # ---------------------------------------------------------------------------
@@ -111,7 +115,7 @@ def find_exit_nodes(tscn_path):
 
     for m in node_re.finditer(content):
         direction = m.group(1).lower()
-        segment   = content[m.end():m.end() + 300]
+        segment   = content[m.end():m.end() + NODE_PROPERTY_SEARCH_WINDOW]
         pm = pos_re.search(segment)
         if pm:
             exits[direction] = (float(pm.group(1)), float(pm.group(2)))
