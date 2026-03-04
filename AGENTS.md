@@ -70,6 +70,27 @@ python3 tools/playtest.py input move_right 2.0
 python3 tools/playtest.py release move_right
 ```
 
+> **⚠️ Always release inputs before pressing them again.**
+> An `input` command without a `duration` leaves the action held until an explicit
+> `release` is sent.  Godot's `is_action_just_pressed()` only fires on the first
+> frame the action becomes pressed — it will **not** fire again while the action is
+> still held.  This means repeating an `input` call without a `release` in between
+> has **no effect** the second time.
+>
+> Whenever you need to press the same action more than once (e.g. advancing through
+> multiple dialog lines with `melee_attack`), always interleave a `release`:
+>
+> ```bash
+> python3 tools/playtest.py input  melee_attack   # press  → advances line 1
+> python3 tools/playtest.py release melee_attack  # release
+> python3 tools/playtest.py input  melee_attack   # press  → advances line 2
+> python3 tools/playtest.py release melee_attack  # release
+> ```
+>
+> Using `input <action> <duration>` is the safest approach for movement because
+> it auto-releases after the timer expires, but you must still wait (`sleep`) for
+> at least the duration before sending the next command.
+
 Available input actions (defined in `project.godot`):
 
 | Action | Default key | Effect |

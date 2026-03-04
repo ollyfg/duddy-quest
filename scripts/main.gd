@@ -4,6 +4,8 @@ extends Node2D
 const ROOMS: Dictionary = {
 	"room_a": preload("res://scenes/room_a.tscn"),
 	"room_b": preload("res://scenes/room_b.tscn"),
+	"room_c": preload("res://scenes/room_c.tscn"),
+	"room_d": preload("res://scenes/room_d.tscn"),
 }
 
 # For each room, defines which direction leads to which room and where the
@@ -14,6 +16,14 @@ const ROOM_CONNECTIONS: Dictionary = {
 	},
 	"room_b": {
 		"west": {"room": "room_a", "entry": Vector2(580.0, 240.0)},
+		"east": {"room": "room_c", "entry": Vector2(60.0, 240.0)},
+	},
+	"room_c": {
+		"west": {"room": "room_b", "entry": Vector2(580.0, 240.0)},
+		"east": {"room": "room_d", "entry": Vector2(60.0, 240.0)},
+	},
+	"room_d": {
+		"west": {"room": "room_c", "entry": Vector2(580.0, 240.0)},
 	},
 }
 
