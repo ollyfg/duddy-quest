@@ -53,10 +53,3 @@ func _on_btn_ranged_button_down() -> void:
 
 func _on_btn_ranged_button_up() -> void:
 	Input.action_release("ranged_attack")
-
-
-func _on_btn_interact_button_down() -> void:
-	Input.action_press("interact")
-
-func _on_btn_interact_button_up() -> void:
-	Input.action_release("interact")

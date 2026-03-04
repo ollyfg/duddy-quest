@@ -61,6 +61,7 @@ func _physics_process(_delta: float) -> void:
 		_perform_melee()
 	if Input.is_action_just_pressed("ranged_attack"):
 		_perform_ranged()
+	# interact has no key binding (removed E key); kept so this call is safe.
 	if Input.is_action_just_pressed("interact"):
 		interacted.emit()
 
