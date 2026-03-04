@@ -130,8 +130,9 @@ func _wander(delta: float) -> void:
 	if _wander_timer <= 0.0:
 		_wander_timer = randf_range(1.5, 3.5)
 		if randf() < 0.6:
-			var angle: float = randf() * TAU
-			_wander_dir = Vector2(cos(angle), sin(angle))
+			# Only move in one cardinal direction at a time (no diagonal wander).
+			var dirs: Array[Vector2] = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
+			_wander_dir = dirs[randi() % dirs.size()]
 		else:
 			_wander_dir = Vector2.ZERO
 	velocity = _wander_dir * (move_speed * 0.5)
