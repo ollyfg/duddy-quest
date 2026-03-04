@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://room_d"]
+[gd_scene load_steps=8 format=3 uid="uid://room_d"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
+[ext_resource type="PackedScene" path="res://scenes/projectile.tscn" id="3_projectile"]
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall"]
 size = Vector2(640, 24)
@@ -110,8 +111,12 @@ position = Vector2(450.0, 160.0)
 is_hostile = true
 movement_mode = 4
 keep_distance_preferred = 180.0
+detection_range = 250.0
+can_shoot = true
+projectile_scene = ExtResource("3_projectile")
+shoot_cooldown = 2.5
 
-[node name="JostlingEnemy" parent="NPCs" instance=ExtResource("2_npc")]
+[node name="ChaseEnemy" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(380.0, 320.0)
 is_hostile = true
-movement_mode = 5
+detection_range = 220.0
