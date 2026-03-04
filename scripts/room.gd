@@ -6,6 +6,9 @@ signal exit_triggered(direction: String)
 
 const INTERACT_RANGE: float = 60.0
 
+## Size of this room in pixels.  Used by the camera to clamp the viewport.
+@export var room_size: Vector2 = Vector2(640.0, 480.0)
+
 ## Maps exit direction → true when that exit is currently locked by a switch.
 var _locked_exits: Dictionary = {}
 
@@ -50,6 +53,12 @@ func _on_switch_toggled(switch_id: String, is_on: bool) -> void:
 		for sw in get_node("Switches").get_children():
 			if sw.id == switch_id and sw.locked_exit != "":
 				_locked_exits[sw.locked_exit] = not is_on
+
+
+## Returns the world-space Rect2 that this room occupies.
+## The camera clamps to this rect so the viewport never shows outside the room.
+func get_room_rect() -> Rect2:
+	return Rect2(global_position, room_size)
 
 
 ## Returns the nearest friendly NPC within interaction range, or null.
