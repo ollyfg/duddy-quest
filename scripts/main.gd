@@ -2,29 +2,29 @@ extends Node2D
 
 # Maps room names to their preloaded scenes.
 const ROOMS: Dictionary = {
-"room_a": preload("res://scenes/room_a.tscn"),
-"room_b": preload("res://scenes/room_b.tscn"),
-"room_c": preload("res://scenes/room_c.tscn"),
-"room_d": preload("res://scenes/room_d.tscn"),
+	"room_a": preload("res://scenes/room_a.tscn"),
+	"room_b": preload("res://scenes/room_b.tscn"),
+	"room_c": preload("res://scenes/room_c.tscn"),
+	"room_d": preload("res://scenes/room_d.tscn"),
 }
 
 # For each room, defines which direction leads to which room and where the
 # player appears on arrival (entry position in the destination room).
 const ROOM_CONNECTIONS: Dictionary = {
-"room_a": {
-"east": {"room": "room_b", "entry": Vector2(64.0, 240.0)},
-},
-"room_b": {
-"west": {"room": "room_a", "entry": Vector2(576.0, 240.0)},
-"east": {"room": "room_c", "entry": Vector2(64.0, 240.0)},
-},
-"room_c": {
-"west": {"room": "room_b", "entry": Vector2(576.0, 240.0)},
-"east": {"room": "room_d", "entry": Vector2(64.0, 240.0)},
-},
-"room_d": {
-"west": {"room": "room_c", "entry": Vector2(576.0, 240.0)},
-},
+	"room_a": {
+		"east": {"room": "room_b", "entry": Vector2(64.0, 240.0)},
+	},
+	"room_b": {
+		"west": {"room": "room_a", "entry": Vector2(576.0, 240.0)},
+		"east": {"room": "room_c", "entry": Vector2(64.0, 240.0)},
+	},
+	"room_c": {
+		"west": {"room": "room_b", "entry": Vector2(576.0, 240.0)},
+		"east": {"room": "room_d", "entry": Vector2(64.0, 240.0)},
+	},
+	"room_d": {
+		"west": {"room": "room_c", "entry": Vector2(576.0, 240.0)},
+	},
 }
 
 var current_room_name: String = ""
@@ -40,62 +40,62 @@ var current_room = null
 
 
 func _ready() -> void:
-player.add_to_group("player")
-player.hp_changed.connect(_update_hp_display)
-dialog_box.dialog_ended.connect(_on_dialog_ended)
-_load_room("room_a", Vector2(96.0, 240.0))
+	player.add_to_group("player")
+	player.hp_changed.connect(_update_hp_display)
+	dialog_box.dialog_ended.connect(_on_dialog_ended)
+	_load_room("room_a", Vector2(96.0, 240.0))
 
 
 func _load_room(room_name: String, player_pos: Vector2) -> void:
-if current_room:
-current_room.queue_free()
-await get_tree().process_frame
+	if current_room:
+		current_room.queue_free()
+		await get_tree().process_frame
 
-current_room_name = room_name
-current_room = ROOMS[room_name].instantiate()
-room_holder.add_child(current_room)
-current_room.exit_triggered.connect(_on_exit_triggered)
+	current_room_name = room_name
+	current_room = ROOMS[room_name].instantiate()
+	room_holder.add_child(current_room)
+	current_room.exit_triggered.connect(_on_exit_triggered)
 
-# Give NPCs a reference to the player for hostile chase behaviour.
-# Connect friendly NPC interaction signals.
-if current_room.has_node("NPCs"):
-for npc in current_room.get_node("NPCs").get_children():
-if npc.has_method("set_player_reference"):
-npc.set_player_reference(player)
-if not npc.is_hostile:
-npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
+	# Give NPCs a reference to the player for hostile chase behaviour.
+	# Connect friendly NPC interaction signals.
+	if current_room.has_node("NPCs"):
+		for npc in current_room.get_node("NPCs").get_children():
+			if npc.has_method("set_player_reference"):
+				npc.set_player_reference(player)
+			if not npc.is_hostile:
+				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 
-player.global_position = player_pos
-_update_hp_display(player.hp)
+	player.global_position = player_pos
+	_update_hp_display(player.hp)
 
 
 func _on_exit_triggered(direction: String) -> void:
-if current_room_name not in ROOM_CONNECTIONS:
-return
-var connections: Dictionary = ROOM_CONNECTIONS[current_room_name]
-if direction not in connections:
-return
-var next: Dictionary = connections[direction]
-_load_room(next["room"], next["entry"])
+	if current_room_name not in ROOM_CONNECTIONS:
+		return
+	var connections: Dictionary = ROOM_CONNECTIONS[current_room_name]
+	if direction not in connections:
+		return
+	var next: Dictionary = connections[direction]
+	_load_room(next["room"], next["entry"])
 
 
 func _on_npc_interaction_requested(npc: Node) -> void:
-if dialog_box.is_active():
-return
-_set_dialog_active(true)
-dialog_box.start_dialog(npc.dialog_lines)
+	if dialog_box.is_active():
+		return
+	_set_dialog_active(true)
+	dialog_box.start_dialog(npc.dialog_lines)
 
 
 func _on_dialog_ended() -> void:
-_set_dialog_active(false)
+	_set_dialog_active(false)
 
 
 func _set_dialog_active(active: bool) -> void:
-player.is_in_dialog = active
-if current_room and current_room.has_node("NPCs"):
-for npc in current_room.get_node("NPCs").get_children():
-npc.is_paused = active
+	player.is_in_dialog = active
+	if current_room and current_room.has_node("NPCs"):
+		for npc in current_room.get_node("NPCs").get_children():
+			npc.is_paused = active
 
 
 func _update_hp_display(new_hp: int) -> void:
-hp_label.text = "HP: " + str(new_hp)
+	hp_label.text = "HP: " + str(new_hp)
