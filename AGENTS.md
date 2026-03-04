@@ -78,9 +78,8 @@ Available input actions (defined in `project.godot`):
 | `move_down` | S | Move down |
 | `move_left` | A | Move left |
 | `move_right` | D | Move right |
-| `melee_attack` | Z | Swing Smeltings Stick |
-| `ranged_attack` | X | Fire projectile |
-| `interact` | E | Talk to nearby NPC |
+| `melee_attack` | C | Swing Smeltings Stick |
+| `ranged_attack` | V | Fire projectile |
 
 ### 5 – Query game state
 

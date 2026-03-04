@@ -84,6 +84,16 @@ echo "Xvfb started on display :$DISPLAY_NUM (PID $XVFB_PID)"
 sleep 0.5   # Give Xvfb a moment to initialise
 
 # ---------------------------------------------------------------------------
+# Import project (generates .godot/ UID cache needed to resolve scene UIDs)
+# ---------------------------------------------------------------------------
+if [ ! -f "$PROJECT_DIR/.godot/uid_cache.bin" ]; then
+    echo "Importing project (first-time setup)..."
+    "$GODOT" --headless --editor --quit --path "$PROJECT_DIR" 2>&1 \
+        | grep -v "^$" || true
+    echo "Import complete."
+fi
+
+# ---------------------------------------------------------------------------
 # Start Godot
 # ---------------------------------------------------------------------------
 DISPLAY=":$DISPLAY_NUM" "$GODOT" --path "$PROJECT_DIR" -- --dev-tools &

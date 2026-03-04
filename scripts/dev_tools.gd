@@ -129,6 +129,15 @@ func _build_state() -> Dictionary:
 	var main := get_tree().get_root().get_node_or_null("Main")
 	if main != null and "current_room_name" in main:
 		state["room"] = main.current_room_name
+		var db = main.get_node_or_null("HUD/DialogBox")
+		state["dialog_active"] = db != null and db.is_active()
+		if main.current_room != null:
+			var npcs_node = main.current_room.get_node_or_null("NPCs")
+			if npcs_node:
+				var npc_positions = []
+				for npc in npcs_node.get_children():
+					npc_positions.append({"x": snappedf(npc.global_position.x, 0.01), "y": snappedf(npc.global_position.y, 0.01), "hostile": npc.is_hostile})
+				state["npcs"] = npc_positions
 	else:
 		state["room"] = null
 
