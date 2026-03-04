@@ -10,10 +10,10 @@ const ROOMS: Dictionary = {
 # player appears on arrival (entry position in the destination room).
 const ROOM_CONNECTIONS: Dictionary = {
 	"room_a": {
-		"east": {"room": "room_b", "entry": Vector2(60.0, 240.0)},
+		"east": {"room": "room_b", "entry": Vector2(64.0, 240.0)},
 	},
 	"room_b": {
-		"west": {"room": "room_a", "entry": Vector2(580.0, 240.0)},
+		"west": {"room": "room_a", "entry": Vector2(576.0, 240.0)},
 	},
 }
 
@@ -32,7 +32,8 @@ var current_room = null
 func _ready() -> void:
 	player.add_to_group("player")
 	player.hp_changed.connect(_update_hp_display)
-	_load_room("room_a", Vector2(100.0, 240.0))
+	dialog_box.dialog_ended.connect(_on_dialog_ended)
+	_load_room("room_a", Vector2(96.0, 240.0))
 
 
 func _load_room(room_name: String, player_pos: Vector2) -> void:
@@ -71,7 +72,19 @@ func _on_exit_triggered(direction: String) -> void:
 func _on_npc_interaction_requested(npc: Node) -> void:
 	if dialog_box.is_active():
 		return
+	_set_dialog_active(true)
 	dialog_box.start_dialog(npc.dialog_lines)
+
+
+func _on_dialog_ended() -> void:
+	_set_dialog_active(false)
+
+
+func _set_dialog_active(active: bool) -> void:
+	player.is_in_dialog = active
+	if current_room and current_room.has_node("NPCs"):
+		for npc in current_room.get_node("NPCs").get_children():
+			npc.is_paused = active
 
 
 func _update_hp_display(new_hp: int) -> void:

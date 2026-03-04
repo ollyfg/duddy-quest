@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+signal dialog_ended
+
 var _lines: Array = []
 var _current_line: int = 0
 var _active: bool = false
@@ -49,5 +51,6 @@ func _on_next_pressed() -> void:
 		panel.visible = false
 		_lines = []
 		_current_line = 0
+		dialog_ended.emit()
 	else:
 		_show_current_line()

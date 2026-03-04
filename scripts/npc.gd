@@ -15,6 +15,7 @@ signal interaction_requested
 const KNOCKBACK_SPEED: float = 250.0
 
 var hp: int
+var is_paused: bool = false
 var _wander_timer: float = 0.0
 var _wander_dir: Vector2 = Vector2.ZERO
 var _player_ref: Node = null
@@ -35,6 +36,11 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if is_paused:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
 	if is_hostile and _player_ref:
 		_chase_player()
 	else:

@@ -8,6 +8,9 @@ const MELEE_COOLDOWN: float = 0.5
 const SHOOT_COOLDOWN: float = 0.4
 const MAX_HP: int = 5
 const KNOCKBACK_SPEED: float = 300.0
+const GRID_SIZE: int = 16
+const KNOCKBACK_THRESHOLD: float = 5.0
+const GRID_SNAP_THRESHOLD: float = 2.0
 
 @export var projectile_scene: PackedScene
 
@@ -18,10 +21,15 @@ var hp: int = MAX_HP:
 
 var facing: Vector2 = Vector2.DOWN
 
+var is_in_dialog: bool = false
+
 var _melee_timer: float = 0.0
 var _shoot_timer: float = 0.0
 var _invincible_timer: float = 0.0
 var _knockback_velocity: Vector2 = Vector2.ZERO
+var _moving: bool = false
+var _target_pos: Vector2 = Vector2.ZERO
+var _step_start: Vector2 = Vector2.ZERO
 
 @onready var melee_area: Area2D = $MeleeArea
 @onready var projectile_spawn: Marker2D = $ProjectileSpawn
@@ -40,26 +48,54 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	var input_dir := Vector2.ZERO
-	if Input.is_action_pressed("move_up"):
-		input_dir.y -= 1.0
-	if Input.is_action_pressed("move_down"):
-		input_dir.y += 1.0
-	if Input.is_action_pressed("move_left"):
-		input_dir.x -= 1.0
-	if Input.is_action_pressed("move_right"):
-		input_dir.x += 1.0
-
-	if input_dir != Vector2.ZERO:
-		facing = input_dir.normalized()
-		velocity = input_dir.normalized() * SPEED
-	else:
-		velocity = Vector2.ZERO
-
-	velocity += _knockback_velocity
 	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * 6.0)
 
-	move_and_slide()
+	if is_in_dialog:
+		velocity = Vector2.ZERO
+		_moving = false
+		move_and_slide()
+		return
+
+	if _knockback_velocity.length() > KNOCKBACK_THRESHOLD:
+		# Knocked back: bypass grid, free movement.
+		velocity = _knockback_velocity
+		_moving = false
+		move_and_slide()
+	else:
+		if _moving:
+			var to_target: Vector2 = _target_pos - global_position
+			if to_target.length() < GRID_SNAP_THRESHOLD:
+				global_position = _target_pos
+				velocity = Vector2.ZERO
+				_moving = false
+			else:
+				velocity = to_target.normalized() * SPEED
+		else:
+			velocity = Vector2.ZERO
+			var input_dir := Vector2.ZERO
+			if Input.is_action_pressed("move_up"):
+				input_dir = Vector2.UP
+			elif Input.is_action_pressed("move_down"):
+				input_dir = Vector2.DOWN
+			elif Input.is_action_pressed("move_left"):
+				input_dir = Vector2.LEFT
+			elif Input.is_action_pressed("move_right"):
+				input_dir = Vector2.RIGHT
+
+			if input_dir != Vector2.ZERO:
+				facing = input_dir
+				var snapped: Vector2 = global_position.snapped(Vector2.ONE * GRID_SIZE)
+				_step_start = snapped
+				_target_pos = snapped + input_dir * GRID_SIZE
+				global_position = snapped
+				_moving = true
+
+		move_and_slide()
+		if _moving and get_slide_collision_count() > 0:
+			# Hit a wall mid-step: snap back to step start.
+			global_position = _step_start
+			velocity = Vector2.ZERO
+			_moving = false
 
 	if Input.is_action_just_pressed("melee_attack"):
 		_perform_melee()
