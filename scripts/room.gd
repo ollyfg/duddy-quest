@@ -1,7 +1,7 @@
 extends Node2D
 
 ## Emitted when the player walks through an exit.  The direction string
-## matches the key used in the ROOM_CONNECTIONS map in main.gd.
+## matches a key in LEVELS[level_name]["connections"][room_name] in main.gd.
 signal exit_triggered(direction: String)
 
 const INTERACT_RANGE: float = 60.0

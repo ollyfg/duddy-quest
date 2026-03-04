@@ -133,6 +133,7 @@ shape = SubResource("Sh_exit")
 [node name="Enemy" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(400.0, 200.0)
 is_hostile = true
+detection_range = 180.0
 
 [node name="Switches" type="Node2D" parent="."]
 
