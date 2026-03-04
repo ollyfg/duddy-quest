@@ -22,3 +22,5 @@ build/
 
 # Temporary screenshot files
 *.png.import
+*.png
+nohup.out
