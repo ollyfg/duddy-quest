@@ -36,6 +36,10 @@ signal interaction_requested
 const KNOCKBACK_SPEED: float = 250.0
 ## Inner and outer bounds for KEEP_DISTANCE mode.
 const KEEP_DIST_MARGIN: float = 50.0
+## Clamp bounds keeping NPCs inside the room walls (640×480 room, 24 px walls,
+## 8 px half-body).  Prevents knockback from pushing enemies through exit gaps.
+const ROOM_BOUNDS_MIN: Vector2 = Vector2(32.0, 32.0)
+const ROOM_BOUNDS_MAX: Vector2 = Vector2(608.0, 448.0)
 
 var hp: int
 var is_paused: bool = false
@@ -114,6 +118,8 @@ func _physics_process(delta: float) -> void:
 	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * 6.0)
 
 	move_and_slide()
+	# Prevent knockback from pushing NPCs through exit gaps in the walls.
+	global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
 
 
 ## Called by the game controller to give this NPC a reference to the player.
