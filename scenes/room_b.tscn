@@ -98,6 +98,7 @@ shape = SubResource("Sh_lwall_seg")
 
 [node name="ExitWest" type="Area2D" parent="."]
 position = Vector2(18, 240)
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitWest"]
 shape = SubResource("Sh_exit")
