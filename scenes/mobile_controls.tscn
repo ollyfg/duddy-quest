@@ -1,0 +1,103 @@
+[gd_scene load_steps=2 format=3 uid="uid://mobile_controls"]
+
+[ext_resource type="Script" path="res://scripts/mobile_controls.gd" id="1_mc"]
+
+[node name="MobileControls" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_mc")
+
+[node name="Overlay" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="BtnUp" type="Button" parent="Overlay"]
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 74.0
+offset_top = -144.0
+offset_right = 144.0
+offset_bottom = -74.0
+text = "↑"
+
+[node name="BtnLeft" type="Button" parent="Overlay"]
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -72.0
+offset_right = 72.0
+offset_bottom = -2.0
+text = "←"
+
+[node name="BtnDown" type="Button" parent="Overlay"]
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 74.0
+offset_top = -72.0
+offset_right = 144.0
+offset_bottom = -2.0
+text = "↓"
+
+[node name="BtnRight" type="Button" parent="Overlay"]
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 146.0
+offset_top = -72.0
+offset_right = 216.0
+offset_bottom = -2.0
+text = "→"
+
+[node name="BtnInteract" type="Button" parent="Overlay"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = -72.0
+offset_right = -110.0
+offset_bottom = -2.0
+text = "E"
+
+[node name="BtnRanged" type="Button" parent="Overlay"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -72.0
+offset_top = -144.0
+offset_right = -2.0
+offset_bottom = -74.0
+text = "X"
+
+[node name="BtnMelee" type="Button" parent="Overlay"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -72.0
+offset_top = -72.0
+offset_right = -2.0
+offset_bottom = -2.0
+text = "Z"
+
+[connection signal="button_down" from="Overlay/BtnUp" to="." method="_on_btn_up_button_down"]
+[connection signal="button_up" from="Overlay/BtnUp" to="." method="_on_btn_up_button_up"]
+[connection signal="button_down" from="Overlay/BtnLeft" to="." method="_on_btn_left_button_down"]
+[connection signal="button_up" from="Overlay/BtnLeft" to="." method="_on_btn_left_button_up"]
+[connection signal="button_down" from="Overlay/BtnDown" to="." method="_on_btn_down_button_down"]
+[connection signal="button_up" from="Overlay/BtnDown" to="." method="_on_btn_down_button_up"]
+[connection signal="button_down" from="Overlay/BtnRight" to="." method="_on_btn_right_button_down"]
+[connection signal="button_up" from="Overlay/BtnRight" to="." method="_on_btn_right_button_up"]
+[connection signal="button_down" from="Overlay/BtnInteract" to="." method="_on_btn_interact_button_down"]
+[connection signal="button_up" from="Overlay/BtnInteract" to="." method="_on_btn_interact_button_up"]
+[connection signal="button_down" from="Overlay/BtnRanged" to="." method="_on_btn_ranged_button_down"]
+[connection signal="button_up" from="Overlay/BtnRanged" to="." method="_on_btn_ranged_button_up"]
+[connection signal="button_down" from="Overlay/BtnMelee" to="." method="_on_btn_melee_button_down"]
+[connection signal="button_up" from="Overlay/BtnMelee" to="." method="_on_btn_melee_button_up"]
