@@ -62,6 +62,10 @@ interact={
 ]
 }
 
+[autoload]
+
+DevTools="*res://scripts/dev_tools.gd"
+
 [rendering]
 
 renderer/rendering_method="mobile"
