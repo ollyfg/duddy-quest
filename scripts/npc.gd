@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
-## Whether this NPC is a hostile enemy (attacks on contact) or a friendly
-## NPC (can be talked to).
+## Whether this NPC is a hostile enemy (chases and attacks on contact) or a
+## friendly NPC (wanders and can be talked to).
 @export var is_hostile: bool = false
 
 ## Lines shown when the player interacts with a friendly NPC.
@@ -27,6 +27,7 @@ const JOSTLE_RANGE: float = 150.0
 const KEEP_DIST_MARGIN: float = 50.0
 
 var hp: int
+var is_paused: bool = false
 var _wander_timer: float = 0.0
 var _wander_dir: Vector2 = Vector2.ZERO
 var _player_ref: Node = null
@@ -48,6 +49,11 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if is_paused:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
 	var mode: MovementMode = movement_mode
 	if mode == MovementMode.DEFAULT:
 		mode = MovementMode.CHASE if is_hostile else MovementMode.WANDER
