@@ -39,19 +39,19 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var direction := Vector2.ZERO
+	var input_dir := Vector2.ZERO
 	if Input.is_action_pressed("move_up"):
-		direction.y -= 1.0
+		input_dir.y -= 1.0
 	if Input.is_action_pressed("move_down"):
-		direction.y += 1.0
+		input_dir.y += 1.0
 	if Input.is_action_pressed("move_left"):
-		direction.x -= 1.0
+		input_dir.x -= 1.0
 	if Input.is_action_pressed("move_right"):
-		direction.x += 1.0
+		input_dir.x += 1.0
 
-	if direction != Vector2.ZERO:
-		facing = direction.normalized()
-		velocity = direction.normalized() * SPEED
+	if input_dir != Vector2.ZERO:
+		facing = input_dir.normalized()
+		velocity = input_dir.normalized() * SPEED
 	else:
 		velocity = Vector2.ZERO
 
@@ -81,11 +81,11 @@ func _perform_ranged() -> void:
 	if _shoot_timer > 0.0 or projectile_scene == null:
 		return
 	_shoot_timer = SHOOT_COOLDOWN
-	var proj: CharacterBody2D = projectile_scene.instantiate()
+	var projectile: CharacterBody2D = projectile_scene.instantiate()
 	# Call setup before add_child so _ready() on the projectile sees the correct values.
-	proj.setup(facing, false)
-	get_parent().add_child(proj)
-	proj.global_position = projectile_spawn.global_position
+	projectile.setup(facing, false)
+	get_parent().add_child(projectile)
+	projectile.global_position = projectile_spawn.global_position
 
 
 func take_damage(amount: int) -> void:
