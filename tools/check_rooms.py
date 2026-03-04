@@ -16,6 +16,8 @@ What it checks:
   5. The entry position is within the room's playable area (roughly 24-616 x,
      24-456 y for a 640x480 room with 24-px walls).
   6. For each exit found in a .tscn, a matching connections entry exists.
+  7. Bidirectional symmetry: if A→east→B then B→west must lead back to A.
+     Without this check a player going east then west can land in a different room.
 
 Supports both the legacy flat ROOM_CONNECTIONS dict and the new LEVELS dict
 introduced by the level-system refactor.
@@ -256,6 +258,24 @@ def check_rooms():
                                     room_name, direction, dest_room,
                                     entry_y, dest_room, rev_dir, rev_pos[1])
                             )
+
+                # 7. Bidirectional symmetry: B→reverse(dir) must lead back to A.
+                dest_conns = connections.get(dest_room, {})
+                if rev_dir not in dest_conns:
+                    issues.append(
+                        "[ASYMMETRIC] {} -> {} -> {}: "
+                        "but {}.{} has no connection back.".format(
+                            room_name, direction, dest_room,
+                            dest_room, rev_dir)
+                    )
+                elif dest_conns[rev_dir]["room"] != room_name:
+                    issues.append(
+                        "[ASYMMETRIC] {} -> {} -> {}: "
+                        "but {} -> {} -> {} (not back to {}).".format(
+                            room_name, direction, dest_room,
+                            dest_room, rev_dir, dest_conns[rev_dir]["room"],
+                            room_name)
+                    )
 
     return issues
 
