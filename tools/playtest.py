@@ -20,6 +20,30 @@ Available actions:
     move_up  move_down  move_left  move_right
     melee_attack  ranged_attack  interact
 
+IMPORTANT – always release inputs before pressing them again
+------------------------------------------------------------
+``input <action>`` without a duration leaves the action held until an
+explicit ``release <action>`` is sent.  Godot's ``is_action_just_pressed()``
+only fires on the *first* frame the action becomes pressed; it will NOT fire
+again while the action is still held.
+
+Correct pattern for repeated presses (e.g. advancing dialog lines):
+
+    send_input("melee_attack")          # press  → advances line 1
+    send_input("melee_attack", pressed=False)  # release
+    send_input("melee_attack")          # press  → advances line 2
+    send_input("melee_attack", pressed=False)  # release
+
+When using the CLI, use ``release`` between consecutive ``input`` calls:
+
+    python3 tools/playtest.py input   melee_attack
+    python3 tools/playtest.py release melee_attack
+    python3 tools/playtest.py input   melee_attack
+    python3 tools/playtest.py release melee_attack
+
+Using ``input <action> <duration>`` auto-releases after the timer, but you
+must still sleep for at least the duration before sending the next command.
+
 Usage (library)
 ---------------
     import sys

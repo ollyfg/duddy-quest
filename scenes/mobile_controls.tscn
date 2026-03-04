@@ -15,11 +15,13 @@ anchor_left = 0.0
 anchor_top = 1.0
 anchor_right = 0.0
 anchor_bottom = 1.0
-offset_left = 74.0
-offset_top = -144.0
-offset_right = 144.0
-offset_bottom = -74.0
+offset_left = 144.0
+offset_top = -286.0
+offset_right = 284.0
+offset_bottom = -146.0
+mouse_filter = 2
 text = "↑"
+theme_override_font_sizes/font_size = 32
 
 [node name="BtnLeft" type="Button" parent="Overlay"]
 anchor_left = 0.0
@@ -27,64 +29,61 @@ anchor_top = 1.0
 anchor_right = 0.0
 anchor_bottom = 1.0
 offset_left = 2.0
-offset_top = -72.0
-offset_right = 72.0
-offset_bottom = -2.0
+offset_top = -144.0
+offset_right = 142.0
+offset_bottom = -4.0
+mouse_filter = 2
 text = "←"
+theme_override_font_sizes/font_size = 32
 
 [node name="BtnDown" type="Button" parent="Overlay"]
 anchor_left = 0.0
 anchor_top = 1.0
 anchor_right = 0.0
 anchor_bottom = 1.0
-offset_left = 74.0
-offset_top = -72.0
-offset_right = 144.0
-offset_bottom = -2.0
+offset_left = 144.0
+offset_top = -144.0
+offset_right = 284.0
+offset_bottom = -4.0
+mouse_filter = 2
 text = "↓"
+theme_override_font_sizes/font_size = 32
 
 [node name="BtnRight" type="Button" parent="Overlay"]
 anchor_left = 0.0
 anchor_top = 1.0
 anchor_right = 0.0
 anchor_bottom = 1.0
-offset_left = 146.0
-offset_top = -72.0
-offset_right = 216.0
-offset_bottom = -2.0
+offset_left = 286.0
+offset_top = -144.0
+offset_right = 426.0
+offset_bottom = -4.0
+mouse_filter = 2
 text = "→"
+theme_override_font_sizes/font_size = 32
 
 [node name="BtnRanged" type="Button" parent="Overlay"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -72.0
-offset_top = -144.0
+offset_left = -142.0
+offset_top = -286.0
 offset_right = -2.0
-offset_bottom = -74.0
+offset_bottom = -146.0
+mouse_filter = 2
 text = "V"
+theme_override_font_sizes/font_size = 32
 
 [node name="BtnMelee" type="Button" parent="Overlay"]
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -72.0
-offset_top = -72.0
+offset_left = -142.0
+offset_top = -144.0
 offset_right = -2.0
-offset_bottom = -2.0
+offset_bottom = -4.0
+mouse_filter = 2
 text = "C"
-
-[connection signal="button_down" from="Overlay/BtnUp" to="." method="_on_btn_up_button_down"]
-[connection signal="button_up" from="Overlay/BtnUp" to="." method="_on_btn_up_button_up"]
-[connection signal="button_down" from="Overlay/BtnLeft" to="." method="_on_btn_left_button_down"]
-[connection signal="button_up" from="Overlay/BtnLeft" to="." method="_on_btn_left_button_up"]
-[connection signal="button_down" from="Overlay/BtnDown" to="." method="_on_btn_down_button_down"]
-[connection signal="button_up" from="Overlay/BtnDown" to="." method="_on_btn_down_button_up"]
-[connection signal="button_down" from="Overlay/BtnRight" to="." method="_on_btn_right_button_down"]
-[connection signal="button_up" from="Overlay/BtnRight" to="." method="_on_btn_right_button_up"]
-[connection signal="button_down" from="Overlay/BtnRanged" to="." method="_on_btn_ranged_button_down"]
-[connection signal="button_up" from="Overlay/BtnRanged" to="." method="_on_btn_ranged_button_up"]
-[connection signal="button_down" from="Overlay/BtnMelee" to="." method="_on_btn_melee_button_down"]
-[connection signal="button_up" from="Overlay/BtnMelee" to="." method="_on_btn_melee_button_up"]
+theme_override_font_sizes/font_size = 32
