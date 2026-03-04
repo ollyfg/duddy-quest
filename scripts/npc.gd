@@ -10,10 +10,15 @@ extends CharacterBody2D
 @export var move_speed: float = 60.0
 @export var max_hp: int = 3
 
+signal interaction_requested
+
+const KNOCKBACK_SPEED: float = 250.0
+
 var hp: int
 var _wander_timer: float = 0.0
 var _wander_dir: Vector2 = Vector2.ZERO
 var _player_ref: Node = null
+var _knockback_velocity: Vector2 = Vector2.ZERO
 
 @onready var sprite: ColorRect = $Sprite
 
@@ -34,6 +39,10 @@ func _physics_process(delta: float) -> void:
 		_chase_player()
 	else:
 		_wander(delta)
+
+	velocity += _knockback_velocity
+	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * 6.0)
+
 	move_and_slide()
 
 
@@ -64,6 +73,14 @@ func take_damage(amount: int) -> void:
 		queue_free()
 
 
+func apply_knockback(direction: Vector2) -> void:
+	_knockback_velocity = direction.normalized() * KNOCKBACK_SPEED
+
+
 func _on_hit_area_body_entered(body: Node) -> void:
 	if is_hostile and body.is_in_group("player"):
+		var direction: Vector2 = ((body as Node2D).global_position - global_position).normalized()
 		body.take_damage(1)
+		body.apply_knockback(direction)
+	elif not is_hostile and body.is_in_group("player"):
+		interaction_requested.emit()

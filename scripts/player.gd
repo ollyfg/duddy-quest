@@ -1,6 +1,5 @@
 extends CharacterBody2D
 
-signal interacted
 signal hp_changed(new_hp: int)
 signal died
 
@@ -8,6 +7,7 @@ const SPEED: float = 150.0
 const MELEE_COOLDOWN: float = 0.5
 const SHOOT_COOLDOWN: float = 0.4
 const MAX_HP: int = 5
+const KNOCKBACK_SPEED: float = 300.0
 
 @export var projectile_scene: PackedScene
 
@@ -21,6 +21,7 @@ var facing: Vector2 = Vector2.DOWN
 var _melee_timer: float = 0.0
 var _shoot_timer: float = 0.0
 var _invincible_timer: float = 0.0
+var _knockback_velocity: Vector2 = Vector2.ZERO
 
 @onready var melee_area: Area2D = $MeleeArea
 @onready var projectile_spawn: Marker2D = $ProjectileSpawn
@@ -38,7 +39,7 @@ func _process(delta: float) -> void:
 	_invincible_timer = maxf(0.0, _invincible_timer - delta)
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	var input_dir := Vector2.ZERO
 	if Input.is_action_pressed("move_up"):
 		input_dir.y -= 1.0
@@ -55,14 +56,15 @@ func _physics_process(_delta: float) -> void:
 	else:
 		velocity = Vector2.ZERO
 
+	velocity += _knockback_velocity
+	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * 6.0)
+
 	move_and_slide()
 
 	if Input.is_action_just_pressed("melee_attack"):
 		_perform_melee()
 	if Input.is_action_just_pressed("ranged_attack"):
 		_perform_ranged()
-	if Input.is_action_just_pressed("interact"):
-		interacted.emit()
 
 
 func _perform_melee() -> void:
@@ -98,6 +100,13 @@ func take_damage(amount: int) -> void:
 		queue_free()
 
 
+func apply_knockback(direction: Vector2) -> void:
+	_knockback_velocity = direction.normalized() * KNOCKBACK_SPEED
+
+
 func _on_melee_area_body_entered(body: Node) -> void:
 	if body.has_method("take_damage"):
 		body.take_damage(1)
+	if body.has_method("apply_knockback"):
+		var direction: Vector2 = ((body as Node2D).global_position - global_position).normalized()
+		body.apply_knockback(direction)

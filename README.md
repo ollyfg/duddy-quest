@@ -20,9 +20,9 @@ Played as a top-down rouguelike, in the style of early legend of zelda games. It
 | Key | Action |
 |-----|--------|
 | **W / A / S / D** | Move up / left / down / right |
-| **Z** | Melee attack (Smeltings Stick swing) |
-| **X** | Ranged attack (fire projectile) |
-| **E** | Interact (talk to nearby NPC) |
+| **C** | Melee attack (Smeltings Stick swing) |
+| **V** | Ranged attack (fire projectile) |
+| **Walk into NPC** | Start conversation |
 
 ## Project Structure
 
@@ -52,7 +52,7 @@ duddy-quest/
 
 - **Movement**: WASD moves the player in 8 directions through rooms with solid walls.
 - **Multiple Rooms**: Walk east in Room A to enter Room B; walk west in Room B to return. New rooms can be added in `scripts/main.gd` (`ROOMS` and `ROOM_CONNECTIONS`).
-- **Melee combat**: Press **Z** to swing the Smeltings Stick. The Area2D hitbox activates briefly in the facing direction and damages any enemy it touches (1 HP). 0.5 s cooldown.
-- **Ranged combat**: Press **X** to fire a projectile in the facing direction. Projectiles despawn on hitting a wall or enemy, dealing 1 HP damage. 0.4 s cooldown.
-- **NPC conversations**: Walk up to the friendly NPC (blue square) in Room A and press **E**. A dialog panel appears at the bottom of the screen; press **Next** to advance lines and **Close** to dismiss.
+- **Melee combat**: Press **C** to swing the Smeltings Stick. The Area2D hitbox activates briefly in the facing direction and damages any enemy it touches (1 HP). Enemies and the player are knocked back on hit. 0.5 s cooldown.
+- **Ranged combat**: Press **V** to fire a projectile in the facing direction. Projectiles despawn on hitting a wall or enemy, dealing 1 HP damage. 0.4 s cooldown.
+- **NPC conversations**: Walk into the friendly NPC (blue square) in Room A to start a conversation. A dialog panel appears at the bottom of the screen; press **C** or **V** (or click **Next**) to advance lines and dismiss.
 - **Enemies**: Room B contains a red enemy that chases the player. It damages the player on contact. It can be killed with melee or ranged attacks.
