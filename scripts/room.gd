@@ -1,10 +1,13 @@
 extends Node2D
 
 ## Emitted when the player walks through an exit.  The direction string
-## matches the key used in the ROOM_CONNECTIONS map in main.gd.
+## matches a key in LEVELS[level_name]["connections"][room_name] in main.gd.
 signal exit_triggered(direction: String)
 
 const INTERACT_RANGE: float = 60.0
+
+## Maps exit direction → true when that exit is currently locked by a switch.
+var _locked_exits: Dictionary = {}
 
 
 func _ready() -> void:
@@ -15,11 +18,38 @@ func _ready() -> void:
 			get_node(node_name).body_entered.connect(
 				_on_exit_body_entered.bind(dir)
 			)
+	# Connect switches and initialise locked exits from their starting state.
+	if has_node("Switches"):
+		for sw in get_node("Switches").get_children():
+			if sw.has_signal("toggled"):
+				sw.toggled.connect(_on_switch_toggled)
+				# A switch with locked_exit that starts OFF locks that exit.
+				if sw.locked_exit != "":
+					_locked_exits[sw.locked_exit] = not sw.starts_on
 
 
 func _on_exit_body_entered(body: Node, direction: String) -> void:
 	if body.is_in_group("player"):
+		if _locked_exits.get(direction, false):
+			return  # Exit is locked by a switch.
 		exit_triggered.emit(direction)
+
+
+## Called when a switch is toggled.  Updates the visual door and locked exit.
+func _on_switch_toggled(switch_id: String, is_on: bool) -> void:
+	# Visual door: show when switch is off (door closed), hide when on (open).
+	var door_path := "Doors/Door_" + switch_id
+	if has_node(door_path):
+		var door := get_node(door_path)
+		door.visible = not is_on
+		var col := door.get_node_or_null("CollisionShape2D")
+		if col:
+			col.set_deferred("disabled", is_on)
+	# Logical lock: find the switch and update its associated exit.
+	if has_node("Switches"):
+		for sw in get_node("Switches").get_children():
+			if sw.id == switch_id and sw.locked_exit != "":
+				_locked_exits[sw.locked_exit] = not is_on
 
 
 ## Returns the nearest friendly NPC within interaction range, or null.

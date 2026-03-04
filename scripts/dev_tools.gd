@@ -122,6 +122,7 @@ func _build_state() -> Dictionary:
 			"x": snappedf(p.global_position.x, 0.01),
 			"y": snappedf(p.global_position.y, 0.01),
 			"hp": p.hp if "hp" in p else -1,
+			"has_wand": p.has_wand if "has_wand" in p else false,
 		}
 	else:
 		state["player"] = null
@@ -129,6 +130,7 @@ func _build_state() -> Dictionary:
 	var main := get_tree().get_root().get_node_or_null("Main")
 	if main != null and "current_room_name" in main:
 		state["room"] = main.current_room_name
+		state["level"] = main.current_level_name if "current_level_name" in main else null
 		var db = main.get_node_or_null("HUD/DialogBox")
 		state["dialog_active"] = db != null and db.is_active()
 		if main.current_room != null:
@@ -140,6 +142,7 @@ func _build_state() -> Dictionary:
 				state["npcs"] = npc_positions
 	else:
 		state["room"] = null
+		state["level"] = null
 
 	return state
 

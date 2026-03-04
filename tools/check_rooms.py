@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 """
-check_rooms.py – Validate that room exits and ROOM_CONNECTIONS in main.gd are
+check_rooms.py – Validate that room exits and level connections in main.gd are
 consistent with one another.
 
 Run from the project root:
     python3 tools/check_rooms.py
 
 What it checks:
-  1. Every room listed in ROOM_CONNECTIONS has a matching .tscn file under scenes/.
-  2. For each direction in ROOM_CONNECTIONS[room], the source room .tscn contains
+  1. Every room listed in connections has a matching .tscn file under scenes/.
+  2. For each direction in connections[room], the source room .tscn contains
      an Exit<Direction> Area2D node.
-  3. The destination room is also listed in ROOM_CONNECTIONS (or is a terminal).
+  3. The destination room is also listed in connections (or is a terminal).
   4. The entry y-coordinate matches the exit trigger y-coordinate in the destination
      room's reverse-direction exit (doors should visually line up).
   5. The entry position is within the room's playable area (roughly 24-616 x,
      24-456 y for a 640x480 room with 24-px walls).
-  6. For each exit found in a .tscn, a matching ROOM_CONNECTIONS entry exists.
+  6. For each exit found in a .tscn, a matching connections entry exists.
+
+Supports both the legacy flat ROOM_CONNECTIONS dict and the new LEVELS dict
+introduced by the level-system refactor.
 """
 
 import os
@@ -60,21 +63,12 @@ def _extract_balanced(text, start):
     raise ValueError("Unmatched brace")
 
 
-def parse_room_connections(path):
+def _parse_connections_block(block):
     """
-    Extract ROOM_CONNECTIONS from main.gd.
+    Parse a connections dict block (the inner part of a connections: {...}).
     Returns {room_name: {direction: {"room": str, "entry": (x, y)}}}
     """
-    with open(path) as f:
-        src = f.read()
-
     connections = {}
-
-    block_start = src.find('const ROOM_CONNECTIONS')
-    if block_start == -1:
-        raise ValueError("Could not find ROOM_CONNECTIONS in main.gd")
-
-    outer_block = _extract_balanced(src, block_start)
 
     room_key_re = re.compile(r'"(room_\w+)"\s*:')
     dir_re = re.compile(
@@ -85,11 +79,11 @@ def parse_room_connections(path):
 
     pos = 0
     while True:
-        m = room_key_re.search(outer_block, pos)
+        m = room_key_re.search(block, pos)
         if not m:
             break
         room_name = m.group(1)
-        inner = _extract_balanced(outer_block, m.end())
+        inner = _extract_balanced(block, m.end())
         connections[room_name] = {}
         for dm in dir_re.finditer(inner):
             direction, dest_room, ex, ey = dm.groups()
@@ -100,6 +94,43 @@ def parse_room_connections(path):
         pos = m.end()
 
     return connections
+
+
+def parse_room_connections(path):
+    """
+    Extract room connections from main.gd.
+    Supports both the legacy flat ROOM_CONNECTIONS dict and the new LEVELS
+    dict.  All connections from all levels are merged and returned as:
+      {room_name: {direction: {"room": str, "entry": (x, y)}}}
+    """
+    with open(path) as f:
+        src = f.read()
+
+    # ---- New LEVELS structure -----------------------------------------------
+    levels_start = src.find('const LEVELS')
+    if levels_start != -1:
+        connections = {}
+        outer_block = _extract_balanced(src, levels_start)
+
+        # Each top-level entry is a level name; find every "connections": {...}
+        # sub-block inside the outer LEVELS block.
+        conn_key_re = re.compile(r'"connections"\s*:')
+        for cm in conn_key_re.finditer(outer_block):
+            conn_block = _extract_balanced(outer_block, cm.end())
+            level_conns = _parse_connections_block(conn_block)
+            # Merge; last write wins if the same room appears in multiple levels.
+            connections.update(level_conns)
+        return connections
+
+    # ---- Legacy ROOM_CONNECTIONS structure ----------------------------------
+    block_start = src.find('const ROOM_CONNECTIONS')
+    if block_start == -1:
+        raise ValueError(
+            "Could not find LEVELS or ROOM_CONNECTIONS in main.gd"
+        )
+
+    outer_block = _extract_balanced(src, block_start)
+    return _parse_connections_block(outer_block)
 
 
 def find_exit_nodes(tscn_path):
@@ -135,7 +166,7 @@ def check_rooms():
 
     connections = parse_room_connections(MAIN_GD)
 
-    # Pre-load exit info for every room listed in ROOM_CONNECTIONS
+    # Pre-load exit info for every room listed in connections
     room_exits = {}
     for room_name in connections:
         tscn = os.path.join(SCENES_DIR, "{}.tscn".format(room_name))
@@ -145,7 +176,7 @@ def check_rooms():
             continue
         room_exits[room_name] = find_exit_nodes(tscn)
 
-    # Also scan all room .tscn files to catch exits not listed in ROOM_CONNECTIONS
+    # Also scan all room .tscn files to catch exits not listed in connections
     all_tscns = sorted(
         f for f in os.listdir(SCENES_DIR)
         if f.startswith("room_") and f.endswith(".tscn")
@@ -161,11 +192,11 @@ def check_rooms():
                     direction not in connections.get(room_name, {})):
                 issues.append(
                     "[ORPHAN EXIT] {}.tscn has Exit{} "
-                    "but no matching entry in ROOM_CONNECTIONS[\"{}\"]".format(
+                    "but no matching entry in the level connections for \"{}\".".format(
                         room_name, direction.capitalize(), room_name)
                 )
 
-    # Check every ROOM_CONNECTIONS entry
+    # Check every connections entry
     for room_name, dirs in connections.items():
         tscn_exits = room_exits.get(room_name, {})
 
@@ -177,7 +208,7 @@ def check_rooms():
             if direction not in tscn_exits:
                 issues.append(
                     "[MISSING EXIT NODE] {}.tscn has no Exit{} "
-                    "but ROOM_CONNECTIONS expects one.".format(
+                    "but level connections expects one.".format(
                         room_name, direction.capitalize())
                 )
                 continue
