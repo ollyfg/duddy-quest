@@ -41,6 +41,7 @@ var _step_start: Vector2 = Vector2.ZERO
 @onready var melee_area: Area2D = $MeleeArea
 @onready var projectile_spawn: Marker2D = $ProjectileSpawn
 @onready var sprite: ColorRect = $Sprite
+@onready var camera: Camera2D = $Camera2D
 
 
 func _ready() -> void:
@@ -149,6 +150,13 @@ func take_damage(amount: int) -> void:
 
 func apply_knockback(direction: Vector2) -> void:
 	_knockback_velocity = direction.normalized() * KNOCKBACK_SPEED
+
+
+func set_camera_limits(rect: Rect2) -> void:
+	camera.limit_left = int(rect.position.x)
+	camera.limit_top = int(rect.position.y)
+	camera.limit_right = int(rect.position.x + rect.size.x)
+	camera.limit_bottom = int(rect.position.y + rect.size.y)
 
 
 func _on_melee_area_body_entered(body: Node) -> void:
