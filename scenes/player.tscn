@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3 uid="uid://player"]
+
+[ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/projectile.tscn" id="2_proj"]
+
+[sub_resource type="RectangleShape2D" id="RectSh_body"]
+size = Vector2(24, 24)
+
+[sub_resource type="RectangleShape2D" id="RectSh_melee"]
+size = Vector2(28, 28)
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_player")
+projectile_scene = ExtResource("2_proj")
+
+[node name="Sprite" type="ColorRect" parent="."]
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+color = Color(0, 0.75, 0.2, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectSh_body")
+
+[node name="MeleeArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MeleeArea"]
+shape = SubResource("RectSh_melee")
+
+[node name="ProjectileSpawn" type="Marker2D" parent="."]
+
+[connection signal="body_entered" from="MeleeArea" to="." method="_on_melee_area_body_entered"]
