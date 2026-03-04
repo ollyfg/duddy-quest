@@ -54,12 +54,15 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	var level_name := "training"
 	var idx := args.find("--level")
-	if idx >= 0 and idx + 1 < args.size():
-		var requested: String = args[idx + 1]
-		if requested in LEVELS:
-			level_name = requested
+	if idx >= 0:
+		if idx + 1 < args.size():
+			var requested: String = args[idx + 1]
+			if requested in LEVELS:
+				level_name = requested
+			else:
+				push_warning("Unknown level '%s', falling back to 'training'." % requested)
 		else:
-			push_warning("Unknown level '%s', falling back to 'training'." % requested)
+			push_warning("--level flag provided without a value, using 'training'.")
 
 	_load_level(level_name)
 

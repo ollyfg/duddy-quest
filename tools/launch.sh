@@ -94,9 +94,10 @@ if [ ! -f "$PROJECT_DIR/.godot/uid_cache.bin" ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Start Godot
+# Start Godot (nohup ensures it outlives the calling interactive shell)
 # ---------------------------------------------------------------------------
-DISPLAY=":$DISPLAY_NUM" "$GODOT" --path "$PROJECT_DIR" -- --dev-tools &
+nohup env DISPLAY=":$DISPLAY_NUM" "$GODOT" --path "$PROJECT_DIR" -- --dev-tools \
+    > /tmp/duddy_quest_godot.log 2>&1 &
 GODOT_PID=$!
 echo "$GODOT_PID" > "$GODOT_PID_FILE"
 

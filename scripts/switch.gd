@@ -7,6 +7,9 @@ signal toggled(switch_id: String, is_on: bool)
 @export var id: String = "switch"
 ## Starting state of the switch.
 @export var starts_on: bool = false
+## When non-empty, this switch gates the named exit direction (e.g. "east").
+## The exit is LOCKED while the switch is OFF and UNLOCKED when it is ON.
+@export var locked_exit: String = ""
 
 var is_on: bool = false
 
