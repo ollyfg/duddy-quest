@@ -107,7 +107,7 @@ shape = SubResource("Sh_exit")
 [node name="NPCs" type="Node2D" parent="."]
 
 [node name="KeepDistanceEnemy" parent="NPCs" instance=ExtResource("2_npc")]
-position = Vector2(450.0, 160.0)
+position = Vector2(448.0, 160.0)
 is_hostile = true
 movement_mode = 4
 keep_distance_preferred = 180.0
@@ -117,6 +117,6 @@ projectile_scene = ExtResource("3_projectile")
 shoot_cooldown = 2.5
 
 [node name="ChaseEnemy" parent="NPCs" instance=ExtResource("2_npc")]
-position = Vector2(380.0, 320.0)
+position = Vector2(384.0, 320.0)
 is_hostile = true
 detection_range = 220.0

@@ -124,6 +124,6 @@ shape = SubResource("Sh_exit")
 [node name="NPCs" type="Node2D" parent="."]
 
 [node name="StationaryNPC" parent="NPCs" instance=ExtResource("2_npc")]
-position = Vector2(320.0, 150.0)
+position = Vector2(320.0, 144.0)
 movement_mode = 1
 dialog_lines = ["I stand here and watch the world go by.", "Sometimes stillness is the greatest wisdom.", "The east passage leads to a dangerous training ground."]
