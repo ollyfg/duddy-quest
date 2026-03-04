@@ -35,6 +35,13 @@ func _show_current_line() -> void:
 	next_button.text = "Close" if _current_line >= _lines.size() - 1 else "Next"
 
 
+func _process(_delta: float) -> void:
+	if not _active:
+		return
+	if Input.is_action_just_pressed("melee_attack") or Input.is_action_just_pressed("ranged_attack"):
+		_on_next_pressed()
+
+
 func _on_next_pressed() -> void:
 	_current_line += 1
 	if _current_line >= _lines.size():

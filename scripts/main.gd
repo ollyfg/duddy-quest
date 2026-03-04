@@ -31,7 +31,6 @@ var current_room = null
 
 func _ready() -> void:
 	player.add_to_group("player")
-	player.interacted.connect(_on_player_interact)
 	player.hp_changed.connect(_update_hp_display)
 	_load_room("room_a", Vector2(100.0, 240.0))
 
@@ -47,10 +46,13 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	current_room.exit_triggered.connect(_on_exit_triggered)
 
 	# Give NPCs a reference to the player for hostile chase behaviour.
+	# Connect friendly NPC interaction signals.
 	if current_room.has_node("NPCs"):
 		for npc in current_room.get_node("NPCs").get_children():
 			if npc.has_method("set_player_reference"):
 				npc.set_player_reference(player)
+			if not npc.is_hostile:
+				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 
 	player.global_position = player_pos
 	_update_hp_display(player.hp)
@@ -66,12 +68,10 @@ func _on_exit_triggered(direction: String) -> void:
 	_load_room(next["room"], next["entry"])
 
 
-func _on_player_interact() -> void:
-	if current_room == null or dialog_box.is_active():
+func _on_npc_interaction_requested(npc: Node) -> void:
+	if dialog_box.is_active():
 		return
-	var nearby = current_room.get_nearby_npc(player.global_position)
-	if nearby:
-		dialog_box.start_dialog(nearby.dialog_lines)
+	dialog_box.start_dialog(npc.dialog_lines)
 
 
 func _update_hp_display(new_hp: int) -> void:
