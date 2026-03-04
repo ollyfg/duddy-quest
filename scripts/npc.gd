@@ -12,17 +12,28 @@ extends CharacterBody2D
 
 ## Controls how this NPC moves.  DEFAULT falls back to CHASE when is_hostile
 ## is true, and WANDER otherwise, preserving existing behaviour.
-enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, JOSTLING }
+enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE }
 @export var movement_mode: MovementMode = MovementMode.DEFAULT
+
+## Movement mode used when the player is outside detection_range.
+## Only applied to hostile NPCs; friendly NPCs always use their movement_mode.
+@export var idle_movement_mode: MovementMode = MovementMode.WANDER
+
+## How close the player must get before this enemy activates.
+## Set to 0 to always be active.
+@export var detection_range: float = 200.0
 
 ## Preferred stand-off distance used by the KEEP_DISTANCE mode.
 @export var keep_distance_preferred: float = 180.0
 
+## When true this enemy fires projectiles at the player while in range.
+@export var can_shoot: bool = false
+@export var projectile_scene: PackedScene = null
+@export var shoot_cooldown: float = 2.0
+
 signal interaction_requested
 
 const KNOCKBACK_SPEED: float = 250.0
-## Distance within which JOSTLING replaces straight chasing.
-const JOSTLE_RANGE: float = 150.0
 ## Inner and outer bounds for KEEP_DISTANCE mode.
 const KEEP_DIST_MARGIN: float = 50.0
 
@@ -31,7 +42,7 @@ var _wander_timer: float = 0.0
 var _wander_dir: Vector2 = Vector2.ZERO
 var _player_ref: Node = null
 var _knockback_velocity: Vector2 = Vector2.ZERO
-var _jostle_timer: float = 0.0
+var _shoot_timer: float = 0.0
 
 @onready var sprite: ColorRect = $Sprite
 
@@ -52,26 +63,46 @@ func _physics_process(delta: float) -> void:
 	if mode == MovementMode.DEFAULT:
 		mode = MovementMode.CHASE if is_hostile else MovementMode.WANDER
 
-	match mode:
-		MovementMode.STATIONARY:
-			velocity = Vector2.ZERO
-		MovementMode.WANDER:
-			_wander(delta)
-		MovementMode.CHASE:
-			if _player_ref:
-				_chase_player()
-			else:
+	# Determine whether the player is within detection range.
+	var in_range: bool = true
+	if is_hostile and _player_ref and detection_range > 0.0:
+		in_range = global_position.distance_to(_player_ref.global_position) <= detection_range
+
+	if not in_range:
+		# Use idle behaviour while player is far away.
+		var idle: MovementMode = idle_movement_mode
+		if idle == MovementMode.DEFAULT:
+			idle = MovementMode.WANDER
+		match idle:
+			MovementMode.STATIONARY:
 				velocity = Vector2.ZERO
-		MovementMode.KEEP_DISTANCE:
-			if _player_ref:
-				_keep_distance()
-			else:
+			MovementMode.WANDER:
+				_wander(delta)
+			_:
 				velocity = Vector2.ZERO
-		MovementMode.JOSTLING:
-			if _player_ref:
-				_jostle(delta)
-			else:
+	else:
+		match mode:
+			MovementMode.STATIONARY:
 				velocity = Vector2.ZERO
+			MovementMode.WANDER:
+				_wander(delta)
+			MovementMode.CHASE:
+				if _player_ref:
+					_chase_player()
+				else:
+					velocity = Vector2.ZERO
+			MovementMode.KEEP_DISTANCE:
+				if _player_ref:
+					_keep_distance()
+				else:
+					velocity = Vector2.ZERO
+
+		# Ranged attack when in range and able to shoot.
+		if can_shoot and _player_ref:
+			_shoot_timer -= delta
+			if _shoot_timer <= 0.0:
+				_shoot_timer = shoot_cooldown
+				_fire_projectile()
 
 	velocity += _knockback_velocity
 	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * 6.0)
@@ -116,23 +147,16 @@ func _keep_distance() -> void:
 		velocity = Vector2.ZERO
 
 
-## Circles and hops around the player in close combat, changing direction
-## frequently to be unpredictable.  Chases normally when far away.
-func _jostle(delta: float) -> void:
-	var to_player: Vector2 = _player_ref.global_position - global_position
-	var dist: float = to_player.length()
-	_jostle_timer -= delta
-	if dist > JOSTLE_RANGE:
-		# Close the gap first.
-		velocity = to_player.normalized() * move_speed
-	elif _jostle_timer <= 0.0:
-		_jostle_timer = randf_range(0.2, 0.55)
-		# Blend a perpendicular (circling) component with a small advance/retreat.
-		var perp: Vector2 = Vector2(-to_player.y, to_player.x).normalized()
-		if randf() < 0.5:
-			perp = -perp
-		var forward_bias: float = randf_range(-0.3, 0.5)
-		velocity = (perp + to_player.normalized() * forward_bias).normalized() * move_speed
+## Fire a projectile toward the player.
+func _fire_projectile() -> void:
+	if projectile_scene == null or _player_ref == null:
+		return
+	var projectile: CharacterBody2D = projectile_scene.instantiate()
+	var dir: Vector2 = (_player_ref.global_position - global_position).normalized()
+	projectile.setup(dir, true)
+	# Add to the room node (grandparent of this NPC: Room → NPCs → NPC).
+	get_parent().get_parent().add_child(projectile)
+	projectile.global_position = global_position
 
 
 func take_damage(amount: int) -> void:
