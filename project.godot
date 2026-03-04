@@ -26,6 +26,8 @@ window/size/viewport_width=640
 window/size/viewport_height=480
 window/size/window_width_override=640
 window/size/window_height_override=520
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [input]
 
