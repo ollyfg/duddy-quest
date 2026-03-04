@@ -1,32 +1,36 @@
 extends Node2D
 
-# Maps room names to their preloaded scenes.
-const ROOMS: Dictionary = {
-	"room_a": preload("res://scenes/room_a.tscn"),
-	"room_b": preload("res://scenes/room_b.tscn"),
-	"room_c": preload("res://scenes/room_c.tscn"),
-	"room_d": preload("res://scenes/room_d.tscn"),
+# Each level groups its rooms, connections, starting room and starting position.
+const LEVELS: Dictionary = {
+	"training": {
+		"start_room": "room_a",
+		"start_pos": Vector2(96.0, 240.0),
+		"rooms": {
+			"room_a": preload("res://scenes/room_a.tscn"),
+			"room_b": preload("res://scenes/room_b.tscn"),
+			"room_c": preload("res://scenes/room_c.tscn"),
+			"room_d": preload("res://scenes/room_d.tscn"),
+		},
+		"connections": {
+			"room_a": {
+				"east": {"room": "room_b", "entry": Vector2(64.0, 240.0)},
+			},
+			"room_b": {
+				"west": {"room": "room_a", "entry": Vector2(576.0, 240.0)},
+				"east": {"room": "room_c", "entry": Vector2(64.0, 240.0)},
+			},
+			"room_c": {
+				"west": {"room": "room_b", "entry": Vector2(576.0, 240.0)},
+				"east": {"room": "room_d", "entry": Vector2(64.0, 240.0)},
+			},
+			"room_d": {
+				"west": {"room": "room_c", "entry": Vector2(576.0, 240.0)},
+			},
+		},
+	},
 }
 
-# For each room, defines which direction leads to which room and where the
-# player appears on arrival (entry position in the destination room).
-const ROOM_CONNECTIONS: Dictionary = {
-	"room_a": {
-		"east": {"room": "room_b", "entry": Vector2(64.0, 240.0)},
-	},
-	"room_b": {
-		"west": {"room": "room_a", "entry": Vector2(576.0, 240.0)},
-		"east": {"room": "room_c", "entry": Vector2(64.0, 240.0)},
-	},
-	"room_c": {
-		"west": {"room": "room_b", "entry": Vector2(576.0, 240.0)},
-		"east": {"room": "room_d", "entry": Vector2(64.0, 240.0)},
-	},
-	"room_d": {
-		"west": {"room": "room_c", "entry": Vector2(576.0, 240.0)},
-	},
-}
-
+var current_level_name: String = ""
 var current_room_name: String = ""
 # Untyped to allow calling room.gd methods (get_nearby_npc, exit_triggered).
 var current_room = null
@@ -37,13 +41,33 @@ var current_room = null
 # Untyped to allow calling dialog_box.gd methods (is_active, start_dialog).
 @onready var dialog_box = $HUD/DialogBox
 @onready var hp_label: Label = $HUD/HPLabel
+@onready var wand_label: Label = $HUD/WandLabel
 
 
 func _ready() -> void:
 	player.add_to_group("player")
 	player.hp_changed.connect(_update_hp_display)
+	player.wand_acquired.connect(_on_wand_acquired)
 	dialog_box.dialog_ended.connect(_on_dialog_ended)
-	_load_room("room_a", Vector2(96.0, 240.0))
+
+	# Allow launching into a specific level via --level <name> CLI argument.
+	var args := OS.get_cmdline_user_args()
+	var level_name := "training"
+	var idx := args.find("--level")
+	if idx >= 0 and idx + 1 < args.size():
+		var requested: String = args[idx + 1]
+		if requested in LEVELS:
+			level_name = requested
+		else:
+			push_warning("Unknown level '%s', falling back to 'training'." % requested)
+
+	_load_level(level_name)
+
+
+func _load_level(level_name: String) -> void:
+	current_level_name = level_name
+	var level: Dictionary = LEVELS[level_name]
+	_load_room(level["start_room"], level["start_pos"])
 
 
 func _load_room(room_name: String, player_pos: Vector2) -> void:
@@ -52,7 +76,8 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 		await get_tree().process_frame
 
 	current_room_name = room_name
-	current_room = ROOMS[room_name].instantiate()
+	var level_rooms: Dictionary = LEVELS[current_level_name]["rooms"]
+	current_room = level_rooms[room_name].instantiate()
 	room_holder.add_child(current_room)
 	current_room.exit_triggered.connect(_on_exit_triggered)
 
@@ -67,12 +92,13 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 
 	player.global_position = player_pos
 	_update_hp_display(player.hp)
+	_update_wand_display()
 
 
 func _on_exit_triggered(direction: String) -> void:
-	if current_room_name not in ROOM_CONNECTIONS:
+	if current_room_name not in LEVELS[current_level_name]["connections"]:
 		return
-	var connections: Dictionary = ROOM_CONNECTIONS[current_room_name]
+	var connections: Dictionary = LEVELS[current_level_name]["connections"][current_room_name]
 	if direction not in connections:
 		return
 	var next: Dictionary = connections[direction]
@@ -99,3 +125,11 @@ func _set_dialog_active(active: bool) -> void:
 
 func _update_hp_display(new_hp: int) -> void:
 	hp_label.text = "HP: " + str(new_hp)
+
+
+func _on_wand_acquired() -> void:
+	_update_wand_display()
+
+
+func _update_wand_display() -> void:
+	wand_label.text = "Wand: " + ("YES" if player.has_wand else "NO")

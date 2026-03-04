@@ -15,11 +15,28 @@ func _ready() -> void:
 			get_node(node_name).body_entered.connect(
 				_on_exit_body_entered.bind(dir)
 			)
+	# Connect any switches so they can affect doors in this room.
+	if has_node("Switches"):
+		for sw in get_node("Switches").get_children():
+			if sw.has_signal("toggled"):
+				sw.toggled.connect(_on_switch_toggled)
 
 
 func _on_exit_body_entered(body: Node, direction: String) -> void:
 	if body.is_in_group("player"):
 		exit_triggered.emit(direction)
+
+
+## Called when a switch is toggled.  Finds a matching door under the Doors
+## node (named "Door_<switch_id>") and shows/hides it.
+func _on_switch_toggled(switch_id: String, is_on: bool) -> void:
+	var door_path := "Doors/Door_" + switch_id
+	if has_node(door_path):
+		var door := get_node(door_path)
+		door.visible = not is_on
+		var col := door.get_node_or_null("CollisionShape2D")
+		if col:
+			col.set_deferred("disabled", is_on)
 
 
 ## Returns the nearest friendly NPC within interaction range, or null.

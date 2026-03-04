@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://room_b"]
+[gd_scene load_steps=9 format=3 uid="uid://room_b"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
+[ext_resource type="PackedScene" path="res://scenes/switch.tscn" id="3_switch"]
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall"]
 size = Vector2(640, 24)
@@ -14,6 +15,9 @@ size = Vector2(24, 216)
 
 [sub_resource type="RectangleShape2D" id="Sh_exit"]
 size = Vector2(12, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_door"]
+size = Vector2(24, 48)
 
 [node name="Room" type="Node2D"]
 script = ExtResource("1_room")
@@ -83,7 +87,7 @@ mouse_filter = 2
 shape = SubResource("Sh_rwall_seg")
 
 [node name="ExitEast" type="Area2D" parent="."]
-position = Vector2(622, 240)
+position = Vector2(634, 240)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]
@@ -129,3 +133,25 @@ shape = SubResource("Sh_exit")
 [node name="Enemy" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(400.0, 200.0)
 is_hostile = true
+
+[node name="Switches" type="Node2D" parent="."]
+
+[node name="EastDoorSwitch" parent="Switches" instance=ExtResource("3_switch")]
+position = Vector2(200.0, 150.0)
+id = "east_door"
+
+[node name="Doors" type="Node2D" parent="."]
+
+[node name="Door_east_door" type="StaticBody2D" parent="Doors"]
+position = Vector2(628, 240)
+
+[node name="Sprite" type="ColorRect" parent="Doors/Door_east_door"]
+offset_left = -12.0
+offset_top = -24.0
+offset_right = 12.0
+offset_bottom = 24.0
+color = Color(0.6, 0.1, 0.1, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Doors/Door_east_door"]
+shape = SubResource("Sh_door")

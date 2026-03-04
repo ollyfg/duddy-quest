@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 signal hp_changed(new_hp: int)
 signal died
+signal wand_acquired
 
 const SPEED: float = 150.0
 const MELEE_COOLDOWN: float = 0.5
@@ -18,6 +19,12 @@ var hp: int = MAX_HP:
 	set(value):
 		hp = clampi(value, 0, MAX_HP)
 		hp_changed.emit(hp)
+
+var has_wand: bool = false:
+	set(value):
+		has_wand = value
+		if value:
+			wand_acquired.emit()
 
 var facing: Vector2 = Vector2.DOWN
 
@@ -120,7 +127,7 @@ func _perform_melee() -> void:
 
 
 func _perform_ranged() -> void:
-	if _shoot_timer > 0.0 or projectile_scene == null:
+	if _shoot_timer > 0.0 or projectile_scene == null or not has_wand:
 		return
 	_shoot_timer = SHOOT_COOLDOWN
 	var projectile: CharacterBody2D = projectile_scene.instantiate()
@@ -145,6 +152,8 @@ func apply_knockback(direction: Vector2) -> void:
 
 
 func _on_melee_area_body_entered(body: Node) -> void:
+	if body.has_method("on_hit"):
+		body.on_hit()
 	if body.has_method("take_damage"):
 		body.take_damage(1)
 	if body.has_method("apply_knockback"):
