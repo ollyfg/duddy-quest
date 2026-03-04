@@ -1,6 +1,13 @@
 # Godot 4+ specific ignores
 .godot/
 
+# Downloaded Godot binary (installed by tools/install_godot.sh)
+tools/godot4
+
+# Python cache
+__pycache__/
+*.pyc
+
 # Export artifacts
 *.apk
 *.ipa
