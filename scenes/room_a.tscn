@@ -1,0 +1,109 @@
+[gd_scene load_steps=7 format=3 uid="uid://room_a"]
+
+[ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
+
+[sub_resource type="RectangleShape2D" id="Sh_hwall"]
+size = Vector2(640, 24)
+
+[sub_resource type="RectangleShape2D" id="Sh_lwall"]
+size = Vector2(24, 480)
+
+[sub_resource type="RectangleShape2D" id="Sh_rwall_seg"]
+size = Vector2(24, 216)
+
+[sub_resource type="RectangleShape2D" id="Sh_exit"]
+size = Vector2(12, 48)
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+
+[node name="Floor" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.15, 0.3, 0.1, 1)
+mouse_filter = 2
+
+[node name="TopWall" type="StaticBody2D" parent="."]
+position = Vector2(320, 12)
+
+[node name="Sprite" type="ColorRect" parent="TopWall"]
+offset_left = -320.0
+offset_top = -12.0
+offset_right = 320.0
+offset_bottom = 12.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWall"]
+shape = SubResource("Sh_hwall")
+
+[node name="BottomWall" type="StaticBody2D" parent="."]
+position = Vector2(320, 468)
+
+[node name="Sprite" type="ColorRect" parent="BottomWall"]
+offset_left = -320.0
+offset_top = -12.0
+offset_right = 320.0
+offset_bottom = 12.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWall"]
+shape = SubResource("Sh_hwall")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(12, 240)
+
+[node name="Sprite" type="ColorRect" parent="LeftWall"]
+offset_left = -12.0
+offset_top = -240.0
+offset_right = 12.0
+offset_bottom = 240.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("Sh_lwall")
+
+[node name="RightWallTop" type="StaticBody2D" parent="."]
+position = Vector2(628, 108)
+
+[node name="Sprite" type="ColorRect" parent="RightWallTop"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallTop"]
+shape = SubResource("Sh_rwall_seg")
+
+[node name="RightWallBottom" type="StaticBody2D" parent="."]
+position = Vector2(628, 372)
+
+[node name="Sprite" type="ColorRect" parent="RightWallBottom"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallBottom"]
+shape = SubResource("Sh_rwall_seg")
+
+[node name="ExitEast" type="Area2D" parent="."]
+position = Vector2(622, 240)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]
+shape = SubResource("Sh_exit")
+
+[node name="NPCs" type="Node2D" parent="."]
+
+[node name="FriendlyNPC" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(250.0, 200.0)
+dialog_lines = ["I say! These wizarding folk are quite odd.", "Perhaps I should have been nicer to Harry...", "The east passage leads deeper into the unknown."]

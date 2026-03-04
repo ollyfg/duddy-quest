@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3 uid="uid://dialog_box"]
+
+[ext_resource type="Script" path="res://scripts/dialog_box.gd" id="1_dlg"]
+
+[node name="DialogBox" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_dlg")
+
+[node name="Panel" type="Panel" parent="."]
+offset_left = 80.0
+offset_top = 360.0
+offset_right = 560.0
+offset_bottom = 460.0
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+
+[node name="DialogLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+text = ""
+autowrap_mode = 3
+
+[node name="NextButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Next"
