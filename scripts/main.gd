@@ -3,6 +3,8 @@ extends Node2D
 # Each level groups its rooms, connections, starting room and starting position.
 const LEVELS: Dictionary = {
 	"training": {
+		"title": "Training",
+		"next_level": "",
 		"start_room": "room_a",
 		"start_pos": Vector2(96.0, 240.0),
 		"rooms": {
@@ -96,6 +98,11 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	current_room = level_rooms[room_name].instantiate()
 	room_holder.add_child(current_room)
 	current_room.exit_triggered.connect(_on_exit_triggered)
+
+	# Connect level-end triggers.
+	for trigger in get_tree().get_nodes_in_group("level_end"):
+		if trigger.has_signal("level_end_reached") and not trigger.level_end_reached.is_connected(_on_level_end_reached):
+			trigger.level_end_reached.connect(_on_level_end_reached.bind(trigger))
 
 	# Restore saved state (remove dead NPCs, reapply positions/HP) before
 	# connecting any signals so we never wire up nodes about to be freed.
@@ -251,6 +258,32 @@ func _on_wand_acquired() -> void:
 
 func _update_wand_display() -> void:
 	mobile_controls.set_ranged_visible(player.has_wand)
+
+
+func _on_level_end_reached(trigger: Node) -> void:
+	player.is_in_dialog = true
+	var slides: Array = trigger.end_cutscene_slides
+	var _do_complete := func(): _show_level_complete(trigger)
+	if slides.size() > 0:
+		play_cutscene(slides, _do_complete)
+	else:
+		_do_complete.call()
+
+
+func _show_level_complete(trigger: Node) -> void:
+	GameState.mark_complete(current_level_name)
+	var lc_scene: PackedScene = load("res://scenes/level_complete.tscn")
+	var lc: Node = lc_scene.instantiate()
+	lc.level_title = LEVELS[current_level_name].get("title", current_level_name)
+	add_child(lc)
+	lc.continue_pressed.connect(func():
+		lc.queue_free()
+		var next: String = trigger.next_level if trigger.next_level != "" else LEVELS[current_level_name].get("next_level", "")
+		if next != "" and next in LEVELS:
+			_load_level(next)
+		else:
+			get_tree().change_scene_to_file("res://scenes/level_select.tscn")
+	)
 
 
 func play_cutscene(slides: Array, on_finish: Callable) -> void:
