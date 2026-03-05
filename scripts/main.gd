@@ -47,6 +47,8 @@ var _room_states: Dictionary = {}
 @onready var hp_label: Label = $HUD/HPLabel
 @onready var mobile_controls = $MobileControls
 
+var _cinematic_player: Node = null
+
 
 func _ready() -> void:
 	player.add_to_group("player")
@@ -126,6 +128,14 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	player.set_camera_limits(current_room.get_room_rect())
 	_update_hp_display(player.hp)
 	_update_wand_display()
+
+	# Demo cinematic on first entry to room_a.
+	if room_name == "room_a" and "room_a" not in _room_states:
+		if current_room.has_node("NPCs") and current_room.get_node("NPCs").get_child_count() > 0:
+			var npc_path: String = "NPCs/" + current_room.get_node("NPCs").get_child(0).name
+			play_cinematic([
+				{"type": "dialog", "speaker": npc_path, "lines": ["Welcome to the training area, Dudley!"]},
+			], func() -> void: pass)
 
 
 ## Snapshot the current room's NPC, item, and switch states before transitioning away.
@@ -284,6 +294,15 @@ func _show_level_complete(trigger: Node) -> void:
 		else:
 			get_tree().change_scene_to_file("res://scenes/level_select.tscn")
 	)
+
+
+func play_cinematic(sequence: Array, on_finish: Callable) -> void:
+	if _cinematic_player == null:
+		_cinematic_player = Node.new()
+		_cinematic_player.set_script(load("res://scripts/cinematic_player.gd"))
+		add_child(_cinematic_player)
+	_cinematic_player.sequence_finished.connect(on_finish, CONNECT_ONE_SHOT)
+	_cinematic_player.play(sequence, current_room, player, dialog_box)
 
 
 func play_cutscene(slides: Array, on_finish: Callable) -> void:

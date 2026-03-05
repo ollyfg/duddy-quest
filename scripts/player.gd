@@ -34,6 +34,7 @@ var has_wand: bool = false:
 var facing: Vector2 = Vector2.DOWN
 
 var is_in_dialog: bool = false
+var cinematic_mode: bool = false
 
 var _melee_timer: float = 0.0
 var _shoot_timer: float = 0.0
@@ -65,6 +66,12 @@ func _physics_process(delta: float) -> void:
 	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * 6.0)
 
 	if is_in_dialog:
+		velocity = Vector2.ZERO
+		_moving = false
+		move_and_slide()
+		return
+
+	if cinematic_mode:
 		velocity = Vector2.ZERO
 		_moving = false
 		move_and_slide()
