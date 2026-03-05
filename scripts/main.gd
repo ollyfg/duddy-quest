@@ -189,7 +189,7 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 
 	# Connect the bedroom door hint signal (fires first time player bumps door).
 	if room_name == "l1_bedroom":
-		var door := current_room.get_node_or_null("MagicDoor")
+		var door: Node = current_room.get_node_or_null("MagicDoor")
 		if door != null and door.has_signal("door_approached"):
 			door.door_approached.connect(_on_bedroom_door_approached)
 
@@ -308,8 +308,7 @@ func _on_npc_interaction_requested(npc: Node) -> void:
 func _pick_npc_dialog(npc: Node) -> Array:
 	# Key-accepting NPC and the player already carries the required key.
 	if npc.requires_key_id != "" and player.has_key(npc.requires_key_id):
-		var accept := npc.key_accept_dialog as Array
-		return accept if not accept.is_empty() else npc.dialog_lines
+		return npc.key_accept_dialog if not npc.key_accept_dialog.is_empty() else npc.dialog_lines
 
 	# Work out whether any flag gate applies to this NPC.
 	var gate_flag: String = ""
@@ -319,8 +318,7 @@ func _pick_npc_dialog(npc: Node) -> Array:
 		gate_flag = npc.requires_flag
 
 	if gate_flag != "" and not GameState.has_flag(gate_flag):
-		var pre := npc.pre_flag_dialog as Array
-		return pre if not pre.is_empty() else ["..."]
+		return npc.pre_flag_dialog if not npc.pre_flag_dialog.is_empty() else ["..."]
 
 	return npc.dialog_lines
 
@@ -358,12 +356,10 @@ func _on_dialog_ended() -> void:
 		return
 
 	# Apply any post-interaction effects for the NPC whose dialog just ended.
-	if _interacting_npc != null and not _interacting_npc.is_queued_for_deletion():
-		var npc: Node = _interacting_npc
-		_interacting_npc = null
+	var npc: Node = _interacting_npc
+	_interacting_npc = null
+	if npc != null and not npc.is_queued_for_deletion():
 		_handle_post_npc_dialog(npc)
-	else:
-		_interacting_npc = null
 
 
 ## Apply post-dialog effects: give keys, accept keys, set game flags.

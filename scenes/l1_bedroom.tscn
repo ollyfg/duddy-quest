@@ -107,7 +107,7 @@ mouse_filter = 2
 shape = SubResource("Sh_vwall_seg")
 
 [node name="ExitEast" type="Area2D" parent="."]
-position = Vector2(622, 240)
+position = Vector2(636, 240)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]

@@ -17,6 +17,8 @@ func _ready() -> void:
 func _on_hint_area_body_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		door_approached.emit()
+		# Disconnect so the signal fires at most once per room visit.
+		get_node("HintArea").body_entered.disconnect(_on_hint_area_body_entered)
 
 
 func on_rage_attack() -> void:
