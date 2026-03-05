@@ -113,7 +113,7 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	_update_wand_display()
 
 
-## Snapshot the current room's NPC states before transitioning away.
+## Snapshot the current room's NPC, item, and switch states before transitioning away.
 func _save_room_state() -> void:
 	if current_room == null or current_room_name == "":
 		return
@@ -124,25 +124,58 @@ func _save_room_state() -> void:
 				"position": npc.global_position,
 				"hp": npc.hp,
 			}
-	_room_states[current_room_name] = {"npcs": npc_states}
+	# Items: record the names of items that are still present (picked-up items
+	# will have already been queue_free()'d and won't appear here).
+	var item_names: Array[String] = []
+	if current_room.has_node("Items"):
+		for item in current_room.get_node("Items").get_children():
+			item_names.append(item.name)
+	# Switches: record each switch's current on/off state.
+	var switch_states: Dictionary = {}
+	if current_room.has_node("Switches"):
+		for sw in current_room.get_node("Switches").get_children():
+			switch_states[sw.name] = sw.is_on
+	_room_states[current_room_name] = {
+		"npcs": npc_states,
+		"items": item_names,
+		"switches": switch_states,
+	}
 
 
 ## Re-apply a previously saved snapshot to the newly instantiated room.
-## NPCs absent from the snapshot (i.e. they were killed) are freed immediately.
+## NPCs absent from the snapshot (killed) and items absent (picked up) are
+## freed immediately.  Switches are toggled to their saved state if it differs
+## from their starting state, which also updates doors and locked exits via the
+## existing toggled signal.
 func _restore_room_state(room_name: String) -> void:
 	if room_name not in _room_states:
 		return
 	var state: Dictionary = _room_states[room_name]
-	if not current_room.has_node("NPCs") or "npcs" not in state:
-		return
-	var npc_states: Dictionary = state["npcs"]
-	for npc in current_room.get_node("NPCs").get_children():
-		if npc.name not in npc_states:
-			npc.queue_free()
-		else:
-			var npc_data: Dictionary = npc_states[npc.name]
-			npc.global_position = npc_data["position"]
-			npc.hp = npc_data["hp"]
+	# Restore NPCs.
+	if current_room.has_node("NPCs") and "npcs" in state:
+		var npc_states: Dictionary = state["npcs"]
+		for npc in current_room.get_node("NPCs").get_children():
+			if npc.name not in npc_states:
+				npc.queue_free()
+			else:
+				var npc_data: Dictionary = npc_states[npc.name]
+				npc.global_position = npc_data["position"]
+				npc.hp = npc_data["hp"]
+	# Restore items: remove any item that was already collected.
+	if current_room.has_node("Items") and "items" in state:
+		var present_items: Array[String] = state["items"]
+		for item in current_room.get_node("Items").get_children():
+			if item.name not in present_items:
+				item.queue_free()
+	# Restore switches: call on_hit() for any switch whose saved state differs
+	# from its starting state so the visual, door, and locked-exit are updated.
+	# on_hit() is called at most once per switch (the condition guarantees this),
+	# toggling from starts_on to the saved state in a single authorized step.
+	if current_room.has_node("Switches") and "switches" in state:
+		var switch_states: Dictionary = state["switches"]
+		for sw in current_room.get_node("Switches").get_children():
+			if sw.name in switch_states and sw.is_on != switch_states[sw.name]:
+				sw.on_hit()
 
 
 func _on_exit_triggered(direction: String) -> void:
