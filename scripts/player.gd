@@ -220,6 +220,10 @@ func set_camera_limits(rect: Rect2) -> void:
 
 
 func _on_melee_area_body_entered(body: Node) -> void:
+	# Deflect projectiles before applying melee damage.
+	if body.get("deflectable") == true and body.get("_reflected") == false:
+		body.reflect()
+		return
 	if body.has_method("on_hit"):
 		body.on_hit()
 	if body.has_method("take_damage"):

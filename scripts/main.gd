@@ -121,7 +121,10 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 				continue
 			if npc.has_method("set_player_reference"):
 				npc.set_player_reference(player)
-			if not npc.is_hostile:
+			if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
+				npc.boss_defeated.connect(_on_boss_defeated)
+				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
+			elif not npc.is_hostile:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 
 	player.global_position = player_pos
@@ -297,7 +300,11 @@ func _on_level_end_reached(trigger: Node) -> void:
 		_do_complete.call()
 
 
-func _show_level_complete(trigger: Node) -> void:
+func _on_boss_defeated() -> void:
+	_show_level_complete()
+
+
+func _show_level_complete(trigger: Node = null) -> void:
 	GameState.mark_complete(current_level_name)
 	var lc_scene: PackedScene = load("res://scenes/level_complete.tscn")
 	var lc: Node = lc_scene.instantiate()
@@ -305,7 +312,11 @@ func _show_level_complete(trigger: Node) -> void:
 	add_child(lc)
 	lc.continue_pressed.connect(func():
 		lc.queue_free()
-		var next: String = trigger.next_level if trigger.next_level != "" else LEVELS[current_level_name].get("next_level", "")
+		var next: String = ""
+		if trigger != null and "next_level" in trigger:
+			next = trigger.next_level
+		if next == "":
+			next = LEVELS[current_level_name].get("next_level", "")
 		if next != "" and next in LEVELS:
 			_load_level(next)
 		else:

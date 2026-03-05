@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://BossQrll"]
+
+[ext_resource type="Script" path="res://scripts/boss_quirrell.gd" id="1_bqscript"]
+[ext_resource type="PackedScene" path="res://scenes/projectile.tscn" id="2_projscene"]
+
+[sub_resource type="RectangleShape2D" id="RectSh_body"]
+size = Vector2(16, 16)
+
+[sub_resource type="RectangleShape2D" id="RectSh_hit"]
+size = Vector2(20, 20)
+
+[node name="BossQuirrell" type="CharacterBody2D"]
+script = ExtResource("1_bqscript")
+projectile_scene = ExtResource("2_projscene")
+
+[node name="Sprite" type="ColorRect" parent="."]
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.8, 0.1, 0.1, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectSh_body")
+
+[node name="HitArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitArea"]
+shape = SubResource("RectSh_hit")
