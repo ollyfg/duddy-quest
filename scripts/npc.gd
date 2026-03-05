@@ -43,6 +43,30 @@ enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, PATROL }
 ## player each room visit.  Leave empty to disable.
 @export var detection_dialog: String = ""
 
+## When true this NPC is immune to damage and knockback and is never clamped
+## to the room bounds (allows gate NPCs to sit in exit gaps).
+@export var invincible: bool = false
+
+## If non-empty, give this key id to the player after dialog and then
+## remove the NPC.  Only activates once gives_key_flag (if set) is true.
+@export var gives_key_id: String = ""
+## GameState flag that must be set before gives_key_id activates.
+@export var gives_key_flag: String = ""
+## Dialog shown when gives_key_flag is not yet set (or before any flag gate).
+@export var pre_flag_dialog: Array = []
+
+## If non-empty, the player must carry this key id for the NPC to show
+## key_accept_dialog and remove itself.
+@export var requires_key_id: String = ""
+## Dialog shown when the player has the required key.
+@export var key_accept_dialog: Array = []
+
+## GameState flag set after a normal (no-key) interaction with this NPC.
+@export var sets_game_flag: String = ""
+## GameState flag gate for non-key-giving NPCs that still need conditional
+## dialog (e.g. cats that should stay silent until a flag is set).
+@export var requires_flag: String = ""
+
 signal interaction_requested
 ## Emitted once per room visit when a PATROL NPC first spots the player.
 ## Carries the detection_dialog string.
@@ -111,7 +135,8 @@ func _physics_process(delta: float) -> void:
 		# Feed the post-collision (wall-slid) velocity back so the NPC
 		# slides along walls instead of being pushed into them.
 		_knockback_velocity = velocity
-		global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
+		if not invincible:
+			global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
 		return
 
 	# Briefly frozen after knockback ends before resuming chase.
@@ -150,7 +175,8 @@ func _physics_process(delta: float) -> void:
 				_resume_patrol_from_nearest()
 			_patrol_move(delta)
 		move_and_slide()
-		global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
+		if not invincible:
+			global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
 		return
 
 	if not in_range:
@@ -191,7 +217,9 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	# Prevent knockback from pushing NPCs through exit gaps in the walls.
-	global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
+	# Invincible NPCs (gate blockers) are exempt so they can sit in exit gaps.
+	if not invincible:
+		global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
 
 
 ## Called by the game controller to give this NPC a reference to the player.
@@ -290,6 +318,8 @@ func _resume_patrol_from_nearest() -> void:
 
 
 func take_damage(amount: int) -> void:
+	if invincible:
+		return
 	hp -= amount
 	var base_color: Color = HOSTILE_COLOR if is_hostile else FRIENDLY_COLOR
 	sprite.color = DAMAGE_FLASH_COLOR
@@ -301,6 +331,8 @@ func take_damage(amount: int) -> void:
 
 
 func apply_knockback(direction: Vector2) -> void:
+	if invincible:
+		return
 	_knockback_velocity = direction.normalized() * KNOCKBACK_SPEED
 	_stun_timer = STUN_DURATION
 

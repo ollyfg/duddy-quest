@@ -8,6 +8,19 @@ const VERSION: String = "0.1.0"
 var selected_level: String = "training"
 var completed_levels: Array[String] = []
 
+## Generic boolean flags for one-off story events.
+var flags: Dictionary = {}
+## Set to true once the bedroom door hint dialog has been shown.
+var l1_bedroom_door_hint_shown: bool = false
+
+
+func set_flag(flag_name: String) -> void:
+	flags[flag_name] = true
+
+
+func has_flag(flag_name: String) -> bool:
+	return flags.get(flag_name, false)
+
 
 func _ready() -> void:
 	_setup_emoji_font()

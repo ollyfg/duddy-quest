@@ -99,7 +99,7 @@ mouse_filter = 2
 shape = SubResource("Sh_rwall_seg")
 
 [node name="ExitEast" type="Area2D" parent="."]
-position = Vector2(622, 240)
+position = Vector2(636, 240)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]
@@ -121,4 +121,4 @@ item_type = 1
 position = Vector2(200.0, 350.0)
 
 [node name="MagicDoor" parent="." instance=ExtResource("4_magicdoor")]
-position = Vector2(608.0, 240.0)
+position = Vector2(628.0, 240.0)

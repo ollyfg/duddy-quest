@@ -107,7 +107,7 @@ mouse_filter = 2
 shape = SubResource("Sh_vwall_seg")
 
 [node name="ExitEast" type="Area2D" parent="."]
-position = Vector2(622, 240)
+position = Vector2(636, 240)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]
@@ -163,4 +163,4 @@ movement_mode = 1
 dialog_lines = ["What on earth... A letter addressed to D. DURSLEY (THE LARGER ONE).", "A Hogwarts letter! FOR ME! Mum has been hiding this for years!", "The door is stuck fast. Maybe I can break through it if I get REALLY furious.", "Smash things until the rage builds — then it should burst open!"]
 
 [node name="MagicDoor" parent="." instance=ExtResource("3_magicdoor")]
-position = Vector2(608.0, 240.0)
+position = Vector2(628.0, 240.0)
