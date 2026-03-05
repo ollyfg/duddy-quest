@@ -10,6 +10,13 @@ const INTERACT_RANGE: float = 60.0
 ## Size of this room in pixels.  Used by the camera to clamp the viewport.
 @export var room_size: Vector2 = Vector2(640.0, 480.0)
 
+## Optional key item IDs required to use each exit direction.
+## Set these in the scene to require the player to collect a key before exiting.
+@export var key_east: String = ""
+@export var key_west: String = ""
+@export var key_north: String = ""
+@export var key_south: String = ""
+
 ## Maps exit direction → true when that exit is currently locked by a switch.
 var _locked_exits: Dictionary = {}
 ## Maps exit direction → key_id required to use that exit.
@@ -35,6 +42,11 @@ func _ready() -> void:
 				# A switch with locked_exit that starts OFF locks that exit.
 				if sw.locked_exit != "":
 					_locked_exits[sw.locked_exit] = not sw.starts_on
+	# Initialise any exit key requirements set via scene exports.
+	if key_east != "": _exit_keys["east"] = key_east
+	if key_west != "": _exit_keys["west"] = key_west
+	if key_north != "": _exit_keys["north"] = key_north
+	if key_south != "": _exit_keys["south"] = key_south
 
 
 func _on_exit_body_entered(body: Node, direction: String) -> void:

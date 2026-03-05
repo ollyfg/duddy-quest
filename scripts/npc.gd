@@ -39,7 +39,14 @@ enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, PATROL }
 @export var projectile_scene: PackedScene = null
 @export var shoot_cooldown: float = 2.0
 
+## Line spoken (and signal emitted) the first time a PATROL NPC detects the
+## player each room visit.  Leave empty to disable.
+@export var detection_dialog: String = ""
+
 signal interaction_requested
+## Emitted once per room visit when a PATROL NPC first spots the player.
+## Carries the detection_dialog string.
+signal player_detected(dialog: String)
 
 const KNOCKBACK_SPEED: float = 400.0
 const KNOCKBACK_THRESHOLD: float = 5.0
@@ -70,6 +77,8 @@ var _shoot_timer: float = 0.0
 var _patrol_index: int = 0
 var _patrol_pause_timer: float = 0.0
 var _patrol_was_chasing: bool = false
+## Prevents detection_dialog from firing more than once per room visit.
+var _detection_triggered: bool = false
 
 @onready var sprite: ColorRect = $Sprite
 
@@ -124,7 +133,11 @@ func _physics_process(delta: float) -> void:
 	# activated state when a hostile NPC detects the player.
 	if mode == MovementMode.PATROL:
 		if is_hostile and _player_ref and detection_range > 0.0 and in_range:
-			_patrol_was_chasing = true
+			if not _patrol_was_chasing:
+				_patrol_was_chasing = true
+				if detection_dialog != "" and not _detection_triggered:
+					_detection_triggered = true
+					player_detected.emit(detection_dialog)
 			_chase_player()
 			if can_shoot:
 				_shoot_timer -= delta

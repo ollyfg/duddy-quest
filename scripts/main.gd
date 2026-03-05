@@ -30,6 +30,44 @@ const LEVELS: Dictionary = {
 			},
 		},
 	},
+	"level_1": {
+		"title": "A Perfectly Normal Catastrophe",
+		"next_level": "",
+		"start_room": "l1_bedroom",
+		"start_pos": Vector2(80.0, 240.0),
+		"rooms": {
+			"l1_bedroom": preload("res://scenes/l1_bedroom.tscn"),
+			"l1_upper_hall": preload("res://scenes/l1_upper_hall.tscn"),
+			"l1_hallway": preload("res://scenes/l1_hallway.tscn"),
+			"l1_front_hall": preload("res://scenes/l1_front_hall.tscn"),
+			"l1_garden": preload("res://scenes/l1_garden.tscn"),
+			"l1_street": preload("res://scenes/l1_street.tscn"),
+		},
+		"connections": {
+			"l1_bedroom": {
+				"east": {"room": "l1_upper_hall", "entry": Vector2(64.0, 240.0)},
+			},
+			"l1_upper_hall": {
+				"west": {"room": "l1_bedroom", "entry": Vector2(576.0, 240.0)},
+				"east": {"room": "l1_hallway", "entry": Vector2(64.0, 240.0)},
+			},
+			"l1_hallway": {
+				"west": {"room": "l1_upper_hall", "entry": Vector2(576.0, 240.0)},
+				"east": {"room": "l1_front_hall", "entry": Vector2(64.0, 240.0)},
+			},
+			"l1_front_hall": {
+				"west": {"room": "l1_hallway", "entry": Vector2(576.0, 240.0)},
+				"east": {"room": "l1_garden", "entry": Vector2(64.0, 240.0)},
+			},
+			"l1_garden": {
+				"west": {"room": "l1_front_hall", "entry": Vector2(576.0, 240.0)},
+				"east": {"room": "l1_street", "entry": Vector2(64.0, 240.0)},
+			},
+			"l1_street": {
+				"west": {"room": "l1_garden", "entry": Vector2(576.0, 240.0)},
+			},
+		},
+	},
 }
 
 var current_level_name: String = ""
@@ -50,6 +88,9 @@ var _room_states: Dictionary = {}
 @onready var mobile_controls = $MobileControls
 
 var _cinematic_player: Node = null
+## Set to "go_west" by _on_npc_player_detected; consumed in _on_dialog_ended
+## to send the player back to the previous room after the "caught" dialog.
+var _post_dialog_action: String = ""
 
 
 func _ready() -> void:
@@ -90,6 +131,12 @@ func _load_level(level_name: String) -> void:
 			{"image": null, "text": "D. DURSLEY (THE LARGER ONE)...\nYour journey begins.", "background_color": Color(0.05, 0.05, 0.15)},
 			{"image": null, "text": "Find the exits and fight your way through the training rooms.", "background_color": Color(0.05, 0.05, 0.15)},
 		], func(): _load_room(level["start_room"], level["start_pos"]))
+	elif level_name == "level_1":
+		play_cutscene([
+			{"image": null, "text": "4 PRIVET DRIVE, LITTLE WHINGING\nA perfectly normal Saturday morning.", "background_color": Color(0.12, 0.08, 0.04)},
+			{"image": null, "text": "You are DUDLEY DURSLEY.\nYou have just found an unopened Hogwarts letter\nhidden in Aunt Petunia's shoebox.", "background_color": Color(0.12, 0.08, 0.04)},
+			{"image": null, "text": "Smeltings stick in hand, you are about to take\nthe most roundabout path to Hogwarts\nin the school's nine-hundred-year history.", "background_color": Color(0.12, 0.08, 0.04)},
+		], func(): _load_room(level["start_room"], level["start_pos"]))
 	else:
 		_load_room(level["start_room"], level["start_pos"])
 
@@ -129,6 +176,8 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 			elif not npc.is_hostile:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
+			if npc.detection_dialog != "":
+				npc.player_detected.connect(_on_npc_player_detected)
 
 	player.global_position = player_pos
 	# Reset any in-progress grid step so stale movement from the old room
@@ -229,8 +278,22 @@ func _on_npc_interaction_requested(npc: Node) -> void:
 	dialog_box.start_dialog(npc.dialog_lines)
 
 
+## Called when a PATROL NPC spots the player for the first time this room visit.
+## Shows the NPC's detection line then sends the player back the way they came.
+func _on_npc_player_detected(dialog: String) -> void:
+	if dialog_box.is_active() or _post_dialog_action != "":
+		return
+	_post_dialog_action = "go_west"
+	_set_dialog_active(true)
+	dialog_box.start_dialog([dialog])
+
+
 func _on_dialog_ended() -> void:
 	_set_dialog_active(false)
+	var action: String = _post_dialog_action
+	_post_dialog_action = ""
+	if action == "go_west":
+		_on_exit_triggered("west")
 
 
 func _set_dialog_active(active: bool) -> void:
@@ -314,6 +377,13 @@ func _update_wand_display() -> void:
 func _on_level_end_reached(trigger: Node) -> void:
 	player.is_in_dialog = true
 	var slides: Array = trigger.end_cutscene_slides
+	# Level-specific end cutscenes (defined here because Dictionaries with Color
+	# values cannot be serialised directly in .tscn property overrides).
+	if slides.is_empty() and current_level_name == "level_1":
+		slides = [
+			{"image": null, "text": "Dudley boards the number 9 bus.\nIt takes him in completely the wrong direction.", "background_color": Color(0.1, 0.1, 0.1)},
+			{"image": null, "text": "The bus deposits him — confusingly — in central London,\noutside a rather grubby pub he could have sworn\nwasn't there yesterday.", "background_color": Color(0.1, 0.1, 0.1)},
+		]
 	var _do_complete := func(): _show_level_complete(trigger)
 	if slides.size() > 0:
 		play_cutscene(slides, _do_complete)

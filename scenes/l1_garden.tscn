@@ -1,0 +1,198 @@
+[gd_scene load_steps=9 format=3 uid="uid://l1garden"]
+
+[ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
+[ext_resource type="PackedScene" path="res://scenes/item.tscn" id="3_item"]
+
+[sub_resource type="RectangleShape2D" id="Sh_hwall"]
+size = Vector2(640, 24)
+
+[sub_resource type="RectangleShape2D" id="Sh_vwall_seg"]
+size = Vector2(24, 216)
+
+[sub_resource type="RectangleShape2D" id="Sh_exit"]
+size = Vector2(12, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_flowerbed"]
+size = Vector2(64, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_health"]
+size = Vector2(16, 16)
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+key_east = "mr_tibbles_key"
+
+[node name="Floor" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.25, 0.5, 0.15, 1)
+mouse_filter = 2
+
+[node name="TopWall" type="StaticBody2D" parent="."]
+position = Vector2(320, 12)
+
+[node name="Sprite" type="ColorRect" parent="TopWall"]
+offset_left = -320.0
+offset_top = -12.0
+offset_right = 320.0
+offset_bottom = 12.0
+color = Color(0.25, 0.18, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWall"]
+shape = SubResource("Sh_hwall")
+
+[node name="BottomWall" type="StaticBody2D" parent="."]
+position = Vector2(320, 468)
+
+[node name="Sprite" type="ColorRect" parent="BottomWall"]
+offset_left = -320.0
+offset_top = -12.0
+offset_right = 320.0
+offset_bottom = 12.0
+color = Color(0.25, 0.18, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWall"]
+shape = SubResource("Sh_hwall")
+
+[node name="LeftWallTop" type="StaticBody2D" parent="."]
+position = Vector2(12, 108)
+
+[node name="Sprite" type="ColorRect" parent="LeftWallTop"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.25, 0.18, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWallTop"]
+shape = SubResource("Sh_vwall_seg")
+
+[node name="LeftWallBottom" type="StaticBody2D" parent="."]
+position = Vector2(12, 372)
+
+[node name="Sprite" type="ColorRect" parent="LeftWallBottom"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.25, 0.18, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWallBottom"]
+shape = SubResource("Sh_vwall_seg")
+
+[node name="RightWallTop" type="StaticBody2D" parent="."]
+position = Vector2(628, 108)
+
+[node name="Sprite" type="ColorRect" parent="RightWallTop"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.25, 0.18, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallTop"]
+shape = SubResource("Sh_vwall_seg")
+
+[node name="RightWallBottom" type="StaticBody2D" parent="."]
+position = Vector2(628, 372)
+
+[node name="Sprite" type="ColorRect" parent="RightWallBottom"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.25, 0.18, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallBottom"]
+shape = SubResource("Sh_vwall_seg")
+
+[node name="ExitWest" type="Area2D" parent="."]
+position = Vector2(18, 240)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitWest"]
+shape = SubResource("Sh_exit")
+
+[node name="ExitEast" type="Area2D" parent="."]
+position = Vector2(622, 240)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]
+shape = SubResource("Sh_exit")
+
+[node name="FlowerBed1" type="StaticBody2D" parent="."]
+position = Vector2(224, 128)
+
+[node name="Sprite" type="ColorRect" parent="FlowerBed1"]
+offset_left = -32.0
+offset_top = -24.0
+offset_right = 32.0
+offset_bottom = 24.0
+color = Color(0.35, 0.7, 0.15, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlowerBed1"]
+shape = SubResource("Sh_flowerbed")
+
+[node name="FlowerBed2" type="StaticBody2D" parent="."]
+position = Vector2(416, 352)
+
+[node name="Sprite" type="ColorRect" parent="FlowerBed2"]
+offset_left = -32.0
+offset_top = -24.0
+offset_right = 32.0
+offset_bottom = 24.0
+color = Color(0.35, 0.7, 0.15, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlowerBed2"]
+shape = SubResource("Sh_flowerbed")
+
+[node name="NPCs" type="Node2D" parent="."]
+
+[node name="MrsFigg" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(560.0, 240.0)
+movement_mode = 1
+dialog_lines = ["Have you seen Mr Tibbles? I'm absolutely frantic.", "He's a tabby — proper tabby, mind you — with a notch in his LEFT ear and a BLUE collar.", "Not Snowy, who is all white and far too smug about it.", "And not Mr Whiskers either — ginger, red collar, always chewing the begonias.", "Find the right cat and I'll step out of your way. The gate key is tucked under his collar."]
+
+[node name="Snowy" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(160.0, 304.0)
+movement_mode = 1
+dialog_lines = ["Mrrrow.", "I am Snowy. All white. Entirely magnificent.", "Not who you're after, clearly."]
+
+[node name="MrWhiskers" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(352.0, 192.0)
+movement_mode = 1
+dialog_lines = ["Mrow.", "Mr Whiskers. Ginger. Red collar.", "Definitely not the tabby you're looking for."]
+
+[node name="MrTibbles" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(480.0, 160.0)
+movement_mode = 1
+dialog_lines = ["Mrrp! *nuzzles your ankle*", "This is Mr Tibbles — tabby, notched left ear, blue collar.", "Tucked under his collar: a bus fare. Nobody can explain how it got there."]
+
+[node name="Ripper" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(320.0, 384.0)
+is_hostile = true
+movement_mode = 3
+move_speed = 70.0
+max_hp = 3
+detection_range = 150.0
+
+[node name="Items" type="Node2D" parent="."]
+
+[node name="GardenGateKey" parent="Items" instance=ExtResource("3_item")]
+position = Vector2(464.0, 160.0)
+item_type = 2
+key_id = "mr_tibbles_key"
+
+[node name="HealthPotion" parent="Items" instance=ExtResource("3_item")]
+position = Vector2(128.0, 240.0)

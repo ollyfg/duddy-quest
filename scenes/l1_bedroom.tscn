@@ -1,0 +1,166 @@
+[gd_scene load_steps=11 format=3 uid="uid://l1bedroom"]
+
+[ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
+[ext_resource type="PackedScene" path="res://scenes/magic_door.tscn" id="3_magicdoor"]
+
+[sub_resource type="RectangleShape2D" id="Sh_hwall"]
+size = Vector2(640, 24)
+
+[sub_resource type="RectangleShape2D" id="Sh_fullvwall"]
+size = Vector2(24, 480)
+
+[sub_resource type="RectangleShape2D" id="Sh_vwall_seg"]
+size = Vector2(24, 216)
+
+[sub_resource type="RectangleShape2D" id="Sh_exit"]
+size = Vector2(12, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_bed"]
+size = Vector2(160, 80)
+
+[sub_resource type="RectangleShape2D" id="Sh_desk"]
+size = Vector2(64, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_wardrobe"]
+size = Vector2(48, 80)
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+
+[node name="Floor" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.92, 0.87, 0.72, 1)
+mouse_filter = 2
+
+[node name="TopWall" type="StaticBody2D" parent="."]
+position = Vector2(320, 12)
+
+[node name="Sprite" type="ColorRect" parent="TopWall"]
+offset_left = -320.0
+offset_top = -12.0
+offset_right = 320.0
+offset_bottom = 12.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWall"]
+shape = SubResource("Sh_hwall")
+
+[node name="BottomWall" type="StaticBody2D" parent="."]
+position = Vector2(320, 468)
+
+[node name="Sprite" type="ColorRect" parent="BottomWall"]
+offset_left = -320.0
+offset_top = -12.0
+offset_right = 320.0
+offset_bottom = 12.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWall"]
+shape = SubResource("Sh_hwall")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(12, 240)
+
+[node name="Sprite" type="ColorRect" parent="LeftWall"]
+offset_left = -12.0
+offset_top = -240.0
+offset_right = 12.0
+offset_bottom = 240.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("Sh_fullvwall")
+
+[node name="RightWallTop" type="StaticBody2D" parent="."]
+position = Vector2(628, 108)
+
+[node name="Sprite" type="ColorRect" parent="RightWallTop"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallTop"]
+shape = SubResource("Sh_vwall_seg")
+
+[node name="RightWallBottom" type="StaticBody2D" parent="."]
+position = Vector2(628, 372)
+
+[node name="Sprite" type="ColorRect" parent="RightWallBottom"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallBottom"]
+shape = SubResource("Sh_vwall_seg")
+
+[node name="ExitEast" type="Area2D" parent="."]
+position = Vector2(622, 240)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]
+shape = SubResource("Sh_exit")
+
+[node name="Bed" type="StaticBody2D" parent="."]
+position = Vector2(400, 128)
+
+[node name="Sprite" type="ColorRect" parent="Bed"]
+offset_left = -80.0
+offset_top = -40.0
+offset_right = 80.0
+offset_bottom = 40.0
+color = Color(0.55, 0.3, 0.15, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bed"]
+shape = SubResource("Sh_bed")
+
+[node name="Desk" type="StaticBody2D" parent="."]
+position = Vector2(160, 128)
+
+[node name="Sprite" type="ColorRect" parent="Desk"]
+offset_left = -32.0
+offset_top = -24.0
+offset_right = 32.0
+offset_bottom = 24.0
+color = Color(0.45, 0.25, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Desk"]
+shape = SubResource("Sh_desk")
+
+[node name="Wardrobe" type="StaticBody2D" parent="."]
+position = Vector2(496, 384)
+
+[node name="Sprite" type="ColorRect" parent="Wardrobe"]
+offset_left = -24.0
+offset_top = -40.0
+offset_right = 24.0
+offset_bottom = 40.0
+color = Color(0.3, 0.15, 0.05, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Wardrobe"]
+shape = SubResource("Sh_wardrobe")
+
+[node name="NPCs" type="Node2D" parent="."]
+
+[node name="HogwartsNote" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(240.0, 320.0)
+movement_mode = 1
+dialog_lines = ["What on earth... A letter addressed to D. DURSLEY (THE LARGER ONE).", "A Hogwarts letter! FOR ME! Mum has been hiding this for years!", "The door is stuck fast. Maybe I can break through it if I get REALLY furious.", "Smash things until the rage builds — then it should burst open!"]
+
+[node name="MagicDoor" parent="." instance=ExtResource("3_magicdoor")]
+position = Vector2(608.0, 240.0)
