@@ -28,15 +28,26 @@ const _BTN_ACTIONS: Dictionary = {
 var _action_buttons: Dictionary = {}
 # Cached reference to the ranged-attack button for quick visibility toggling.
 var _btn_ranged: Button
+# Whether the game was launched with --dev-tools (show all buttons for screenshots).
+var _is_dev_tools: bool = false
 
 
 func _ready() -> void:
-	visible = DisplayServer.is_touchscreen_available()
+	_is_dev_tools = "--dev-tools" in OS.get_cmdline_user_args()
+	visible = DisplayServer.is_touchscreen_available() or _is_dev_tools
+	# Apply NotoColorEmoji directly to all buttons so Unicode arrows and emoji
+	# render correctly without relying on font fallback chain.
+	var emoji_font: FontFile = load("res://assets/fonts/NotoColorEmoji.ttf")
 	for btn_name: String in _BTN_ACTIONS:
-		_action_buttons[_BTN_ACTIONS[btn_name]] = _overlay.get_node(btn_name)
-	_btn_ranged = _overlay.get_node("BtnRanged")
+		var btn: Button = _overlay.get_node(btn_name)
+		btn.set(&"theme_override_fonts/font", emoji_font)
+		_action_buttons[_BTN_ACTIONS[btn_name]] = btn
+		if btn_name == "BtnRanged":
+			_btn_ranged = btn
 	# The ranged button is hidden until the player acquires the wand.
-	_btn_ranged.visible = false
+	# In dev-tools mode show it unconditionally so it can be screenshotted.
+	if not _is_dev_tools:
+		_btn_ranged.visible = false
 
 
 func _input(event: InputEvent) -> void:
@@ -89,5 +100,7 @@ func _notification(what: int) -> void:
 
 ## Show or hide the ranged-attack button.  Call this when the player acquires
 ## (or loses) the wand so the button only appears when it is usable.
+## In dev-tools mode the button stays visible unconditionally for screenshots.
 func set_ranged_visible(show: bool) -> void:
-	_btn_ranged.visible = show
+	if not _is_dev_tools:
+		_btn_ranged.visible = show
