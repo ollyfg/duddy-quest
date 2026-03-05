@@ -63,6 +63,37 @@ jobs:
             -O build/web/coi-serviceworker.js
           sed -i 's|</head>|<script src="coi-serviceworker.js"></script>\n</head>|' build/web/index.html
 
+      # Prevent browsers from serving stale cached versions of the game after a
+      # new deployment.  Two complementary techniques are used:
+      #
+      # 1. HTTP-equivalent meta tags tell browsers (and some CDN layers) not to
+      #    store index.html in their cache at all.
+      #
+      # 2. A version query string (?v=<git-sha>) is appended to the exported
+      #    asset URLs in index.html and inside the Godot JS loader.  Because the
+      #    URL changes on every commit, browsers treat each deployment as a
+      #    brand-new resource and bypass their cache even if the filename is the
+      #    same.  The filenames are derived from the export path in
+      #    export_presets.cfg (build/web/index.html → stem "index").
+      - name: Add cache-busting
+        run: |
+          GIT_SHA=$(git rev-parse --short HEAD)
+
+          # 1. Inject no-cache meta tags immediately before </head>
+          sed -i 's|</head>|    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">|' build/web/index.html
+          sed -i 's|    <meta http-equiv="Cache-Control".*|&\n    <meta http-equiv="Pragma" content="no-cache">|' build/web/index.html
+          sed -i 's|    <meta http-equiv="Pragma".*|&\n    <meta http-equiv="Expires" content="0">\n</head>|' build/web/index.html
+
+          # 2. Version-bust specific Godot asset references in index.html
+          sed -i "s|index\.js\"|index.js?v=${GIT_SHA}\"|g" build/web/index.html
+          sed -i "s|index\.wasm\"|index.wasm?v=${GIT_SHA}\"|g" build/web/index.html
+
+          # 3. Version-bust .wasm and .pck fetch URLs inside the Godot JS loader
+          if [ -f build/web/index.js ]; then
+            sed -i "s|\"index\.wasm\"|\"index.wasm?v=${GIT_SHA}\"|g" build/web/index.js
+            sed -i "s|\"index\.pck\"|\"index.pck?v=${GIT_SHA}\"|g" build/web/index.js
+          fi
+
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
