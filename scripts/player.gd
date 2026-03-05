@@ -56,7 +56,11 @@ var is_in_dialog: bool = false:
 		if is_in_dialog and not value:
 			_dialog_closing_frame = true
 		is_in_dialog = value
-var cinematic_mode: bool = false
+var cinematic_mode: bool = false:
+	set(value):
+		if cinematic_mode and not value:
+			_dialog_closing_frame = true
+		cinematic_mode = value
 
 var _melee_timer: float = 0.0
 var _shoot_timer: float = 0.0
@@ -68,6 +72,8 @@ var _step_start: Vector2 = Vector2.ZERO
 ## Set when dialog closes so attack input consumed to dismiss dialog is not
 ## forwarded to the player as an attack on the same physics frame.
 var _dialog_closing_frame: bool = false
+## Reused by _choose_step to avoid allocating a new object every physics tick.
+var _step_collision: KinematicCollision2D = KinematicCollision2D.new()
 
 @onready var melee_area: Area2D = $MeleeArea
 @onready var projectile_spawn: Marker2D = $ProjectileSpawn
@@ -191,11 +197,10 @@ func _physics_process(delta: float) -> void:
 func _choose_step(from: Vector2, desired: Vector2) -> Vector2:
 	var xform := get_global_transform()
 	xform.origin = from
-	var coll := KinematicCollision2D.new()
-	if not test_move(xform, desired, coll):
+	if not test_move(xform, desired, _step_collision):
 		return desired  # Full path is clear.
 	# If the obstacle is a pushable block, commit anyway so the push fires.
-	var collider := coll.get_collider()
+	var collider := _step_collision.get_collider()
 	if collider != null and collider.is_in_group("pushable"):
 		return desired
 	# Diagonal input blocked: try each axis alone (wall-slide).
