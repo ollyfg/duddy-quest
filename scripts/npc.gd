@@ -12,8 +12,16 @@ extends CharacterBody2D
 
 ## Controls how this NPC moves.  DEFAULT falls back to CHASE when is_hostile
 ## is true, and WANDER otherwise, preserving existing behaviour.
-enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE }
+## PATROL moves the NPC back and forth between patrol_start and patrol_end.
+enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, PATROL }
 @export var movement_mode: MovementMode = MovementMode.DEFAULT
+
+## Waypoints for PATROL mode.  The NPC moves from patrol_start to patrol_end
+## and then back indefinitely.  Positions are in local space relative to the
+## NPC's starting position, so (0,0)/(100,0) means "go 100 px to the right."
+## If both are Vector2.ZERO the NPC stands still.
+@export var patrol_start: Vector2 = Vector2.ZERO
+@export var patrol_end: Vector2 = Vector2(96.0, 0.0)
 
 ## Movement mode used when the player is outside detection_range.
 ## Only applied to hostile NPCs; friendly NPCs always use their movement_mode.
@@ -57,6 +65,11 @@ var _player_ref: Node = null
 var _knockback_velocity: Vector2 = Vector2.ZERO
 var _stun_timer: float = 0.0
 var _shoot_timer: float = 0.0
+## World-space waypoints resolved once in _ready() from patrol_start/patrol_end.
+var _patrol_a: Vector2 = Vector2.ZERO
+var _patrol_b: Vector2 = Vector2.ZERO
+## 1 = heading toward _patrol_b, -1 = heading back to _patrol_a.
+var _patrol_dir: int = 1
 
 @onready var sprite: ColorRect = $Sprite
 
@@ -70,6 +83,9 @@ func _ready() -> void:
 		add_to_group("npc")
 		sprite.color = Color(0.2, 0.4, 0.9)
 	$HitArea.body_entered.connect(_on_hit_area_body_entered)
+	# Convert local-space patrol points to world space once positioned.
+	_patrol_a = global_position + patrol_start
+	_patrol_b = global_position + patrol_end
 
 
 func _physics_process(delta: float) -> void:
