@@ -49,20 +49,21 @@ Dudley does not forget.
 Unfortunately, Dudley has no wizard money, no parent, and no idea what he is doing.  He has, however, still got his Smeltings stick.
 
 **Puzzles:**
-- **Gringotts Security:** The goblins won't let Dudley into the vaults without a key.  Clue: his letter contains a vault number.  The puzzle is convincing the goblin clerk that "D. DURSLEY (THE LARGER ONE)" is a legitimate account holder — by finding three witnesses in the Alley who remember "that big blonde Dursley boy" from a previous visit with his mother.
-- **The Wandless Paradox:** Several shops refuse to serve anyone without a wand already in hand.  Dudley must find Ollivander's by following a trail of magical misfires — small scorch marks, floating price tags, and one very startled pigeon — that lead through the back alleys.
+- **Gringotts Security:** The goblins won't let Dudley into the vaults without a key — clue: his letter contains a vault number — and convincing the goblin clerk that "D. DURSLEY (THE LARGER ONE)" is a legitimate account holder is the puzzle.  The goblin flatly refuses, until Dudley, in his blunt unfiltered way, starts pointing out that it seems a bit rich for wizards to lecture goblins about fairness when they've had goblins doing their banking for centuries.  He lists every indignity he has observed in the last twenty minutes: the revolving door, the no-chair policy for staff, the sign that says "Goblins are not responsible for lost valuables (their own or yours)".  The goblin sits very still, then without a word stamps the ledger and waves Dudley through.  Nobody has ever argued *for* goblin rights on a Tuesday morning before.
+- **Lost in Diagon Alley:** Several shops refuse to serve anyone without a wand already in hand, so Dudley resolves to find Ollivander's first.  The trouble is that Diagon Alley's buildings are disorienting — they lean at odd angles, passages double back on themselves, and staircases lead to doors on the wrong floor.  The puzzle is navigating the twisting alley by reading the hanging shop signs and working out which turns lead deeper into the Alley versus back towards the Leaky Cauldron.
 - **The Price of a Robe:** Madam Malkin quotes a price Dudley can't afford.  Her assistant (Neville Longbottom, here for his own fitting and panicking about everything) has accidentally knocked the discount ledger behind a display.  Retrieve it — the puzzle is navigating the mannequins, which are all slowly rotating and will clip Dudley off-course.
 
 **Combat:**
 - Territorial **Cornish Pixies** escaped from a cage outside Magical Menagerie block the route to Ollivander's.
 - Suspicious **Diagon Alley Shopkeepers** (enchanted brooms and mops doing their evening round) try to sweep Dudley out the front door of every shop he enters.
+- **Wand Warm-up:** After leaving Ollivander's, the same flock of Cornish Pixies from earlier has re-gathered in the alley between the shop and the main street, apparently attracted by the golden spark that lit the sign on fire.  This time Dudley has his wand.  The encounter is straightforward — blast the pixies back with wand-shots while keeping them from swarming in to scratch — but it forces the player to aim and fire before reaching any serious challenge.  A good excuse to learn what the wand can do.
 
 **Mid-level Miniboss — Draco Malfoy:**
 Draco arrives with Lucius for school shopping.  He recognises the letter sticking out of Dudley's pocket and is *furious*: a Muggle-raised nobody getting into Hogwarts ahead of *proper* families?  Draco attempts to hex Dudley with a jinx borrowed from Lucius's cane.  Dudley, who cannot yet cast spells, must survive the barrage with nimble footwork and timely swings of his Smeltings stick until Draco runs out of bluster and slinks off to find his father.
 
 *Lucius watches the whole spectacle from a distance.  His expression is unreadable.  He does not intervene.*
 
-**Wand Acquisition:** A shaken Mr Ollivander emerges from his shop to investigate the ruckus.  He takes one look at Dudley, disappears into the shelves, and returns with a box that is already rattling on its own.  *"Maple and unicorn tail-hair, eight and three-quarter inches, quite inflexible.  Rather like its new owner, I expect."*  The wand chooses Dudley.  A warm golden spark shoots from the tip and sets a nearby sign on fire.  Ollivander considers this a promising start.  Before Dudley leaves, Ollivander presses a small rolled note into his hand with a knowing look — *"You'll need this later."*  The note contains a short logic riddle whose answer identifies the safe bottle from a row of potions.
+**Wand Acquisition:** A shaken Mr Ollivander emerges from his shop to investigate the ruckus.  He takes one look at Dudley, disappears into the shelves, and returns with a box that is already rattling on its own.  *"Maple and unicorn tail-hair, eight and three-quarter inches, quite inflexible.  Rather like its new owner, I expect."*  The wand chooses Dudley.  A warm golden spark shoots from the tip and sets a nearby sign on fire.  Ollivander considers this a promising start.
 
 **Featured Characters:** Tom the barkeep, Neville Longbottom, Madam Malkin, Mr Ollivander, Draco Malfoy (miniboss), Lucius Malfoy.
 
@@ -97,33 +98,36 @@ The train that arrives is the **Hogwarts Maintenance Express**: a cramped, wheez
 
 ## Level 4 — *Through the Back Door* (Hogwarts Castle)
 
-**Setting:** The castle grounds, corridors, and the dungeons beneath.
+**Setting:** The castle's underground trial chambers, working upward to the forbidden third-floor corridor.
 
-**Story:** The Tradesmen's Entrance deposits Dudley in the vegetable garden behind the greenhouses, which is not on any map he was given (he was given no maps).  Hogwarts looms above him, enormous and frankly unnecessary in its number of towers.  Dudley needs to reach the Great Hall in time for the Sorting.  The castle has other ideas.
+**Story:** The Tradesmen's Entrance deposits Dudley deep beneath the castle in a low stone passage that smells of damp and old cheese.  Hogwarts looms *above* him, enormous and frankly unnecessary in its number of towers.  Dudley needs to climb all the way up to the Great Hall in time for the Sorting.  The castle has other ideas — specifically a series of chambers that somebody has very recently broken through in the other direction, leaving a trail of disturbed traps, battered obstacles, and one extremely large unconscious dog.
 
 **Puzzles:**
-- **The Staircase Argument:** The moving staircases are mid-shift and refuse to cooperate.  Dudley must work out their rotation cycle by watching the portraits on the walls (who gossip loudly about where each staircase is heading) and time his crossings.
-- **The Caretaker's Corridor:** Mr Filch's cat, Mrs Norris, is patrolling.  The corridor is littered with Peeves's earlier mischief (exploding ink pots, marbles).  Navigate without making noise — or bribe Mrs Norris with Trevor the toad, who Dudley has inadvertently been carrying since Level 3.
-- **The Potion Puzzle:** The final approach to the Great Hall is sealed off by a row of bottles, each labelled in faint silver ink.  Logic (and the clue on the rolled-up note Ollivander slipped into the wand box) reveals which bottle is safe to drink and which will knock Dudley out for a week.  *The riddle implies there is also a bottle that tastes of Petunia's overcooked cabbage.  That one is probably safe but not worth it.*
+- **Devil's Snare:** The first chamber is choked with a creeping vine that tightens on anything it catches.  The vine recoils from light.  Scattered around the room are stone braziers with unlit torches; each torch, once lit with a wand-blast, illuminates a safe corridor through the plant for a few seconds before guttering out.  The puzzle is timing — light the torches in the right sequence and sprint through the gaps before the vine closes back in.
+- **The Flying Keys:** A vast chamber with a vaulted ceiling contains hundreds of winged keys drifting lazily in the air — and a locked door on the far side.  One key (the large iron one, slightly bent wing) opens it.  As soon as Dudley enters, the keys scatter.  The correct key moves faster than the others and keeps trying to escape into the rafters.  This is a combat encounter: the player must chase down and knock the correct key out of the air with wand-blasts; other keys dive-bomb Dudley while he hunts, dealing small damage.  Once the correct key has been hit enough times to ground it, it drops to the floor and can be picked up to unlock the door.
+- **The Giant Chess Board:** A full-sized Wizarding Chess set occupies the next chamber, blocking the only exit.  The board is already mid-game — most pieces have been battered off the board by whoever came through before.  Two white pieces remain: a rook and a bishop.  The puzzle is identifying and executing the two-move sequence that puts the black king in checkmate, freeing the exit.  The chess pieces do not take kindly to being told where to go, but they do eventually comply if the move is legal.
+- **The Potions Puzzle:** The final approach to the upper stairwell is sealed by a row of seven bottles, each labelled in faint silver ink.  A small scroll on the plinth contains a logic riddle: the verses describe each bottle's position, contents, and the safe one's relationship to the rest.  Read the riddle, reason through the constraints, and drink the right bottle.  One of the wrong ones smells unmistakably of Petunia's overcooked cabbage.  That one is probably safe but absolutely not worth it.
 
 **Combat:**
-- **Roaming Poltergeist Debris** — chairs, inkwells, and a self-propelled mop — fills the entrance hall corridor.
-- **Animated Chess Pieces** from the third-floor corridor (apparently already in the process of being reset by Filch) block the dungeon passage.  Several must be defeated to clear a path.
-- **Peeves** makes two ambush appearances, hurling chalk and small water balloons.
+- **Roaming Poltergeist Debris** — chairs, inkwells, and a self-propelled mop — fills the entrance-hall corridor once Dudley emerges from the trial chambers.
+- **Peeves** makes two ambush appearances on the upper floors, hurling chalk and small water balloons.
+- **Flying Keys** (see above) constitute the main combat encounter of this level: fast-moving, evasive targets that require wand-blasts and quick footwork.
 
 **Final Boss — Professor Quirrell (and the voice from the back of his head):**
-Quirrell is in the wrong corridor at the wrong moment — investigating an "anomalous magical signature" that turns out to be Dudley.  Voldemort, sensing something strange in this boy, urges Quirrell to deal with him quietly before anyone sees.
+At the top of the stairwell Dudley pushes open the door to the third-floor corridor.  Fluffy — a three-headed dog the size of a small caravan — is already unconscious, all three heads lolling, apparently felled by a charm Quirrell used on the way up.  Fluffy remains sprawled in the corner for the entire fight, occasionally snoring loud enough to rattle the flagstones.
+
+Quirrell is on the far side of the room, shaking, clearly in the middle of an argument with himself.  He stops when he sees Dudley.  Voldemort, sensing something unusual in the boy, decides he needs to be dealt with.
 
 The fight is a three-stage encounter:
-1. **Quirrell at a distance**, hurling jinxes — dodge and counter with wand-blasts.
-2. **Quirrell up close**, using the turban as a weapon in a desperate bludgeoning arc.
-3. **The reveal** — Quirrell's turban unravels; Voldemort's face screams and blasts raw dark energy.  Dudley, who has never read a single book on defensive magic, discovers that *shouting very loudly and swinging at things* produces, in the right magical circumstances, an accidental Expelliarmus.  Quirrell recoils; Voldemort shrieks about the iniquity of it all; Quirrell runs.
+1. **Quirrell at a distance**, hurling jinxes in rapid bursts — dodge and counter with wand-blasts.
+2. **Quirrell up close**, desperate and flailing, using the turban as a bludgeoning weapon — close-range Smeltings stick combat while avoiding his clawing hands.
+3. **The reveal** — Quirrell's turban unravels; Voldemort's face on the back of his head screams and begins blasting raw dark energy in wide arcing sweeps.  Dudley must dodge the arcs and return fire with the wand.  Periodically Voldemort's face targets Dudley directly with a focused curse that must be deflected with a precisely timed Smeltings stick swing (which, being accidental magic, works far better than it has any right to).  After three successful deflections the reflected magic hits Quirrell square in the chest; he recoils, Voldemort's face shrieks something about the iniquity of it all, and is gone.
 
 Professor Dumbledore arrives approximately fifteen seconds after the fight ends, looking entirely unsurprised.
 
 *"Ah.  You must be the other Dursley.  I wondered when you'd turn up.  The Sorting Hat has been expecting you since Tuesday."*
 
-**Featured Characters:** Mr Filch, Mrs Norris, Peeves, Nearly Headless Nick, Professor McGonagall, Professor Quirrell (boss), Voldemort (boss, second face), Albus Dumbledore.
+**Featured Characters:** Mr Filch, Mrs Norris, Peeves, Nearly Headless Nick, Professor McGonagall, Fluffy (unconscious), Professor Quirrell (boss), Voldemort (boss, second face), Albus Dumbledore.
 
 **Level End / Epilogue:** The Sorting Hat, placed on Dudley's head, is quiet for a long moment.
 
@@ -144,6 +148,6 @@ The Hufflepuff table erupts.  Harry, seated at the Gryffindor table, turns aroun
 | Level | Location | Miniboss / Boss | Wand? | Key Puzzles |
 |-------|----------|-----------------|-------|-------------|
 | 1 | Privet Drive | — | No | Locked door (accidental magic), Petunia gauntlet, Mrs Figg's cats |
-| 2 | Diagon Alley | Draco Malfoy (miniboss) | **Acquired after miniboss** | Gringotts access, wandless shops, Madam Malkin's mannequins |
+| 2 | Diagon Alley | Draco Malfoy (miniboss) | **Acquired after miniboss** | Gringotts goblin debate, lost-in-the-alley navigation, Madam Malkin's mannequins |
 | 3 | King's Cross / Maintenance Express | — | Yes | Mandrake crate, moving corridor, Peeves distraction |
-| 4 | Hogwarts Castle | Professor Quirrell / Voldemort (boss) | Yes | Moving staircases, Filch's corridor, potion puzzle |
+| 4 | Hogwarts Castle (trial chambers → 3rd floor) | Professor Quirrell / Voldemort (boss) | Yes | Devil's Snare torches, flying keys combat, giant chess checkmate, potions riddle |
