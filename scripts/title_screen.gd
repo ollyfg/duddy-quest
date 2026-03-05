@@ -39,6 +39,14 @@ func _ready() -> void:
 	prompt.set(&"theme_override_font_sizes/font_size", 24)
 	canvas.add_child(prompt)
 
+	var version_label := Label.new()
+	version_label.text = "v" + GameState.VERSION
+	version_label.position = Vector2(0, 458)
+	version_label.size = Vector2(630, 20)
+	version_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	version_label.set(&"theme_override_font_sizes/font_size", 14)
+	canvas.add_child(version_label)
+
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("melee_attack"):

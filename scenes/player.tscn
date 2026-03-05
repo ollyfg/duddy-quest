@@ -11,7 +11,7 @@ size = Vector2(28, 28)
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
-collision_mask = 1
+collision_mask = 9
 script = ExtResource("1_player")
 projectile_scene = ExtResource("2_proj")
 
@@ -27,7 +27,7 @@ shape = SubResource("RectSh_body")
 
 [node name="MeleeArea" type="Area2D" parent="."]
 collision_layer = 0
-collision_mask = 5
+collision_mask = 13
 monitoring = false
 monitorable = false
 

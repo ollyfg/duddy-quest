@@ -53,7 +53,9 @@ func _ready() -> void:
 
 
 func _is_unlocked(index: int) -> bool:
-	return index == 0 or GameState.is_complete(LEVEL_LIST[index - 1]["id"])
+	# Training (0) and Level 1 (1) are always unlocked; further levels require
+	# the previous level to be completed.
+	return index <= 1 or GameState.is_complete(LEVEL_LIST[index - 1]["id"])
 
 
 func _update_list() -> void:
