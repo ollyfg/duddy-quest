@@ -13,8 +13,7 @@ movement and combat, and ends with Dudley boarding the wrong bus to London.
 |------|---------------|
 | Task 01 | Cutscene panels for level intro and outro |
 | Task 03 | PATROL movement for Aunt Petunia and Ripper |
-| Task 04 | Multi-option dialogue for Mrs. Figg's cat puzzle |
-| Task 05 | KEY item for bus fare |
+| Task 05 | KEY item for bus fare (dropped by Mr Tibbles) |
 | Task 06 | Level completion trigger (boarding the bus) |
 | Task 10 | Accidental magic for the locked-door puzzle |
 
@@ -35,10 +34,10 @@ room_1b — Upstairs Landing   (Petunia patrol gauntlet)
 room_1c — Downstairs Hallway (friendly NPC: Uncle Vernon blocks path)
     │ west exit
     ▼
-room_1d — Back Garden        (Ripper patrol, garden gate)
+room_1d — Back Garden        (Ripper patrol, cats on lawn, Mrs. Figg at gate)
     │ south exit (gate, requires "bus_fare" key)
     ▼
-room_1e — Magnolia Crescent  (Piers gang combat + Mrs. Figg cat puzzle)
+room_1e — Magnolia Crescent  (Piers gang combat)
     │ east exit (bus stop, level end trigger)
     ▼
 [Outro cutscene → Level 1 Complete]
@@ -77,30 +76,41 @@ room_1e — Magnolia Crescent  (Piers gang combat + Mrs. Figg cat puzzle)
 - Ripper (hostile bulldog NPC, PATROL mode) patrols east–west across the
   centre of the garden.
 - The garden gate at the south is a locked exit requiring key id `"bus_fare"`.
-- Mrs. Figg is positioned at the gate.  Approaching her triggers the cat
-  identification multi-option dialog puzzle (see below).
+- **Three cat NPCs** (WANDER mode, non-hostile) stroll around the garden lawn:
+  - **Snowy** — white NPC sprite, no collar.
+  - **Mr Whiskers** — ginger/orange NPC sprite, red collar.
+  - **Mr Tibbles** — tabby (grey-striped) NPC sprite, blue collar.  This is the
+    correct cat.
+- **Mrs. Figg** stands STATIONARY directly in front of the garden gate, blocking
+  it.  She will not move until Mr Tibbles is brought back to her.
+- Approaching Mrs. Figg triggers her opening dialog (linear, no choices):
+  > *"Oh, Dudley dear!  I can't let you through — I've lost Mr Tibbles and I'm
+  >  not moving until someone finds him.  He's a tabby, proper tabby, with a
+  >  notch in his left ear and a blue collar.  Not like Snowy, who's all white,
+  >  or Mr Whiskers who's ginger with a red collar.  Have a look around the
+  >  garden, dear."*
+- The player must explore the garden and interact with each cat:
+  - Interacting with **Snowy**: brief dialog — *"Mrrrow."* (Snowy stares at you
+    without interest.  This is not Mr Tibbles.)
+  - Interacting with **Mr Whiskers**: brief dialog — *"Mrrp."* (This cat is
+    ginger with a red collar.  Definitely not Mr Tibbles.)
+  - Interacting with **Mr Tibbles** (tabby, blue collar): brief dialog — *"Prrr."*
+    (This cat has a blue collar with a notch in his left ear.  A small KEY item
+    (`key_id = "bus_fare"`) drops from under his collar.)
+- Once the player has the `"bus_fare"` key, Mrs. Figg's dialog changes:
+  > *"Oh, there he is!  You found him, Dudley dear — and look, he had your bus
+  >  fare under his collar.  Goodness knows how he got it."*
+  She steps aside, and the south gate exit becomes usable with the key.
 
-#### Mrs. Figg's Cat Puzzle
-Uses the Task 04 branching dialogue system.
-
-Dialog tree summary:
-```
-Figg: "Oh, Dudley dear!  Have you seen Mr Tibbles?  
-       He's a tabby, notched left ear, blue collar — 
-       not like Snowy (white, no collar) or Mr Whiskers (ginger, red collar)."
-
-→ Choice: "Which cat is Mr Tibbles?"
-    A) The ginger one by the roses
-       → "That's Snowy, dear.  No, no."  [wrong — loop back]
-    B) The white fluffy one
-       → "Oh heavens no, that's Mr Whiskers!"  [wrong — loop back]
-    C) The tabby with the blue collar
-       → "Yes!  Oh thank you Dudley.  He had your bus fare under his collar —
-          goodness knows how he got it."  [correct → drops bus_fare key item]
-```
-Choosing a wrong option loops back to the choice rather than ending the dialog.
-Choosing correctly drops a KEY item (key_id = `"bus_fare"`) at Mrs. Figg's feet
-and closes the gate-blocking conversation.
+#### Implementation Notes
+- The cat NPCs use `npc.gd` with `movement_mode = WANDER`, `is_hostile = false`,
+  `hp = 1` (indestructible for gameplay — use a large `MAX_HP` or disable damage).
+- Mr Tibbles has a custom `interaction_requested` handler in `room_1d.tscn` that
+  spawns the `"bus_fare"` KEY item at his position when interacted with.
+- Mrs. Figg uses `movement_mode = STATIONARY` and is placed directly on the gate
+  tile so she physically blocks the south exit area.  Her dialog cycling (before
+  / after Tibbles found) can be driven by checking whether the player carries the
+  `"bus_fare"` key (`player.key_count` or a room-local flag).
 
 ### room_1e — Magnolia Crescent
 - Wide room with three **Piers Polkiss gang members** (hostile CHASE NPCs).
