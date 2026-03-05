@@ -76,7 +76,13 @@ func _load_level(level_name: String) -> void:
 	current_level_name = level_name
 	_room_states.clear()
 	var level: Dictionary = LEVELS[level_name]
-	_load_room(level["start_room"], level["start_pos"])
+	if level_name == "training":
+		play_cutscene([
+			{"image": null, "text": "D. DURSLEY (THE LARGER ONE)...\nYour journey begins.", "background_color": Color(0.05, 0.05, 0.15)},
+			{"image": null, "text": "Find the exits and fight your way through the training rooms.", "background_color": Color(0.05, 0.05, 0.15)},
+		], func(): _load_room(level["start_room"], level["start_pos"]))
+	else:
+		_load_room(level["start_room"], level["start_pos"])
 
 
 func _load_room(room_name: String, player_pos: Vector2) -> void:
@@ -245,3 +251,14 @@ func _on_wand_acquired() -> void:
 
 func _update_wand_display() -> void:
 	mobile_controls.set_ranged_visible(player.has_wand)
+
+
+func play_cutscene(slides: Array, on_finish: Callable) -> void:
+	var cutscene_scene: PackedScene = load("res://scenes/cutscene.tscn")
+	var cutscene: Node = cutscene_scene.instantiate()
+	add_child(cutscene)
+	cutscene.cutscene_finished.connect(func():
+		on_finish.call()
+		cutscene.queue_free()
+	)
+	cutscene.play(slides)
