@@ -27,7 +27,7 @@ shape = SubResource("RectSh_body")
 
 [node name="MeleeArea" type="Area2D" parent="."]
 collision_layer = 0
-collision_mask = 1
+collision_mask = 5
 monitoring = false
 monitorable = false
 
