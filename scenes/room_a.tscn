@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://room_a"]
+[gd_scene load_steps=9 format=3 uid="uid://room_a"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
 [ext_resource type="PackedScene" path="res://scenes/item.tscn" id="3_item"]
+[ext_resource type="PackedScene" path="res://scenes/magic_door.tscn" id="4_magicdoor"]
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall"]
 size = Vector2(640, 24)
@@ -118,3 +119,6 @@ item_type = 1
 
 [node name="HealthItem" parent="Items" instance=ExtResource("3_item")]
 position = Vector2(200.0, 350.0)
+
+[node name="MagicDoor" parent="." instance=ExtResource("4_magicdoor")]
+position = Vector2(608.0, 240.0)
