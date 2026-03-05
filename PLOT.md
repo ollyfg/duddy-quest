@@ -98,35 +98,36 @@ The train that arrives is the **Hogwarts Maintenance Express**: a cramped, wheez
 
 ## Level 4 — *Through the Back Door* (Hogwarts Castle)
 
-**Setting:** The castle dungeons, corridors, and the forbidden third-floor corridor at the top.
+**Setting:** The castle's underground trial chambers, working upward to the forbidden third-floor corridor.
 
-**Story:** The Tradesmen's Entrance deposits Dudley deep in the castle's dungeon level — not in the vegetable garden as he expected, but in a low stone passage that smells of damp and old cheese.  Hogwarts looms *above* him, enormous and frankly unnecessary in its number of towers.  Dudley needs to climb all the way up to the Great Hall in time for the Sorting.  The castle has other ideas.
-
-Almost immediately he rounds a corner and nearly trips over a large cardboard box sitting in the middle of the corridor, labelled in hasty felt-tip: *STORAGE — MIRROR OF ERISED — DO NOT LOOK DIRECTLY INTO*.  The box is sealed shut with a leather strap, but shifts slightly when Dudley nudges it, as if something inside is responding to his presence.  He picks it up — heavier than it looks — and carries it with him.
+**Story:** The Tradesmen's Entrance deposits Dudley deep beneath the castle in a low stone passage that smells of damp and old cheese.  Hogwarts looms *above* him, enormous and frankly unnecessary in its number of towers.  Dudley needs to climb all the way up to the Great Hall in time for the Sorting.  The castle has other ideas — specifically a series of chambers that somebody has very recently broken through in the other direction, leaving a trail of disturbed traps, battered obstacles, and one extremely large unconscious dog.
 
 **Puzzles:**
-- **The Animated Chess Room:** The first chamber blocking the upward path is occupied by a full-sized Wizarding Chess set mid-reset — pieces stomping and arguing about where they belong.  The chess pieces are not interested in Dudley's opinion.  Several must be fought through to clear a path to the stairwell.  (The mirror box is awkward to carry, and a rook tries to take it.)
-- **The Caretaker's Corridor:** Mr Filch's cat, Mrs Norris, is patrolling a long mid-castle corridor.  The passage is littered with Peeves's earlier mischief (exploding ink pots, marbles, one very sad potted cactus on its side).  Navigate without making noise — or bribe Mrs Norris with Trevor the toad, who Dudley has inadvertently been carrying since Level 3.
-- **The Staircase Argument:** The moving staircases are mid-shift and refuse to cooperate.  Dudley must work out their rotation cycle by watching the portraits on the walls (who gossip loudly about where each staircase is heading) and time his crossings to reach the upper floors.
+- **Devil's Snare:** The first chamber is choked with a creeping vine that tightens on anything it catches.  The vine recoils from light.  Scattered around the room are stone braziers with unlit torches; each torch, once lit with a wand-blast, illuminates a safe corridor through the plant for a few seconds before guttering out.  The puzzle is timing — light the torches in the right sequence and sprint through the gaps before the vine closes back in.
+- **The Flying Keys:** A vast chamber with a vaulted ceiling contains hundreds of winged keys drifting lazily in the air — and a locked door on the far side.  One key (the large iron one, slightly bent wing) opens it.  As soon as Dudley enters, the keys scatter.  The correct key moves faster than the others and keeps trying to escape into the rafters.  This is a combat encounter: the player must chase down and knock the correct key out of the air with wand-blasts; other keys dive-bomb Dudley while he hunts, dealing small damage.  Once the correct key has been hit enough times to ground it, it drops to the floor and can be picked up to unlock the door.
+- **The Giant Chess Board:** A full-sized Wizarding Chess set occupies the next chamber, blocking the only exit.  The board is already mid-game — most pieces have been battered off the board by whoever came through before.  Two white pieces remain: a rook and a bishop.  The puzzle is identifying and executing the two-move sequence that puts the black king in checkmate, freeing the exit.  The chess pieces do not take kindly to being told where to go, but they do eventually comply if the move is legal.
+- **The Potions Puzzle:** The final approach to the upper stairwell is sealed by a row of seven bottles, each labelled in faint silver ink.  A small scroll on the plinth contains a logic riddle: the verses describe each bottle's position, contents, and the safe one's relationship to the rest.  Read the riddle, reason through the constraints, and drink the right bottle.  One of the wrong ones smells unmistakably of Petunia's overcooked cabbage.  That one is probably safe but absolutely not worth it.
 
 **Combat:**
-- **Roaming Poltergeist Debris** — chairs, inkwells, and a self-propelled mop — fills the entrance hall corridor.
+- **Roaming Poltergeist Debris** — chairs, inkwells, and a self-propelled mop — fills the entrance-hall corridor once Dudley emerges from the trial chambers.
 - **Peeves** makes two ambush appearances on the upper floors, hurling chalk and small water balloons.
-- **Enchanted Suits of Armour** blocking the passage to the third floor activate and must be fought through.  The armour cannot be hurt by melee alone — wand-blasts stagger them long enough to land a stick hit.  Mixed combat.
+- **Flying Keys** (see above) constitute the main combat encounter of this level: fast-moving, evasive targets that require wand-blasts and quick footwork.
 
 **Final Boss — Professor Quirrell (and the voice from the back of his head):**
-Quirrell is in the forbidden third-floor corridor at the wrong moment — investigating an "anomalous magical signature" that turns out to be Dudley and the mirror.  Voldemort, sensing both the boy and the artefact, orders Quirrell to take them.
+At the top of the stairwell Dudley pushes open the door to the third-floor corridor.  Fluffy — a three-headed dog the size of a small caravan — is already unconscious, all three heads lolling, apparently felled by a charm Quirrell used on the way up.  Fluffy remains sprawled in the corner for the entire fight, occasionally snoring loud enough to rattle the flagstones.
+
+Quirrell is on the far side of the room, shaking, clearly in the middle of an argument with himself.  He stops when he sees Dudley.  Voldemort, sensing something unusual in the boy, decides he needs to be dealt with.
 
 The fight is a three-stage encounter:
-1. **Quirrell at a distance**, hurling jinxes — dodge and counter with wand-blasts.
-2. **Quirrell up close**, using the turban as a flailing weapon in a desperate bludgeoning arc — close-range Smeltings stick combat.
-3. **The reveal** — Quirrell's turban unravels; Voldemort's face detaches and manifests as a shrieking dark spirit drifting freely around the room.  Quirrell collapses.  The spirit fires rapid dark-energy bolts in sweeping arcs and the player must dodge and return fire with the wand.  Mid-fight, the cardboard box is knocked open and the Mirror of Erised slides out face-up.  Voldemort's spirit is transfixed by his own reflection — he sees himself whole, embodied, triumphant — and freezes in place for a few seconds.  That window is the player's cue: land enough wand-blasts while the spirit is locked on the mirror, and it dissipates with a scream.  The pattern repeats (drift, blast, freeze at mirror, player fires) until the spirit is defeated.
+1. **Quirrell at a distance**, hurling jinxes in rapid bursts — dodge and counter with wand-blasts.
+2. **Quirrell up close**, desperate and flailing, using the turban as a bludgeoning weapon — close-range Smeltings stick combat while avoiding his clawing hands.
+3. **The reveal** — Quirrell's turban unravels; Voldemort's face on the back of his head screams and begins blasting raw dark energy in wide arcing sweeps.  Dudley must dodge the arcs and return fire with the wand.  Periodically Voldemort's face targets Dudley directly with a focused curse that must be deflected with a precisely timed Smeltings stick swing (which, being accidental magic, works far better than it has any right to).  After three successful deflections the reflected magic hits Quirrell square in the chest; he recoils, Voldemort's face shrieks something about the iniquity of it all, and is gone.
 
 Professor Dumbledore arrives approximately fifteen seconds after the fight ends, looking entirely unsurprised.
 
 *"Ah.  You must be the other Dursley.  I wondered when you'd turn up.  The Sorting Hat has been expecting you since Tuesday."*
 
-**Featured Characters:** Mr Filch, Mrs Norris, Peeves, Nearly Headless Nick, Professor McGonagall, Professor Quirrell (boss), Voldemort (boss, detached spirit), Albus Dumbledore.
+**Featured Characters:** Mr Filch, Mrs Norris, Peeves, Nearly Headless Nick, Professor McGonagall, Fluffy (unconscious), Professor Quirrell (boss), Voldemort (boss, second face), Albus Dumbledore.
 
 **Level End / Epilogue:** The Sorting Hat, placed on Dudley's head, is quiet for a long moment.
 
@@ -149,4 +150,4 @@ The Hufflepuff table erupts.  Harry, seated at the Gryffindor table, turns aroun
 | 1 | Privet Drive | — | No | Locked door (accidental magic), Petunia gauntlet, Mrs Figg's cats |
 | 2 | Diagon Alley | Draco Malfoy (miniboss) | **Acquired after miniboss** | Gringotts goblin debate, lost-in-the-alley navigation, Madam Malkin's mannequins |
 | 3 | King's Cross / Maintenance Express | — | Yes | Mandrake crate, moving corridor, Peeves distraction |
-| 4 | Hogwarts Castle (dungeon → 3rd floor) | Professor Quirrell / Voldemort (boss) | Yes | Animated chess room, Filch's corridor, moving staircases |
+| 4 | Hogwarts Castle (trial chambers → 3rd floor) | Professor Quirrell / Voldemort (boss) | Yes | Devil's Snare torches, flying keys combat, giant chess checkmate, potions riddle |
