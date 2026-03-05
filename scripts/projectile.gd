@@ -31,8 +31,13 @@ func _physics_process(delta: float) -> void:
 		return
 	velocity = direction * SPEED
 	move_and_slide()
-	# Despawn on hitting any static obstacle.
+	# Despawn on hitting any static obstacle; notify lightable bodies.
 	if get_slide_collision_count() > 0:
+		for i in range(get_slide_collision_count()):
+			var col := get_slide_collision(i)
+			var collider := col.get_collider()
+			if collider and collider.has_method("on_hit"):
+				collider.on_hit()
 		queue_free()
 
 

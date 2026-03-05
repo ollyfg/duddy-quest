@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://devilssnare1"]
+
+[ext_resource type="Script" path="res://scripts/devils_snare.gd" id="1_devilssnare"]
+
+[sub_resource type="RectangleShape2D" id="RectSh_vine"]
+size = Vector2(32, 32)
+
+[node name="DevilsSnare" type="Area2D"]
+collision_layer = 1
+collision_mask = 2
+script = ExtResource("1_devilssnare")
+
+[node name="Sprite" type="ColorRect" parent="."]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.1, 0.5, 0.1, 0.8)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectSh_vine")
