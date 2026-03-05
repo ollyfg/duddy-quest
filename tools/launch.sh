@@ -75,9 +75,10 @@ if [ -f "$GODOT_PID_FILE" ] && kill -0 "$(cat "$GODOT_PID_FILE")" 2>/dev/null; t
 fi
 
 # ---------------------------------------------------------------------------
-# Start Xvfb
+# Start Xvfb (nohup so it survives when the calling shell exits)
 # ---------------------------------------------------------------------------
-Xvfb ":$DISPLAY_NUM" -screen 0 "${GAME_WIDTH}x${GAME_HEIGHT}x24" &
+nohup Xvfb ":$DISPLAY_NUM" -screen 0 "${GAME_WIDTH}x${GAME_HEIGHT}x24" \
+    > /tmp/duddy_quest_xvfb.log 2>&1 &
 XVFB_PID=$!
 echo "$XVFB_PID" > "$XVFB_PID_FILE"
 echo "Xvfb started on display :$DISPLAY_NUM (PID $XVFB_PID)"

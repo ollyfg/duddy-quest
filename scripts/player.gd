@@ -75,6 +75,9 @@ func _physics_process(delta: float) -> void:
 		velocity = _knockback_velocity
 		_moving = false
 		move_and_slide()
+		# Feed the post-collision (wall-slid) velocity back so the player
+		# slides along walls instead of being pushed into them.
+		_knockback_velocity = velocity
 	else:
 		if _moving:
 			var to_target: Vector2 = _target_pos - global_position
@@ -171,6 +174,17 @@ func take_damage(amount: int) -> void:
 
 func apply_knockback(direction: Vector2) -> void:
 	_knockback_velocity = direction.normalized() * KNOCKBACK_SPEED
+
+
+## Cancels any in-progress grid step and clears knockback.
+## Call this whenever the player is teleported to a new position (e.g. room
+## transition) so stale movement state from the old room does not carry over.
+func cancel_movement() -> void:
+	_moving = false
+	_target_pos = global_position
+	_step_start = global_position
+	velocity = Vector2.ZERO
+	_knockback_velocity = Vector2.ZERO
 
 
 func set_camera_limits(rect: Rect2) -> void:

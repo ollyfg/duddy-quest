@@ -48,6 +48,7 @@ func _ready() -> void:
 	player.add_to_group("player")
 	player.hp_changed.connect(_update_hp_display)
 	player.wand_acquired.connect(_on_wand_acquired)
+	player.died.connect(_on_player_died)
 	dialog_box.dialog_ended.connect(_on_dialog_ended)
 
 	# Allow launching into a specific level via --level <name> CLI argument.
@@ -94,6 +95,9 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 
 	player.global_position = player_pos
+	# Reset any in-progress grid step so stale movement from the old room
+	# does not carry over and lock the player's controls in the new room.
+	player.cancel_movement()
 	player.set_camera_limits(current_room.get_room_rect())
 	_update_hp_display(player.hp)
 	_update_wand_display()
@@ -129,6 +133,30 @@ func _set_dialog_active(active: bool) -> void:
 
 func _update_hp_display(new_hp: int) -> void:
 	hp_label.text = "HP: " + str(new_hp)
+
+
+func _on_player_died() -> void:
+	# Show a simple "GAME OVER" overlay and restart after a short delay.
+	var overlay := CanvasLayer.new()
+	overlay.layer = 20
+	add_child(overlay)
+
+	var bg := ColorRect.new()
+	bg.color = Color(0, 0, 0, 0.6)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(bg)
+
+	var label := Label.new()
+	label.text = "GAME OVER\nRestarting…"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var font_size_prop := &"theme_override_font_sizes/font_size"
+	label.set(font_size_prop, 32)
+	overlay.add_child(label)
+
+	await get_tree().create_timer(2.5).timeout
+	get_tree().reload_current_scene()
 
 
 func _on_wand_acquired() -> void:

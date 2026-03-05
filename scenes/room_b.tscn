@@ -138,7 +138,7 @@ detection_range = 180.0
 [node name="Switches" type="Node2D" parent="."]
 
 [node name="EastDoorSwitch" parent="Switches" instance=ExtResource("3_switch")]
-position = Vector2(200.0, 150.0)
+position = Vector2(200.0, 240.0)
 id = "east_door"
 locked_exit = "east"
 
