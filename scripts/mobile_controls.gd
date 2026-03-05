@@ -26,12 +26,17 @@ const _BTN_ACTIONS: Dictionary = {
 
 # Cached mapping: action name -> Button node (populated in _ready).
 var _action_buttons: Dictionary = {}
+# Cached reference to the ranged-attack button for quick visibility toggling.
+var _btn_ranged: Button
 
 
 func _ready() -> void:
 	visible = DisplayServer.is_touchscreen_available()
 	for btn_name: String in _BTN_ACTIONS:
 		_action_buttons[_BTN_ACTIONS[btn_name]] = _overlay.get_node(btn_name)
+	_btn_ranged = _overlay.get_node("BtnRanged")
+	# The ranged button is hidden until the player acquires the wand.
+	_btn_ranged.visible = false
 
 
 func _input(event: InputEvent) -> void:
@@ -80,3 +85,9 @@ func _notification(what: int) -> void:
 		for action: String in _touch_actions.values():
 			Input.action_release(action)
 		_touch_actions.clear()
+
+
+## Show or hide the ranged-attack button.  Call this when the player acquires
+## (or loses) the wand so the button only appears when it is usable.
+func set_ranged_visible(show: bool) -> void:
+	_btn_ranged.visible = show

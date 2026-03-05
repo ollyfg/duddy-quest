@@ -15,10 +15,10 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Duddy Quest"
-run/main_scene="uid://main"
+run/main_scene="uid://titlescreen"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
-config/run/main_scene="res://scenes/main.tscn"
+config/run/main_scene="res://scenes/title_screen.tscn"
 
 [display]
 
@@ -68,6 +68,7 @@ interact={
 
 [autoload]
 
+GameState="*res://scripts/game_state.gd"
 DevTools="*res://scripts/dev_tools.gd"
 
 [rendering]

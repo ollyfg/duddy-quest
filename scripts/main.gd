@@ -43,7 +43,7 @@ var _room_states: Dictionary = {}
 # Untyped to allow calling dialog_box.gd methods (is_active, start_dialog).
 @onready var dialog_box = $HUD/DialogBox
 @onready var hp_label: Label = $HUD/HPLabel
-@onready var wand_label: Label = $HUD/WandLabel
+@onready var mobile_controls = $MobileControls
 
 
 func _ready() -> void:
@@ -53,9 +53,11 @@ func _ready() -> void:
 	player.died.connect(_on_player_died)
 	dialog_box.dialog_ended.connect(_on_dialog_ended)
 
-	# Allow launching into a specific level via --level <name> CLI argument.
+	# Allow launching into a specific level via --level <name> CLI argument;
+	# otherwise use the level chosen on the level-select screen.
 	var args := OS.get_cmdline_user_args()
-	var level_name := "training"
+	# Fall back to "training" if the stored level is missing from LEVELS.
+	var level_name: String = GameState.selected_level if GameState.selected_level in LEVELS else "training"
 	var idx := args.find("--level")
 	if idx >= 0:
 		if idx + 1 < args.size():
@@ -63,9 +65,9 @@ func _ready() -> void:
 			if requested in LEVELS:
 				level_name = requested
 			else:
-				push_warning("Unknown level '%s', falling back to 'training'." % requested)
+				push_warning("Unknown level '%s', falling back to '%s'." % [requested, level_name])
 		else:
-			push_warning("--level flag provided without a value, using 'training'.")
+			push_warning("--level flag provided without a value, using '%s'." % level_name)
 
 	_load_level(level_name)
 
@@ -207,11 +209,14 @@ func _set_dialog_active(active: bool) -> void:
 
 
 func _update_hp_display(new_hp: int) -> void:
-	hp_label.text = "HP: " + str(new_hp)
+	var dots := ""
+	for i: int in range(player.MAX_HP):
+		dots += "●" if i < new_hp else "○"
+	hp_label.text = dots
 
 
 func _on_player_died() -> void:
-	# Show a simple "GAME OVER" overlay and restart after a short delay.
+	# Show a "GAME OVER" overlay then return to the level-select screen.
 	var overlay := CanvasLayer.new()
 	overlay.layer = 20
 	add_child(overlay)
@@ -222,7 +227,7 @@ func _on_player_died() -> void:
 	overlay.add_child(bg)
 
 	var label := Label.new()
-	label.text = "GAME OVER\nRestarting…"
+	label.text = "GAME OVER"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -231,7 +236,7 @@ func _on_player_died() -> void:
 	overlay.add_child(label)
 
 	await get_tree().create_timer(2.5).timeout
-	get_tree().reload_current_scene()
+	get_tree().change_scene_to_file("res://scenes/level_select.tscn")
 
 
 func _on_wand_acquired() -> void:
@@ -239,4 +244,4 @@ func _on_wand_acquired() -> void:
 
 
 func _update_wand_display() -> void:
-	wand_label.text = "Wand: " + ("YES" if player.has_wand else "NO")
+	mobile_controls.set_ranged_visible(player.has_wand)
