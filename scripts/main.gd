@@ -37,20 +37,30 @@ const LEVELS: Dictionary = {
 		"start_pos": Vector2(80.0, 240.0),
 		"rooms": {
 			"l1_bedroom": preload("res://scenes/l1_bedroom.tscn"),
+			"l1_upper_hall": preload("res://scenes/l1_upper_hall.tscn"),
 			"l1_hallway": preload("res://scenes/l1_hallway.tscn"),
+			"l1_front_hall": preload("res://scenes/l1_front_hall.tscn"),
 			"l1_garden": preload("res://scenes/l1_garden.tscn"),
 			"l1_street": preload("res://scenes/l1_street.tscn"),
 		},
 		"connections": {
 			"l1_bedroom": {
+				"east": {"room": "l1_upper_hall", "entry": Vector2(64.0, 240.0)},
+			},
+			"l1_upper_hall": {
+				"west": {"room": "l1_bedroom", "entry": Vector2(576.0, 240.0)},
 				"east": {"room": "l1_hallway", "entry": Vector2(64.0, 240.0)},
 			},
 			"l1_hallway": {
-				"west": {"room": "l1_bedroom", "entry": Vector2(576.0, 240.0)},
+				"west": {"room": "l1_upper_hall", "entry": Vector2(576.0, 240.0)},
+				"east": {"room": "l1_front_hall", "entry": Vector2(64.0, 240.0)},
+			},
+			"l1_front_hall": {
+				"west": {"room": "l1_hallway", "entry": Vector2(576.0, 240.0)},
 				"east": {"room": "l1_garden", "entry": Vector2(64.0, 240.0)},
 			},
 			"l1_garden": {
-				"west": {"room": "l1_hallway", "entry": Vector2(576.0, 240.0)},
+				"west": {"room": "l1_front_hall", "entry": Vector2(576.0, 240.0)},
 				"east": {"room": "l1_street", "entry": Vector2(64.0, 240.0)},
 			},
 			"l1_street": {
@@ -166,7 +176,7 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 			elif not npc.is_hostile:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
-			if npc.has_signal("player_detected") and npc.get("detection_dialog") != "":
+			if npc.detection_dialog != "":
 				npc.player_detected.connect(_on_npc_player_detected)
 
 	player.global_position = player_pos
@@ -367,6 +377,13 @@ func _update_wand_display() -> void:
 func _on_level_end_reached(trigger: Node) -> void:
 	player.is_in_dialog = true
 	var slides: Array = trigger.end_cutscene_slides
+	# Level-specific end cutscenes (defined here because Dictionaries with Color
+	# values cannot be serialised directly in .tscn property overrides).
+	if slides.is_empty() and current_level_name == "level_1":
+		slides = [
+			{"image": null, "text": "Dudley boards the number 9 bus.\nIt takes him in completely the wrong direction.", "background_color": Color(0.1, 0.1, 0.1)},
+			{"image": null, "text": "The bus deposits him — confusingly — in central London,\noutside a rather grubby pub he could have sworn\nwasn't there yesterday.", "background_color": Color(0.1, 0.1, 0.1)},
+		]
 	var _do_complete := func(): _show_level_complete(trigger)
 	if slides.size() > 0:
 		play_cutscene(slides, _do_complete)
