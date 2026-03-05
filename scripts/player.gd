@@ -51,8 +51,16 @@ func remove_key(key_id: String) -> void:
 
 var facing: Vector2 = Vector2.DOWN
 
-var is_in_dialog: bool = false
-var cinematic_mode: bool = false
+var is_in_dialog: bool = false:
+	set(value):
+		if is_in_dialog and not value:
+			_dialog_closing_frame = true
+		is_in_dialog = value
+var cinematic_mode: bool = false:
+	set(value):
+		if cinematic_mode and not value:
+			_dialog_closing_frame = true
+		cinematic_mode = value
 
 var _melee_timer: float = 0.0
 var _shoot_timer: float = 0.0
@@ -61,6 +69,11 @@ var _knockback_velocity: Vector2 = Vector2.ZERO
 var _moving: bool = false
 var _target_pos: Vector2 = Vector2.ZERO
 var _step_start: Vector2 = Vector2.ZERO
+## Set when dialog closes so attack input consumed to dismiss dialog is not
+## forwarded to the player as an attack on the same physics frame.
+var _dialog_closing_frame: bool = false
+## Reused by _choose_step to avoid allocating a new object every physics tick.
+var _step_collision: KinematicCollision2D = KinematicCollision2D.new()
 
 @onready var melee_area: Area2D = $MeleeArea
 @onready var projectile_spawn: Marker2D = $ProjectileSpawn
@@ -130,14 +143,18 @@ func _physics_process(delta: float) -> void:
 			if input_dir != Vector2.ZERO:
 				facing = Vector2(sign(input_dir.x), sign(input_dir.y)).normalized()
 				var snapped: Vector2 = global_position.snapped(Vector2.ONE * GRID_SIZE)
-				_step_start = snapped
-				# Each pressed axis moves by one full grid step (supports diagonal).
-				_target_pos = snapped + Vector2(
-					(sign(input_dir.x) * GRID_SIZE) if input_dir.x != 0.0 else 0.0,
-					(sign(input_dir.y) * GRID_SIZE) if input_dir.y != 0.0 else 0.0
+				var desired := Vector2(
+					sign(input_dir.x) * GRID_SIZE if input_dir.x != 0.0 else 0.0,
+					sign(input_dir.y) * GRID_SIZE if input_dir.y != 0.0 else 0.0
 				)
-				global_position = snapped
-				_moving = true
+				# Pre-test the step so walls are avoided before committing.
+				# For diagonal input this enables wall-sliding along each axis.
+				var step := _choose_step(snapped, desired)
+				if step != Vector2.ZERO:
+					_step_start = snapped
+					_target_pos = snapped + step
+					global_position = snapped
+					_moving = true
 
 		move_and_slide()
 		if _moving and get_slide_collision_count() > 0:
@@ -162,10 +179,37 @@ func _physics_process(delta: float) -> void:
 				velocity = Vector2.ZERO
 				_moving = false
 
-	if Input.is_action_just_pressed("melee_attack"):
-		_perform_melee()
-	if Input.is_action_just_pressed("ranged_attack"):
-		_perform_ranged()
+	# Guard attacks: suppress on the frame dialog closes so the key-press that
+	# dismissed the dialog does not also fire a melee swing or ranged shot.
+	if not _dialog_closing_frame:
+		if Input.is_action_just_pressed("melee_attack"):
+			_perform_melee()
+		if Input.is_action_just_pressed("ranged_attack"):
+			_perform_ranged()
+	_dialog_closing_frame = false
+
+
+## Returns the best grid step from `from` toward `desired`, with wall-sliding.
+## Tests the full step first; if blocked by a non-pushable static body and the
+## input is diagonal, each axis is tried individually so the player slides
+## along walls instead of stopping dead.  Returns Vector2.ZERO when fully
+## blocked.
+func _choose_step(from: Vector2, desired: Vector2) -> Vector2:
+	var xform := get_global_transform()
+	xform.origin = from
+	if not test_move(xform, desired, _step_collision):
+		return desired  # Full path is clear.
+	# If the obstacle is a pushable block, commit anyway so the push fires.
+	var collider := _step_collision.get_collider()
+	if collider != null and collider.is_in_group("pushable"):
+		return desired
+	# Diagonal input blocked: try each axis alone (wall-slide).
+	if desired.x != 0.0 and desired.y != 0.0:
+		if not test_move(xform, Vector2(desired.x, 0.0)):
+			return Vector2(desired.x, 0.0)
+		if not test_move(xform, Vector2(0.0, desired.y)):
+			return Vector2(0.0, desired.y)
+	return Vector2.ZERO  # Completely blocked.
 
 
 func _perform_melee() -> void:
