@@ -27,8 +27,8 @@ Dudley does not forget.
 
 **Puzzles:**
 - **The Locked Door:** Use accidental magic (triggered by mashing the attack buttons in frustration) to rattle the handle until the lock gives way — but only *after* working out that magic won't fire unless Dudley is genuinely furious.  Clue: re-reading the letter out loud does the trick.
-- **The Petunia Gauntlet:** Sneak past Aunt Petunia vacuuming the landing by using her own strict timetable against her — wait for the Hoover noise to cover each footstep, then dart through the gaps.
-- **Mrs. Figg's Cats:** Mrs. Arabella Figg blocks the garden gate, insisting on showing Dudley pictures of Mr Tibbles.  She says: *"Now this is Tibbles, and that's Mr Tibbles — not the same cat, mind you — and this big one is Snowy, and that's Tibbles on the left…"*  The puzzle: spot the cat name she repeats within a single rambling sentence (answer: **Mr Tibbles**, mentioned twice).  That cat is lurking near the gate and has Dudley's bus fare tucked under its collar.
+- **The Petunia Gauntlet:** Sneak past Aunt Petunia vacuuming the landing by using her own strict timetable against her — wait for her to go into a hallway room, then dart through the gaps.
+- **Mrs. Figg's Cats:** Mrs. Arabella Figg blocks the garden gate, insisting on showing Dudley pictures of Mr Tibbles.  She says: *"Now this is Tibbles, and that's Mr Tibbles — not the same cat, mind you — and this big one is Snowy, and that's Tibbles on the left…"* She eventually mentions that she is missing one of her cats, Mr Tibbles.  The puzzle: there are multiple cats in the garden, and only one that fits all the descriptions of Mr Tibbles.  That cat has Dudley's bus fare tucked under its collar.
 
 **Combat:**
 - **Piers Polkiss and the Gang** roam Magnolia Crescent.  They think Dudley has finally gone soft ("carrying a stick like a *nerd*").  Fight them off with the Smeltings stick to clear the path to the bus stop.
