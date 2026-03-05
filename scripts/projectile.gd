@@ -43,3 +43,6 @@ func _on_hit_area_body_entered(body: Node) -> void:
 	elif not is_enemy_projectile and body.is_in_group("enemy"):
 		body.take_damage(1)
 		queue_free()
+	elif not is_enemy_projectile and body.has_method("on_hit"):
+		body.on_hit()
+		queue_free()

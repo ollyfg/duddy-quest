@@ -33,7 +33,11 @@ enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE }
 
 signal interaction_requested
 
-const KNOCKBACK_SPEED: float = 250.0
+const KNOCKBACK_SPEED: float = 400.0
+const KNOCKBACK_THRESHOLD: float = 5.0
+const KNOCKBACK_DECAY_MULTIPLIER: float = 6.0
+## How long the enemy freezes after being knocked back before resuming AI.
+const STUN_DURATION: float = 0.5
 ## Inner and outer bounds for KEEP_DISTANCE mode.
 const KEEP_DIST_MARGIN: float = 50.0
 ## Clamp bounds keeping NPCs inside the room walls (640×480 room, 24 px walls,
@@ -51,6 +55,7 @@ var _wander_timer: float = 0.0
 var _wander_dir: Vector2 = Vector2.ZERO
 var _player_ref: Node = null
 var _knockback_velocity: Vector2 = Vector2.ZERO
+var _stun_timer: float = 0.0
 var _shoot_timer: float = 0.0
 
 @onready var sprite: ColorRect = $Sprite
@@ -68,7 +73,23 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * KNOCKBACK_DECAY_MULTIPLIER)
+	_stun_timer = maxf(0.0, _stun_timer - delta)
+
 	if is_paused:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
+	# While knocked back: fly freely, skip all AI.
+	if _knockback_velocity.length() > KNOCKBACK_THRESHOLD:
+		velocity = _knockback_velocity
+		move_and_slide()
+		global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
+		return
+
+	# Briefly frozen after knockback ends before resuming chase.
+	if _stun_timer > 0.0:
 		velocity = Vector2.ZERO
 		move_and_slide()
 		return
@@ -117,9 +138,6 @@ func _physics_process(delta: float) -> void:
 			if _shoot_timer <= 0.0:
 				_shoot_timer = shoot_cooldown
 				_fire_projectile()
-
-	velocity += _knockback_velocity
-	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * 6.0)
 
 	move_and_slide()
 	# Prevent knockback from pushing NPCs through exit gaps in the walls.
@@ -190,6 +208,7 @@ func take_damage(amount: int) -> void:
 
 func apply_knockback(direction: Vector2) -> void:
 	_knockback_velocity = direction.normalized() * KNOCKBACK_SPEED
+	_stun_timer = STUN_DURATION
 
 
 func _on_hit_area_body_entered(body: Node) -> void:
