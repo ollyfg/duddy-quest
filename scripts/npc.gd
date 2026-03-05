@@ -40,6 +40,10 @@ const KEEP_DIST_MARGIN: float = 50.0
 ## 8 px half-body).  Prevents knockback from pushing enemies through exit gaps.
 const ROOM_BOUNDS_MIN: Vector2 = Vector2(32.0, 32.0)
 const ROOM_BOUNDS_MAX: Vector2 = Vector2(608.0, 448.0)
+const FRIENDLY_COLOR: Color = Color(0.2, 0.4, 0.9)
+const HOSTILE_COLOR: Color = Color(0.8, 0.1, 0.1)
+## Flash color used when any NPC takes damage.
+const DAMAGE_FLASH_COLOR: Color = Color(1.0, 0.3, 0.3)
 
 var hp: int
 var is_paused: bool = false
@@ -175,6 +179,11 @@ func _fire_projectile() -> void:
 
 func take_damage(amount: int) -> void:
 	hp -= amount
+	var base_color: Color = HOSTILE_COLOR if is_hostile else FRIENDLY_COLOR
+	sprite.color = DAMAGE_FLASH_COLOR
+	var tween := create_tween()
+	tween.tween_interval(0.2)
+	tween.tween_property(sprite, "color", base_color, 0.0)
 	if hp <= 0:
 		queue_free()
 

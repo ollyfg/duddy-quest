@@ -12,6 +12,8 @@ const KNOCKBACK_SPEED: float = 300.0
 const GRID_SIZE: int = 16
 const KNOCKBACK_THRESHOLD: float = 5.0
 const GRID_SNAP_THRESHOLD: float = 2.0
+const PLAYER_COLOR: Color = Color(0, 0.75, 0.2)
+const DAMAGE_FLASH_COLOR: Color = Color(1.0, 0.2, 0.2)
 
 @export var projectile_scene: PackedScene
 
@@ -41,6 +43,7 @@ var _step_start: Vector2 = Vector2.ZERO
 @onready var melee_area: Area2D = $MeleeArea
 @onready var projectile_spawn: Marker2D = $ProjectileSpawn
 @onready var sprite: ColorRect = $Sprite
+@onready var melee_sprite: ColorRect = $MeleeArea/MeleeSprite
 @onready var camera: Camera2D = $Camera2D
 
 
@@ -122,9 +125,11 @@ func _perform_melee() -> void:
 	melee_area.position = facing * 24.0
 	melee_area.monitoring = true
 	melee_area.monitorable = true
+	melee_sprite.visible = true
 	await get_tree().create_timer(0.15).timeout
 	melee_area.monitoring = false
 	melee_area.monitorable = false
+	melee_sprite.visible = false
 
 
 func _perform_ranged() -> void:
@@ -143,6 +148,10 @@ func take_damage(amount: int) -> void:
 		return
 	_invincible_timer = 1.0
 	hp -= amount
+	sprite.color = DAMAGE_FLASH_COLOR
+	var tween := create_tween()
+	tween.tween_interval(0.2)
+	tween.tween_property(sprite, "color", PLAYER_COLOR, 0.0)
 	if hp <= 0:
 		died.emit()
 		queue_free()
