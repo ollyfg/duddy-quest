@@ -4,7 +4,14 @@ extends CharacterBody2D
 ## friendly NPC (wanders and can be talked to).
 @export var is_hostile: bool = false
 
-## Lines shown when the player interacts with a friendly NPC.
+## Display name shown as the speaker label in the dialog box.
+## Leave empty to show no speaker label.
+@export var display_name: String = ""
+
+## Dialog tree shown when the player talks to a friendly NPC.
+## Each element may be a String (simple line) or a Dictionary of the form:
+##   { "text": "...", "speaker": "...", "choices": [ {"label": "...", "next": [...]} ] }
+## See dialog_box.gd for the full tree format.
 @export var dialog_lines: Array = ["Hello, traveler!", "Good luck on your quest!"]
 
 @export var move_speed: float = 60.0
@@ -150,6 +157,8 @@ func _physics_process(delta: float) -> void:
 					_keep_distance()
 				else:
 					velocity = Vector2.ZERO
+			MovementMode.PATROL:
+				_patrol()
 
 		# Ranged attack when in range and able to shoot.
 		if can_shoot and _player_ref:
@@ -199,6 +208,18 @@ func _keep_distance() -> void:
 		velocity = to_player.normalized() * move_speed * 0.6
 	else:
 		velocity = Vector2.ZERO
+
+
+## Walks between _patrol_a and _patrol_b indefinitely.
+## Direction flips when the NPC reaches within 4 px of the current waypoint.
+func _patrol() -> void:
+	var target: Vector2 = _patrol_b if _patrol_dir == 1 else _patrol_a
+	var to_target: Vector2 = target - global_position
+	if to_target.length() < 4.0:
+		_patrol_dir = -_patrol_dir
+		target = _patrol_b if _patrol_dir == 1 else _patrol_a
+		to_target = target - global_position
+	velocity = to_target.normalized() * move_speed
 
 
 ## Fire a projectile toward the player.
