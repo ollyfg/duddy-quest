@@ -122,7 +122,14 @@ func _physics_process(delta: float) -> void:
 					blocked = true
 					break
 			if blocked:
-				# Hit a wall mid-step: snap back to step start.
+				# Check if the blocking body is a pushable block.
+				var push_dir := (_target_pos - _step_start).normalized()
+				for i: int in range(get_slide_collision_count()):
+					var collider := get_slide_collision(i).get_collider()
+					if collider and collider.is_in_group("pushable"):
+						collider.try_push(push_dir)
+						break
+				# Snap back to step start regardless (block handles its own move).
 				global_position = _step_start
 				velocity = Vector2.ZERO
 				_moving = false

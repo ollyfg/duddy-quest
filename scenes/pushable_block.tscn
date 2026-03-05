@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://pushableblk1"]
+
+[ext_resource type="Script" path="res://scripts/pushable_block.gd" id="1_pushable"]
+
+[sub_resource type="RectangleShape2D" id="RectSh_body"]
+size = Vector2(16, 16)
+
+[node name="PushableBlock" type="CharacterBody2D"]
+script = ExtResource("1_pushable")
+
+[node name="Sprite" type="ColorRect" parent="."]
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.6, 0.6, 0.6, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectSh_body")
