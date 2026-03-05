@@ -33,6 +33,16 @@ offset_bottom = 74.0
 text = "🗝 0"
 theme_override_font_sizes/font_size = 20
 
+[node name="FrustrationBar" type="ProgressBar" parent="HUD"]
+visible = false
+offset_left = 10.0
+offset_top = 78.0
+offset_right = 150.0
+offset_bottom = 94.0
+min_value = 0.0
+max_value = 100.0
+value = 0.0
+
 [node name="DialogBox" parent="HUD" instance=ExtResource("3_dialog")]
 
 [node name="MobileControls" parent="." instance=ExtResource("4_mobile")]

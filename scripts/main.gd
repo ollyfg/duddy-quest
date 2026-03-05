@@ -46,6 +46,7 @@ var _room_states: Dictionary = {}
 @onready var dialog_box = $HUD/DialogBox
 @onready var hp_label: Label = $HUD/HPLabel
 @onready var key_label: Label = $HUD/KeyLabel
+@onready var frustration_bar: ProgressBar = $HUD/FrustrationBar
 @onready var mobile_controls = $MobileControls
 
 var _cinematic_player: Node = null
@@ -57,6 +58,8 @@ func _ready() -> void:
 	player.wand_acquired.connect(_on_wand_acquired)
 	player.died.connect(_on_player_died)
 	player.keys_changed.connect(_update_key_display)
+	player.frustration_changed.connect(_update_frustration_bar)
+	player.frustration_full.connect(_on_frustration_full)
 	dialog_box.dialog_ended.connect(_on_dialog_ended)
 
 	# Allow launching into a specific level via --level <name> CLI argument;
@@ -250,6 +253,25 @@ func _update_key_display(count: int) -> void:
 		key_label.visible = true
 	else:
 		key_label.visible = false
+
+
+func _update_frustration_bar(value: float) -> void:
+	frustration_bar.value = value * 100.0
+	frustration_bar.visible = player.frustration_enabled
+
+
+func _on_frustration_full() -> void:
+	var flash_layer := CanvasLayer.new()
+	flash_layer.layer = 15
+	add_child(flash_layer)
+	var flash_rect := ColorRect.new()
+	flash_rect.color = Color(1.0, 1.0, 1.0, 0.7)
+	flash_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash_layer.add_child(flash_rect)
+	var tween := create_tween()
+	tween.tween_interval(0.1)
+	tween.tween_property(flash_rect, "color:a", 0.0, 0.3)
+	tween.tween_callback(flash_layer.queue_free)
 
 
 func _on_locked_exit_attempted(_direction: String, _key_id: String) -> void:

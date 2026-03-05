@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://magicdoor"]
+
+[ext_resource type="Script" path="res://scripts/magic_door.gd" id="1_magicdoor"]
+
+[sub_resource type="RectangleShape2D" id="RectSh_door"]
+size = Vector2(32, 32)
+
+[node name="MagicDoor" type="StaticBody2D"]
+collision_layer = 1
+collision_mask = 2
+script = ExtResource("1_magicdoor")
+
+[node name="Sprite" type="ColorRect" parent="."]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.3, 0.0, 0.6, 1)
+mouse_filter = 2
+
+[node name="MagicGlow" type="ColorRect" parent="."]
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+color = Color(0.8, 0.2, 1.0, 0.7)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectSh_door")

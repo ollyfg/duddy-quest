@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+signal projectile_missed
+
 const SPEED: float = 300.0
 const LIFETIME: float = 2.0
 
@@ -10,6 +12,7 @@ var is_enemy_projectile: bool = false
 ## When true the player can deflect this projectile with a melee attack.
 @export var deflectable: bool = false
 var _reflected: bool = false
+var _hit_something: bool = false
 
 var _lifetime: float = LIFETIME
 
@@ -46,12 +49,15 @@ func reflect() -> void:
 func _physics_process(delta: float) -> void:
 	_lifetime -= delta
 	if _lifetime <= 0.0:
+		if not _hit_something and not is_enemy_projectile:
+			projectile_missed.emit()
 		queue_free()
 		return
 	velocity = direction * SPEED
 	move_and_slide()
 	# Despawn on hitting any static obstacle; notify lightable bodies.
 	if get_slide_collision_count() > 0:
+		_hit_something = true
 		for i in range(get_slide_collision_count()):
 			var col := get_slide_collision(i)
 			var collider := col.get_collider()
@@ -62,14 +68,17 @@ func _physics_process(delta: float) -> void:
 
 func _on_hit_area_body_entered(body: Node) -> void:
 	if is_enemy_projectile and body.is_in_group("player"):
+		_hit_something = true
 		body.take_damage(1)
 		queue_free()
 	elif not is_enemy_projectile and body.is_in_group("enemy"):
+		_hit_something = true
 		if _reflected and body.has_method("on_reflected_hit"):
 			body.on_reflected_hit()
 		else:
 			body.take_damage(1)
 		queue_free()
 	elif not is_enemy_projectile and body.has_method("on_hit"):
+		_hit_something = true
 		body.on_hit()
 		queue_free()
