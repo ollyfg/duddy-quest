@@ -47,6 +47,23 @@ the engine has time to load the main scene.
 python3 tools/playtest.py wait       # blocks until DevTools responds
 ```
 
+> **⚠️ Agent / scripted use: always detach the process.**
+> Both Xvfb and Godot are started with `nohup` inside `launch.sh`, so they
+> survive when the calling shell exits.  However, when using the `bash` tool
+> from an agent context you **must** launch with `detach: true` (or via
+> `mode="async", detach=true`) so that the process group is fully detached via
+> `setsid`.  Without this the entire process group (Godot + Xvfb) will be
+> killed when the agent's shell session ends.
+>
+> **Correct agent launch pattern:**
+> ```
+> # bash tool call: command="bash tools/launch.sh", mode="async", detach=true
+> ```
+> Then in a separate bash call (mode="sync"):
+> ```bash
+> python3 tools/playtest.py wait   # block until DevTools is ready
+> ```
+
 ### 3 – Take a screenshot
 
 ```bash

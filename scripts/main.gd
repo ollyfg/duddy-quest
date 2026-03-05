@@ -94,6 +94,9 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 
 	player.global_position = player_pos
+	# Reset any in-progress grid step so stale movement from the old room
+	# does not carry over and lock the player's controls in the new room.
+	player.cancel_movement()
 	player.set_camera_limits(current_room.get_room_rect())
 	_update_hp_display(player.hp)
 	_update_wand_display()

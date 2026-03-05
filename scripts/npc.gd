@@ -81,6 +81,9 @@ func _physics_process(delta: float) -> void:
 	if _knockback_velocity.length() > KNOCKBACK_THRESHOLD:
 		velocity = _knockback_velocity
 		move_and_slide()
+		# Feed the post-collision (wall-slid) velocity back so the NPC
+		# slides along walls instead of being pushed into them.
+		_knockback_velocity = velocity
 		global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
 		return
 
