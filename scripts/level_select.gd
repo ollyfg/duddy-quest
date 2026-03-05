@@ -1,5 +1,7 @@
 extends Node2D
 
+const MobileControls = preload("res://scenes/mobile_controls.tscn")
+
 ## Maps level IDs (matching LEVELS keys in main.gd) to display names.
 const LEVEL_LIST: Array[Dictionary] = [
 	{"id": "training", "name": "Training"},
@@ -10,6 +12,8 @@ var _list_label: Label
 
 
 func _ready() -> void:
+	add_child(MobileControls.instantiate())
+
 	var canvas := CanvasLayer.new()
 	canvas.layer = 0
 	add_child(canvas)

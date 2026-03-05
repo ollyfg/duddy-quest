@@ -1,6 +1,10 @@
 extends Node2D
 
+const MobileControls = preload("res://scenes/mobile_controls.tscn")
+
 func _ready() -> void:
+	add_child(MobileControls.instantiate())
+
 	var canvas := CanvasLayer.new()
 	canvas.layer = 0
 	add_child(canvas)
