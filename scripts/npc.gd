@@ -12,7 +12,7 @@ extends CharacterBody2D
 
 ## Controls how this NPC moves.  DEFAULT falls back to CHASE when is_hostile
 ## is true, and WANDER otherwise, preserving existing behaviour.
-enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE }
+enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, PATROL }
 @export var movement_mode: MovementMode = MovementMode.DEFAULT
 
 ## Movement mode used when the player is outside detection_range.
@@ -25,6 +25,14 @@ enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE }
 
 ## Preferred stand-off distance used by the KEEP_DISTANCE mode.
 @export var keep_distance_preferred: float = 180.0
+
+## Ordered list of world-space positions this NPC walks between when
+## movement_mode is PATROL.  The NPC loops back to the first point after
+## reaching the last one.
+@export var patrol_points: Array[Vector2] = []
+
+## Seconds to pause at each waypoint before moving to the next.
+@export var patrol_pause_duration: float = 0.0
 
 ## When true this enemy fires projectiles at the player while in range.
 @export var can_shoot: bool = false
@@ -48,6 +56,8 @@ const FRIENDLY_COLOR: Color = Color(0.2, 0.4, 0.9)
 const HOSTILE_COLOR: Color = Color(0.8, 0.1, 0.1)
 ## Flash color used when any NPC takes damage.
 const DAMAGE_FLASH_COLOR: Color = Color(1.0, 0.3, 0.3)
+## Proximity threshold (px) for considering a patrol waypoint reached.
+const PATROL_ARRIVAL_THRESHOLD: float = 8.0
 
 var hp: int
 var is_paused: bool = false
@@ -57,6 +67,9 @@ var _player_ref: Node = null
 var _knockback_velocity: Vector2 = Vector2.ZERO
 var _stun_timer: float = 0.0
 var _shoot_timer: float = 0.0
+var _patrol_index: int = 0
+var _patrol_pause_timer: float = 0.0
+var _patrol_was_chasing: bool = false
 
 @onready var sprite: ColorRect = $Sprite
 
@@ -70,6 +83,7 @@ func _ready() -> void:
 		add_to_group("npc")
 		sprite.color = Color(0.2, 0.4, 0.9)
 	$HitArea.body_entered.connect(_on_hit_area_body_entered)
+	_collect_patrol_points_from_children()
 
 
 func _physics_process(delta: float) -> void:
@@ -105,6 +119,26 @@ func _physics_process(delta: float) -> void:
 	var in_range: bool = true
 	if is_hostile and _player_ref and detection_range > 0.0:
 		in_range = global_position.distance_to(_player_ref.global_position) <= detection_range
+
+	# PATROL is handled separately: it is the base mode and CHASE is the
+	# activated state when a hostile NPC detects the player.
+	if mode == MovementMode.PATROL:
+		if is_hostile and _player_ref and detection_range > 0.0 and in_range:
+			_patrol_was_chasing = true
+			_chase_player()
+			if can_shoot:
+				_shoot_timer -= delta
+				if _shoot_timer <= 0.0:
+					_shoot_timer = shoot_cooldown
+					_fire_projectile()
+		else:
+			if _patrol_was_chasing:
+				_patrol_was_chasing = false
+				_resume_patrol_from_nearest()
+			_patrol_move(delta)
+		move_and_slide()
+		global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
+		return
 
 	if not in_range:
 		# Use idle behaviour while player is far away.
@@ -196,6 +230,50 @@ func _fire_projectile() -> void:
 	# as the player regardless of the NPC's position in the hierarchy.
 	get_tree().current_scene.add_child(projectile)
 	(projectile as Node2D).global_position = global_position
+
+
+func _collect_patrol_points_from_children() -> void:
+	if not patrol_points.is_empty():
+		return
+	var tagged: Array = []
+	for child in get_children():
+		if child is Marker2D and child.name.begins_with("PatrolPoint"):
+			var suffix: String = (child.name as String).substr(len("PatrolPoint"))
+			var idx: int = suffix.to_int() if suffix.is_valid_int() else -1
+			tagged.append([idx, child.global_position])
+	tagged.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	for entry in tagged:
+		patrol_points.append(entry[1])
+
+
+func _patrol_move(delta: float) -> void:
+	if patrol_points.is_empty():
+		velocity = Vector2.ZERO
+		return
+	if _patrol_pause_timer > 0.0:
+		_patrol_pause_timer -= delta
+		velocity = Vector2.ZERO
+		return
+	var target: Vector2 = patrol_points[_patrol_index]
+	if global_position.distance_to(target) <= PATROL_ARRIVAL_THRESHOLD:
+		_patrol_index = (_patrol_index + 1) % patrol_points.size()
+		_patrol_pause_timer = patrol_pause_duration
+		velocity = Vector2.ZERO
+	else:
+		velocity = (target - global_position).normalized() * move_speed
+
+
+func _resume_patrol_from_nearest() -> void:
+	if patrol_points.is_empty():
+		return
+	var nearest_idx: int = 0
+	var nearest_dist: float = global_position.distance_to(patrol_points[0])
+	for i in range(1, patrol_points.size()):
+		var d: float = global_position.distance_to(patrol_points[i])
+		if d < nearest_dist:
+			nearest_dist = d
+			nearest_idx = i
+	_patrol_index = nearest_idx
 
 
 func take_damage(amount: int) -> void:

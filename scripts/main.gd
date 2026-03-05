@@ -3,6 +3,8 @@ extends Node2D
 # Each level groups its rooms, connections, starting room and starting position.
 const LEVELS: Dictionary = {
 	"training": {
+		"title": "Training",
+		"next_level": "",
 		"start_room": "room_a",
 		"start_pos": Vector2(96.0, 240.0),
 		"rooms": {
@@ -43,7 +45,11 @@ var _room_states: Dictionary = {}
 # Untyped to allow calling dialog_box.gd methods (is_active, start_dialog).
 @onready var dialog_box = $HUD/DialogBox
 @onready var hp_label: Label = $HUD/HPLabel
+@onready var key_label: Label = $HUD/KeyLabel
+@onready var frustration_bar: ProgressBar = $HUD/FrustrationBar
 @onready var mobile_controls = $MobileControls
+
+var _cinematic_player: Node = null
 
 
 func _ready() -> void:
@@ -51,6 +57,9 @@ func _ready() -> void:
 	player.hp_changed.connect(_update_hp_display)
 	player.wand_acquired.connect(_on_wand_acquired)
 	player.died.connect(_on_player_died)
+	player.keys_changed.connect(_update_key_display)
+	player.frustration_changed.connect(_update_frustration_bar)
+	player.frustration_full.connect(_on_frustration_full)
 	dialog_box.dialog_ended.connect(_on_dialog_ended)
 
 	# Allow launching into a specific level via --level <name> CLI argument;
@@ -76,7 +85,13 @@ func _load_level(level_name: String) -> void:
 	current_level_name = level_name
 	_room_states.clear()
 	var level: Dictionary = LEVELS[level_name]
-	_load_room(level["start_room"], level["start_pos"])
+	if level_name == "training":
+		play_cutscene([
+			{"image": null, "text": "D. DURSLEY (THE LARGER ONE)...\nYour journey begins.", "background_color": Color(0.05, 0.05, 0.15)},
+			{"image": null, "text": "Find the exits and fight your way through the training rooms.", "background_color": Color(0.05, 0.05, 0.15)},
+		], func(): _load_room(level["start_room"], level["start_pos"]))
+	else:
+		_load_room(level["start_room"], level["start_pos"])
 
 
 func _load_room(room_name: String, player_pos: Vector2) -> void:
@@ -90,6 +105,12 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	current_room = level_rooms[room_name].instantiate()
 	room_holder.add_child(current_room)
 	current_room.exit_triggered.connect(_on_exit_triggered)
+	current_room.locked_exit_attempted.connect(_on_locked_exit_attempted)
+
+	# Connect level-end triggers.
+	for trigger in get_tree().get_nodes_in_group("level_end"):
+		if trigger.has_signal("level_end_reached") and not trigger.level_end_reached.is_connected(_on_level_end_reached):
+			trigger.level_end_reached.connect(_on_level_end_reached.bind(trigger))
 
 	# Restore saved state (remove dead NPCs, reapply positions/HP) before
 	# connecting any signals so we never wire up nodes about to be freed.
@@ -103,7 +124,10 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 				continue
 			if npc.has_method("set_player_reference"):
 				npc.set_player_reference(player)
-			if not npc.is_hostile:
+			if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
+				npc.boss_defeated.connect(_on_boss_defeated)
+				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
+			elif not npc.is_hostile:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 
 	player.global_position = player_pos
@@ -113,6 +137,14 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	player.set_camera_limits(current_room.get_room_rect())
 	_update_hp_display(player.hp)
 	_update_wand_display()
+
+	# Demo cinematic on first entry to room_a.
+	if room_name == "room_a" and "room_a" not in _room_states:
+		if current_room.has_node("NPCs") and current_room.get_node("NPCs").get_child_count() > 0:
+			var npc_path: String = "NPCs/" + current_room.get_node("NPCs").get_child(0).name
+			play_cinematic([
+				{"type": "dialog", "speaker": npc_path, "lines": ["Welcome to the training area, Dudley!"]},
+			], func() -> void: pass)
 
 
 ## Snapshot the current room's NPC, item, and switch states before transitioning away.
@@ -215,6 +247,39 @@ func _update_hp_display(new_hp: int) -> void:
 	hp_label.text = dots
 
 
+func _update_key_display(count: int) -> void:
+	if count > 0:
+		key_label.text = "🗝 %d" % count
+		key_label.visible = true
+	else:
+		key_label.visible = false
+
+
+func _update_frustration_bar(value: float) -> void:
+	frustration_bar.value = value * 100.0
+	frustration_bar.visible = player.frustration_enabled
+
+
+func _on_frustration_full() -> void:
+	var flash_layer := CanvasLayer.new()
+	flash_layer.layer = 15
+	add_child(flash_layer)
+	var flash_rect := ColorRect.new()
+	flash_rect.color = Color(1.0, 1.0, 1.0, 0.7)
+	flash_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash_layer.add_child(flash_rect)
+	var tween := create_tween()
+	tween.tween_interval(0.1)
+	tween.tween_property(flash_rect, "color:a", 0.0, 0.3)
+	tween.tween_callback(flash_layer.queue_free)
+
+
+func _on_locked_exit_attempted(_direction: String, _key_id: String) -> void:
+	if not dialog_box.is_active():
+		_set_dialog_active(true)
+		dialog_box.start_dialog(["It's locked."])
+
+
 func _on_player_died() -> void:
 	# Show a "GAME OVER" overlay then return to the level-select screen.
 	var overlay := CanvasLayer.new()
@@ -245,3 +310,57 @@ func _on_wand_acquired() -> void:
 
 func _update_wand_display() -> void:
 	mobile_controls.set_ranged_visible(player.has_wand)
+
+
+func _on_level_end_reached(trigger: Node) -> void:
+	player.is_in_dialog = true
+	var slides: Array = trigger.end_cutscene_slides
+	var _do_complete := func(): _show_level_complete(trigger)
+	if slides.size() > 0:
+		play_cutscene(slides, _do_complete)
+	else:
+		_do_complete.call()
+
+
+func _on_boss_defeated() -> void:
+	_show_level_complete()
+
+
+func _show_level_complete(trigger: Node = null) -> void:
+	GameState.mark_complete(current_level_name)
+	var lc_scene: PackedScene = load("res://scenes/level_complete.tscn")
+	var lc: Node = lc_scene.instantiate()
+	lc.level_title = LEVELS[current_level_name].get("title", current_level_name)
+	add_child(lc)
+	lc.continue_pressed.connect(func():
+		lc.queue_free()
+		var next: String = ""
+		if trigger != null and "next_level" in trigger:
+			next = trigger.next_level
+		if next == "":
+			next = LEVELS[current_level_name].get("next_level", "")
+		if next != "" and next in LEVELS:
+			_load_level(next)
+		else:
+			get_tree().change_scene_to_file("res://scenes/level_select.tscn")
+	)
+
+
+func play_cinematic(sequence: Array, on_finish: Callable) -> void:
+	if _cinematic_player == null:
+		_cinematic_player = Node.new()
+		_cinematic_player.set_script(load("res://scripts/cinematic_player.gd"))
+		add_child(_cinematic_player)
+	_cinematic_player.sequence_finished.connect(on_finish, CONNECT_ONE_SHOT)
+	_cinematic_player.play(sequence, current_room, player, dialog_box)
+
+
+func play_cutscene(slides: Array, on_finish: Callable) -> void:
+	var cutscene_scene: PackedScene = load("res://scenes/cutscene.tscn")
+	var cutscene: Node = cutscene_scene.instantiate()
+	add_child(cutscene)
+	cutscene.cutscene_finished.connect(func():
+		on_finish.call()
+		cutscene.queue_free()
+	)
+	cutscene.play(slides)

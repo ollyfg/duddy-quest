@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://lightsource"]
+
+[ext_resource type="Script" path="res://scripts/light_source.gd" id="1_lightsource"]
+
+[sub_resource type="Gradient" id="Gradient_radial"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradTex_radial"]
+gradient = SubResource("Gradient_radial")
+fill = 1
+width = 128
+height = 128
+
+[node name="LightSource" type="Node2D"]
+script = ExtResource("1_lightsource")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+texture = SubResource("GradTex_radial")
+enabled = false

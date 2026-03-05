@@ -29,3 +29,7 @@ autowrap_mode = 3
 [node name="NextButton" type="Button" parent="Panel/VBox"]
 layout_mode = 2
 text = "Next"
+
+[node name="OptionsContainer" type="VBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+visible = false

@@ -3,6 +3,7 @@ extends Node2D
 ## Emitted when the player walks through an exit.  The direction string
 ## matches a key in LEVELS[level_name]["connections"][room_name] in main.gd.
 signal exit_triggered(direction: String)
+signal locked_exit_attempted(direction: String, required_key: String)
 
 const INTERACT_RANGE: float = 60.0
 
@@ -11,6 +12,11 @@ const INTERACT_RANGE: float = 60.0
 
 ## Maps exit direction → true when that exit is currently locked by a switch.
 var _locked_exits: Dictionary = {}
+## Maps exit direction → key_id required to use that exit.
+var _exit_keys: Dictionary = {}
+
+func set_exit_key(direction: String, key_id: String) -> void:
+	_exit_keys[direction] = key_id
 
 
 func _ready() -> void:
@@ -35,6 +41,13 @@ func _on_exit_body_entered(body: Node, direction: String) -> void:
 	if body.is_in_group("player"):
 		if _locked_exits.get(direction, false):
 			return  # Exit is locked by a switch.
+		var req_key: String = _exit_keys.get(direction, "")
+		if req_key != "":
+			if not body.has_key(req_key):
+				locked_exit_attempted.emit(direction, req_key)
+				return
+			else:
+				body.remove_key(req_key)
 		exit_triggered.emit(direction)
 
 
