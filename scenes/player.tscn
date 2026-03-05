@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/projectile.tscn" id="2_proj"]
 
 [sub_resource type="RectangleShape2D" id="RectSh_body"]
-size = Vector2(16, 16)
+size = Vector2(14, 14)
 
 [sub_resource type="RectangleShape2D" id="RectSh_melee"]
 size = Vector2(28, 28)
