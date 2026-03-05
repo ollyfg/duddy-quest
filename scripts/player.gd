@@ -4,8 +4,8 @@ signal hp_changed(new_hp: int)
 signal died
 signal wand_acquired
 signal keys_changed(count: int)
-signal frustration_full
-signal frustration_changed(value: float)
+signal rage_attack
+signal rage_changed(value: float)
 
 const SPEED: float = 150.0
 const MELEE_COOLDOWN: float = 0.5
@@ -17,8 +17,9 @@ const KNOCKBACK_THRESHOLD: float = 5.0
 const GRID_SNAP_THRESHOLD: float = 2.0
 const PLAYER_COLOR: Color = Color(0, 0.75, 0.2)
 const DAMAGE_FLASH_COLOR: Color = Color(1.0, 0.2, 0.2)
-const FRUSTRATION_PER_MISS: float = 0.25
-const FRUSTRATION_DECAY_RATE: float = 0.05
+const RAGE_COLOR: Color = Color(1.0, 0.4, 0.0)
+const RAGE_PER_SWING: float = 0.2
+const RAGE_DECAY_RATE: float = 0.05
 ## Dot-product threshold below which a collision normal is considered to be
 ## opposing the intended step direction (i.e. actually blocking movement).
 const COLLISION_BLOCKING_THRESHOLD: float = -0.3
@@ -39,10 +40,7 @@ var has_wand: bool = false:
 ## Keys currently held by the player.  Persists across room transitions.
 var inventory: Array[String] = []
 
-var frustration: float = 0.0
-var frustration_enabled: bool = false
-var _melee_hit_this_swing: bool = false
-var _accidental_magic_area: Area2D
+var rage: float = 0.0
 
 func has_key(key_id: String) -> bool:
 	return key_id in inventory
@@ -74,27 +72,15 @@ var _step_start: Vector2 = Vector2.ZERO
 func _ready() -> void:
 	melee_area.monitoring = false
 	melee_area.monitorable = false
-	_accidental_magic_area = Area2D.new()
-	_accidental_magic_area.name = "AccidentalMagicArea"
-	_accidental_magic_area.collision_mask = 1
-	_accidental_magic_area.monitoring = false
-	_accidental_magic_area.monitorable = false
-	var am_col := CollisionShape2D.new()
-	var am_shape := CircleShape2D.new()
-	am_shape.radius = 48.0
-	am_col.shape = am_shape
-	_accidental_magic_area.add_child(am_col)
-	add_child(_accidental_magic_area)
-	_accidental_magic_area.body_entered.connect(_on_accidental_magic_area_body_entered)
 
 
 func _process(delta: float) -> void:
 	_melee_timer = maxf(0.0, _melee_timer - delta)
 	_shoot_timer = maxf(0.0, _shoot_timer - delta)
 	_invincible_timer = maxf(0.0, _invincible_timer - delta)
-	if frustration_enabled and frustration > 0.0:
-		frustration = maxf(0.0, frustration - FRUSTRATION_DECAY_RATE * delta)
-		frustration_changed.emit(frustration)
+	if rage > 0.0:
+		rage = maxf(0.0, rage - RAGE_DECAY_RATE * delta)
+		rage_changed.emit(rage)
 
 
 func _physics_process(delta: float) -> void:
@@ -186,17 +172,15 @@ func _perform_melee() -> void:
 	if _melee_timer > 0.0:
 		return
 	_melee_timer = MELEE_COOLDOWN
-	_melee_hit_this_swing = false
 	melee_area.position = facing * 24.0
 	melee_area.monitoring = true
 	melee_area.monitorable = true
 	melee_sprite.visible = true
+	_add_rage(RAGE_PER_SWING)
 	await get_tree().create_timer(0.15).timeout
 	melee_area.monitoring = false
 	melee_area.monitorable = false
 	melee_sprite.visible = false
-	if frustration_enabled and not _melee_hit_this_swing:
-		_add_frustration(FRUSTRATION_PER_MISS)
 
 
 func _perform_ranged() -> void:
@@ -206,8 +190,6 @@ func _perform_ranged() -> void:
 	var projectile: CharacterBody2D = projectile_scene.instantiate()
 	# Call setup before add_child so _ready() on the projectile sees the correct values.
 	projectile.setup(facing, false)
-	if frustration_enabled:
-		projectile.projectile_missed.connect(func(): _add_frustration(FRUSTRATION_PER_MISS))
 	get_parent().add_child(projectile)
 	projectile.global_position = projectile_spawn.global_position
 
@@ -249,8 +231,6 @@ func set_camera_limits(rect: Rect2) -> void:
 
 
 func _on_melee_area_body_entered(body: Node) -> void:
-	if body.is_in_group("enemy") or body.is_in_group("boss"):
-		_melee_hit_this_swing = true
 	# Deflect projectiles before applying melee damage.
 	if body.get("deflectable") == true and body.get("_reflected") == false:
 		body.reflect()
@@ -264,29 +244,50 @@ func _on_melee_area_body_entered(body: Node) -> void:
 		body.apply_knockback(direction)
 
 
-func _add_frustration(amount: float) -> void:
-	frustration = minf(1.0, frustration + amount)
-	frustration_changed.emit(frustration)
-	if frustration >= 1.0:
-		frustration = 0.0
-		frustration_changed.emit(frustration)
-		frustration_full.emit()
-		_trigger_accidental_magic()
+func _add_rage(amount: float) -> void:
+	rage = minf(1.0, rage + amount)
+	rage_changed.emit(rage)
+	if rage >= 1.0:
+		rage = 0.0
+		rage_changed.emit(rage)
+		rage_attack.emit()
+		_trigger_rage_attack()
 
 
-func _trigger_accidental_magic() -> void:
-	sprite.color = Color.WHITE
+func _trigger_rage_attack() -> void:
+	# Spin through all four facing directions for visual effect.
+	for dir: Vector2 in [Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT, Vector2.UP]:
+		melee_area.position = dir * 24.0
+		melee_sprite.visible = true
+		sprite.color = RAGE_COLOR
+		await get_tree().create_timer(0.05).timeout
+	melee_sprite.visible = false
 	var tween := create_tween()
-	tween.tween_interval(0.2)
-	tween.tween_property(sprite, "color", PLAYER_COLOR, 0.0)
-	_accidental_magic_area.monitoring = true
-	_accidental_magic_area.monitorable = true
-	await get_tree().create_timer(0.15).timeout
-	_accidental_magic_area.monitoring = false
-	_accidental_magic_area.monitorable = false
+	tween.tween_property(sprite, "color", PLAYER_COLOR, 0.2)
+	# Use a direct physics query so static bodies are detected immediately.
+	var space := get_world_2d().direct_space_state
+	var query := PhysicsShapeQueryParameters2D.new()
+	var shape := CircleShape2D.new()
+	shape.radius = 64.0
+	query.shape = shape
+	query.transform = global_transform
+	query.collision_mask = 1
+	# Exclude the player itself from the results.
+	query.exclude = [get_rid()]
+	var results: Array[Dictionary] = space.intersect_shape(query)
+	for result: Dictionary in results:
+		var body: Node = result["collider"]
+		_on_rage_area_body_entered(body)
 
 
-func _on_accidental_magic_area_body_entered(body: Node) -> void:
-	if body.is_in_group("accidental_magic_target") or body.is_in_group("breakable"):
-		if body.has_method("on_accidental_magic"):
-			body.on_accidental_magic()
+func _on_rage_area_body_entered(body: Node) -> void:
+	## "breakable" — destructible objects (doors, crates, etc.) with on_rage_attack().
+	## "rage_target" — reserved for future objects with special rage interactions.
+	if body.is_in_group("rage_target") or body.is_in_group("breakable"):
+		if body.has_method("on_rage_attack"):
+			body.on_rage_attack()
+	if body.has_method("take_damage"):
+		body.take_damage(2)
+	if body.has_method("apply_knockback"):
+		var direction: Vector2 = ((body as Node2D).global_position - global_position).normalized()
+		body.apply_knockback(direction)
