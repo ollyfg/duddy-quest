@@ -24,6 +24,15 @@ offset_bottom = 40.0
 text = "●●●●●"
 theme_override_font_sizes/font_size = 24
 
+[node name="KeyLabel" type="Label" parent="HUD"]
+visible = false
+offset_left = 10.0
+offset_top = 44.0
+offset_right = 200.0
+offset_bottom = 74.0
+text = "🗝 0"
+theme_override_font_sizes/font_size = 20
+
 [node name="DialogBox" parent="HUD" instance=ExtResource("3_dialog")]
 
 [node name="MobileControls" parent="." instance=ExtResource("4_mobile")]

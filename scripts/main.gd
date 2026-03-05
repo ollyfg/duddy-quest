@@ -45,6 +45,7 @@ var _room_states: Dictionary = {}
 # Untyped to allow calling dialog_box.gd methods (is_active, start_dialog).
 @onready var dialog_box = $HUD/DialogBox
 @onready var hp_label: Label = $HUD/HPLabel
+@onready var key_label: Label = $HUD/KeyLabel
 @onready var mobile_controls = $MobileControls
 
 var _cinematic_player: Node = null
@@ -55,6 +56,7 @@ func _ready() -> void:
 	player.hp_changed.connect(_update_hp_display)
 	player.wand_acquired.connect(_on_wand_acquired)
 	player.died.connect(_on_player_died)
+	player.keys_changed.connect(_update_key_display)
 	dialog_box.dialog_ended.connect(_on_dialog_ended)
 
 	# Allow launching into a specific level via --level <name> CLI argument;
@@ -100,6 +102,7 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	current_room = level_rooms[room_name].instantiate()
 	room_holder.add_child(current_room)
 	current_room.exit_triggered.connect(_on_exit_triggered)
+	current_room.locked_exit_attempted.connect(_on_locked_exit_attempted)
 
 	# Connect level-end triggers.
 	for trigger in get_tree().get_nodes_in_group("level_end"):
@@ -236,6 +239,20 @@ func _update_hp_display(new_hp: int) -> void:
 	for i: int in range(player.MAX_HP):
 		dots += "●" if i < new_hp else "○"
 	hp_label.text = dots
+
+
+func _update_key_display(count: int) -> void:
+	if count > 0:
+		key_label.text = "🗝 %d" % count
+		key_label.visible = true
+	else:
+		key_label.visible = false
+
+
+func _on_locked_exit_attempted(_direction: String, _key_id: String) -> void:
+	if not dialog_box.is_active():
+		_set_dialog_active(true)
+		dialog_box.start_dialog(["It's locked."])
 
 
 func _on_player_died() -> void:

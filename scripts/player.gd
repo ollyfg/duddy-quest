@@ -3,6 +3,7 @@ extends CharacterBody2D
 signal hp_changed(new_hp: int)
 signal died
 signal wand_acquired
+signal keys_changed(count: int)
 
 const SPEED: float = 150.0
 const MELEE_COOLDOWN: float = 0.5
@@ -30,6 +31,16 @@ var has_wand: bool = false:
 		has_wand = value
 		if value:
 			wand_acquired.emit()
+
+## Keys currently held by the player.  Persists across room transitions.
+var inventory: Array[String] = []
+
+func has_key(key_id: String) -> bool:
+	return key_id in inventory
+
+func remove_key(key_id: String) -> void:
+	inventory.erase(key_id)
+	keys_changed.emit(inventory.size())
 
 var facing: Vector2 = Vector2.DOWN
 
