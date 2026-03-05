@@ -36,7 +36,7 @@ room_2c — Diagon Alley Main (navigation / sign puzzle)
     │ south exit (Madam Malkin's)
     │ east exit (Ollivander's)
     ▼
-room_2d — Gringotts Entrance (goblin debate puzzle)
+room_2d — Gringotts Exchange Hall (goblin exchange-rate debate)
     │ south exit back to room_2c
     ▼
 room_2e — Madam Malkin's (pushable mannequin puzzle)
@@ -90,29 +90,46 @@ Create `scripts/room_clear_trigger.gd` (optional helper):
 - After Draco miniboss is defeated (see below), the west exit leading out of
   Diagon Alley becomes active as the level-end trigger.
 
-### room_2d — Gringotts Entrance (Goblin Debate Puzzle)
-Uses the Task 04 branching dialogue system with the goblin clerk.
+### room_2d — Gringotts Exchange Hall (Muggle Money Exchange Puzzle)
+
+Dudley has no wizard money and no vault — he's Muggle-raised and was never set
+one up.  He does, however, have a substantial wad of birthday cash (his parents
+have always substituted money for attention).  Gringotts offers a Muggle Money
+Exchange service; Dudley presents himself at the counter to use it.
+
+The goblin exchange clerk makes the process as painful as possible: the exchange
+rate board has been rotated to face the wall, the quoted rate is three Galleons
+per pound when the (barely visible) board showed seventeen, and every question
+is met with a different bureaucratic objection.  Dudley is not financially naive
+— his father drummed one lesson into him: never accept the first number in a
+transaction.
+
+Uses the Task 04 branching dialogue system.
 
 Dialog tree summary:
 ```
-Goblin: "No key, no vault.  Move along."
+Goblin: "Exchange services are for established account holders only.  Move along."
 
-→ Choice: "I have a letter with a vault number — D. Dursley, account holder."
-    A) "My parents must have set it up."
-       → "We do not take Muggle parents' word for anything."  [fail]
-    B) "It seems odd to refuse a paying customer."
-       → Goblin stiffens.  "…Continue."  [progress]
-       → Choice: "Have you noticed how long goblins work compared to wizards?"
-           A) "You should demand better pay."
-              → "…That is not how things are done."  [fail]
-           B) "The sign says goblins aren't responsible for lost valuables.
-               Even their own.  That seems unreasonable."
-              → Very long pause.  Goblin stamps the ledger.  "…Vault 2217.
-                 Do not touch the mine carts."  [success → exits open]
+→ Choice: [Dudley looks around the hall]
+    A) "I'd like to open an account, then."
+       → "New account applications take six to eight weeks."  [fail — loop back]
+    B) "That rate board on the wall appears to be facing backwards."
+       → Goblin stiffens.  "...The board is under maintenance."
+       → Choice: [Dudley squints at the board]
+           A) "I can still read it.  Seventeen Galleons per ten pounds."
+              → Goblin very still.  "...Exchange minimum is fifty pounds."
+              → Choice: [Dudley counts his birthday money]
+                  A) "I have thirty-seven pounds."
+                     → "Insufficient."  [fail — loop back]
+                  B) "I have sixty pounds."
+                     → Very long pause.  Goblin processes the transaction at
+                        the posted rate.  "One hundred and two Galleons.
+                        Do not ask about the mine carts."  [success → exits open]
+           B) "It doesn't matter, I'll take your rate."
+              → "...Very well.  That will be three Galleons."  [fail — loop back]
 ```
-Success ends the conversation with a confirmation dialog and enables the south
-exit back to the alley.  (Vault interior is not implemented in this level —
-the goblin trip is resolved through conversation alone.)
+Success ends the conversation and enables the south exit back to the alley.
+Dudley leaves Gringotts with Galleons to spend on robes and supplies.
 
 ### room_2e — Madam Malkin's (Mannequin Puzzle)
 - Uses `pushable_block.tscn` (Task 08) for mannequins (`piece_type = "free"`).
