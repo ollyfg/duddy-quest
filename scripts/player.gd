@@ -12,6 +12,9 @@ const KNOCKBACK_SPEED: float = 300.0
 const GRID_SIZE: int = 16
 const KNOCKBACK_THRESHOLD: float = 5.0
 const GRID_SNAP_THRESHOLD: float = 2.0
+## Dot-product threshold below which a collision normal is considered to be
+## opposing the intended step direction (i.e. actually blocking movement).
+const COLLISION_BLOCKING_THRESHOLD: float = -0.3
 
 @export var projectile_scene: PackedScene
 
@@ -104,10 +107,19 @@ func _physics_process(delta: float) -> void:
 
 		move_and_slide()
 		if _moving and get_slide_collision_count() > 0:
-			# Hit a wall mid-step: snap back to step start.
-			global_position = _step_start
-			velocity = Vector2.ZERO
-			_moving = false
+			# Only snap back if a collision is actually opposing the step direction
+			# (avoids false positives when touching a perpendicular wall).
+			var step_dir := (_target_pos - _step_start).normalized()
+			var blocked := false
+			for i: int in range(get_slide_collision_count()):
+				if get_slide_collision(i).get_normal().dot(step_dir) < COLLISION_BLOCKING_THRESHOLD:
+					blocked = true
+					break
+			if blocked:
+				# Hit a wall mid-step: snap back to step start.
+				global_position = _step_start
+				velocity = Vector2.ZERO
+				_moving = false
 
 	if Input.is_action_just_pressed("melee_attack"):
 		_perform_melee()
