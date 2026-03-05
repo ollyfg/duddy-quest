@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://l1garden"]
+[gd_scene load_steps=10 format=3 uid="uid://l1garden"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
@@ -19,9 +19,14 @@ size = Vector2(64, 48)
 [sub_resource type="RectangleShape2D" id="Sh_health"]
 size = Vector2(16, 16)
 
+[sub_resource type="RectangleShape2D" id="Sh_mrsfig_body"]
+size = Vector2(24, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_mrsfig_hit"]
+size = Vector2(48, 24)
+
 [node name="Room" type="Node2D"]
 script = ExtResource("1_room")
-key_east = "mr_tibbles_key"
 
 [node name="Floor" type="ColorRect" parent="."]
 offset_left = 0.0
@@ -160,24 +165,68 @@ shape = SubResource("Sh_flowerbed")
 [node name="NPCs" type="Node2D" parent="."]
 
 [node name="MrsFigg" parent="NPCs" instance=ExtResource("2_npc")]
-position = Vector2(560.0, 240.0)
+position = Vector2(628.0, 240.0)
 movement_mode = 1
-dialog_lines = ["Have you seen Mr Tibbles? I'm absolutely frantic.", "He's a tabby — proper tabby, mind you — with a notch in his LEFT ear and a BLUE collar.", "Not Snowy, who is all white and far too smug about it.", "And not Mr Whiskers either — ginger, red collar, always chewing the begonias.", "Find the right cat and I'll step out of your way. The gate key is tucked under his collar."]
+invincible = true
+requires_key_id = "mr_tibbles_key"
+key_accept_dialog = ["Oh! You found him! My precious Mr Tibbles!", "Come here, you naughty boy... yes, there's the notch on his left ear.", "Right then. The gate's all yours. Off you trot!"]
+sets_game_flag = "mrs_figg_met"
+dialog_lines = ["Have you seen Mr Tibbles? I'm absolutely frantic.", "He's a tabby — proper tabby, mind you — with a notch in his LEFT ear and a BLUE collar.", "Not Snowy, who is all white and far too smug about it.", "And not Mr Whiskers either — ginger, red collar, always chewing the begonias.", "Find the right cat and I'll step out of your way."]
+
+[node name="CollisionShape2D" parent="NPCs/MrsFigg"]
+shape = SubResource("Sh_mrsfig_body")
+
+[node name="Sprite" parent="NPCs/MrsFigg"]
+offset_left = -12.0
+offset_top = -24.0
+offset_right = 12.0
+offset_bottom = 24.0
+
+[node name="CollisionShape2D" parent="NPCs/MrsFigg/HitArea"]
+shape = SubResource("Sh_mrsfig_hit")
 
 [node name="Snowy" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(160.0, 304.0)
-movement_mode = 1
+movement_mode = 2
+requires_flag = "mrs_figg_met"
+pre_flag_dialog = ["Mrrrow."]
 dialog_lines = ["Mrrrow.", "I am Snowy. All white. Entirely magnificent.", "Not who you're after, clearly."]
 
 [node name="MrWhiskers" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(352.0, 192.0)
-movement_mode = 1
+movement_mode = 2
+requires_flag = "mrs_figg_met"
+pre_flag_dialog = ["Mrow."]
 dialog_lines = ["Mrow.", "Mr Whiskers. Ginger. Red collar.", "Definitely not the tabby you're looking for."]
 
 [node name="MrTibbles" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(480.0, 160.0)
-movement_mode = 1
-dialog_lines = ["Mrrp! *nuzzles your ankle*", "This is Mr Tibbles — tabby, notched left ear, blue collar.", "Tucked under his collar: a bus fare. Nobody can explain how it got there."]
+movement_mode = 2
+gives_key_id = "mr_tibbles_key"
+gives_key_flag = "mrs_figg_met"
+pre_flag_dialog = ["Mrrp!"]
+dialog_lines = ["Mrrp! *nuzzles your ankle*", "Tabby, notched left ear, blue collar — this is definitely Mr Tibbles.", "You scoop him up. He's surprisingly heavy for a cat."]
+
+[node name="Duchess" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(256.0, 320.0)
+movement_mode = 2
+requires_flag = "mrs_figg_met"
+pre_flag_dialog = ["Mrrrow."]
+dialog_lines = ["Mrrrow.", "Duchess. Tortoiseshell. No collar.", "Definitely not a tabby."]
+
+[node name="Tibbles2" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(448.0, 288.0)
+movement_mode = 2
+requires_flag = "mrs_figg_met"
+pre_flag_dialog = ["Mrrrow."]
+dialog_lines = ["Mrrrow.", "Black and white. Not a tabby. Move along."]
+
+[node name="Tom" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(192.0, 192.0)
+movement_mode = 2
+requires_flag = "mrs_figg_met"
+pre_flag_dialog = ["Mrrrow."]
+dialog_lines = ["Mrrrow.", "Tom. Grey tabby actually, but the wrong ear is fine.", "No collar at all. Not your cat."]
 
 [node name="Ripper" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(320.0, 384.0)
@@ -188,11 +237,6 @@ max_hp = 3
 detection_range = 150.0
 
 [node name="Items" type="Node2D" parent="."]
-
-[node name="GardenGateKey" parent="Items" instance=ExtResource("3_item")]
-position = Vector2(464.0, 160.0)
-item_type = 2
-key_id = "mr_tibbles_key"
 
 [node name="HealthPotion" parent="Items" instance=ExtResource("3_item")]
 position = Vector2(128.0, 240.0)

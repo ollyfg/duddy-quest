@@ -163,4 +163,4 @@ movement_mode = 1
 dialog_lines = ["What on earth... A letter addressed to D. DURSLEY (THE LARGER ONE).", "A Hogwarts letter! FOR ME! Mum has been hiding this for years!", "The door is stuck fast. Maybe I can break through it if I get REALLY furious.", "Smash things until the rage builds — then it should burst open!"]
 
 [node name="MagicDoor" parent="." instance=ExtResource("3_magicdoor")]
-position = Vector2(608.0, 240.0)
+position = Vector2(628.0, 240.0)

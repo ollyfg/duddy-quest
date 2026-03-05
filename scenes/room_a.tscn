@@ -121,4 +121,4 @@ item_type = 1
 position = Vector2(200.0, 350.0)
 
 [node name="MagicDoor" parent="." instance=ExtResource("4_magicdoor")]
-position = Vector2(608.0, 240.0)
+position = Vector2(628.0, 240.0)

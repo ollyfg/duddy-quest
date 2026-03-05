@@ -91,6 +91,13 @@ var _cinematic_player: Node = null
 ## Set to "go_west" by _on_npc_player_detected; consumed in _on_dialog_ended
 ## to send the player back to the previous room after the "caught" dialog.
 var _post_dialog_action: String = ""
+## Tracks the NPC whose dialog is currently active so post-dialog actions
+## (giving keys, accepting keys, setting flags) can be applied on close.
+var _interacting_npc: Node = null
+## Guards against re-entrant _on_exit_triggered calls during the one-frame
+## await in _load_room (prevents concurrent room loads via the old room's
+## still-connected exit signals).
+var _room_loading: bool = false
 
 
 func _ready() -> void:
@@ -142,6 +149,7 @@ func _load_level(level_name: String) -> void:
 
 
 func _load_room(room_name: String, player_pos: Vector2) -> void:
+	_room_loading = true
 	if current_room:
 		_save_room_state()
 		current_room.queue_free()
@@ -179,6 +187,12 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 			if npc.detection_dialog != "":
 				npc.player_detected.connect(_on_npc_player_detected)
 
+	# Connect the bedroom door hint signal (fires first time player bumps door).
+	if room_name == "l1_bedroom":
+		var door := current_room.get_node_or_null("MagicDoor")
+		if door != null and door.has_signal("door_approached"):
+			door.door_approached.connect(_on_bedroom_door_approached)
+
 	player.global_position = player_pos
 	# Reset any in-progress grid step so stale movement from the old room
 	# does not carry over and lock the player's controls in the new room.
@@ -186,6 +200,7 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	player.set_camera_limits(current_room.get_room_rect())
 	_update_hp_display(player.hp)
 	_update_wand_display()
+	_room_loading = false
 
 	# Demo cinematic on first entry to room_a.
 	if room_name == "room_a" and "room_a" not in _room_states:
@@ -203,6 +218,9 @@ func _save_room_state() -> void:
 	var npc_states: Dictionary = {}
 	if current_room.has_node("NPCs"):
 		for npc in current_room.get_node("NPCs").get_children():
+			# Skip NPCs that have already been removed (e.g. picked-up cats).
+			if npc.is_queued_for_deletion():
+				continue
 			npc_states[npc.name] = {
 				"position": npc.global_position,
 				"hp": npc.hp,
@@ -212,7 +230,8 @@ func _save_room_state() -> void:
 	var item_names: Array[String] = []
 	if current_room.has_node("Items"):
 		for item in current_room.get_node("Items").get_children():
-			item_names.append(item.name)
+			if not item.is_queued_for_deletion():
+				item_names.append(item.name)
 	# Switches: record each switch's current on/off state.
 	var switch_states: Dictionary = {}
 	if current_room.has_node("Switches"):
@@ -262,6 +281,11 @@ func _restore_room_state(room_name: String) -> void:
 
 
 func _on_exit_triggered(direction: String) -> void:
+	# Guard against re-entrant calls while a room transition is already in
+	# progress (the one-frame await in _load_room leaves the old room's exit
+	# signals connected for one frame, which could cause a concurrent load).
+	if _room_loading:
+		return
 	if current_room_name not in LEVELS[current_level_name]["connections"]:
 		return
 	var connections: Dictionary = LEVELS[current_level_name]["connections"][current_room_name]
@@ -274,8 +298,31 @@ func _on_exit_triggered(direction: String) -> void:
 func _on_npc_interaction_requested(npc: Node) -> void:
 	if dialog_box.is_active():
 		return
+	_interacting_npc = npc
 	_set_dialog_active(true)
-	dialog_box.start_dialog(npc.dialog_lines)
+	dialog_box.start_dialog(_pick_npc_dialog(npc))
+
+
+## Choose the correct dialog lines for an NPC, respecting flag gates and
+## key-requirement states.
+func _pick_npc_dialog(npc: Node) -> Array:
+	# Key-accepting NPC and the player already carries the required key.
+	if npc.requires_key_id != "" and player.has_key(npc.requires_key_id):
+		var accept := npc.key_accept_dialog as Array
+		return accept if not accept.is_empty() else npc.dialog_lines
+
+	# Work out whether any flag gate applies to this NPC.
+	var gate_flag: String = ""
+	if npc.gives_key_id != "":
+		gate_flag = npc.gives_key_flag
+	if gate_flag == "" and npc.requires_flag != "":
+		gate_flag = npc.requires_flag
+
+	if gate_flag != "" and not GameState.has_flag(gate_flag):
+		var pre := npc.pre_flag_dialog as Array
+		return pre if not pre.is_empty() else ["..."]
+
+	return npc.dialog_lines
 
 
 ## Called when a PATROL NPC spots the player for the first time this room visit.
@@ -288,12 +335,57 @@ func _on_npc_player_detected(dialog: String) -> void:
 	dialog_box.start_dialog([dialog])
 
 
+func _on_bedroom_door_approached() -> void:
+	if GameState.l1_bedroom_door_hint_shown or dialog_box.is_active():
+		return
+	GameState.l1_bedroom_door_hint_shown = true
+	_set_dialog_active(true)
+	dialog_box.start_dialog([
+		"You try to open the door but it's locked.",
+		"Maybe if you whack it enough...",
+	])
+
+
 func _on_dialog_ended() -> void:
 	_set_dialog_active(false)
 	var action: String = _post_dialog_action
 	_post_dialog_action = ""
+
+	# A "go_west" post-dialog action takes priority (Petunia sending player back).
 	if action == "go_west":
+		_interacting_npc = null
 		_on_exit_triggered("west")
+		return
+
+	# Apply any post-interaction effects for the NPC whose dialog just ended.
+	if _interacting_npc != null and not _interacting_npc.is_queued_for_deletion():
+		var npc: Node = _interacting_npc
+		_interacting_npc = null
+		_handle_post_npc_dialog(npc)
+	else:
+		_interacting_npc = null
+
+
+## Apply post-dialog effects: give keys, accept keys, set game flags.
+func _handle_post_npc_dialog(npc: Node) -> void:
+	# NPC requires a key the player has → accept it and remove the NPC (gate opens).
+	if npc.requires_key_id != "" and player.has_key(npc.requires_key_id):
+		player.remove_key(npc.requires_key_id)
+		npc.queue_free()
+		return
+
+	# NPC gives a key when its flag gate is satisfied → give key and remove NPC.
+	if npc.gives_key_id != "":
+		var flag: String = npc.gives_key_flag
+		if flag == "" or GameState.has_flag(flag):
+			player.inventory.append(npc.gives_key_id)
+			player.keys_changed.emit(player.inventory.size())
+			npc.queue_free()
+			return
+
+	# Normal interaction: set a game flag if configured.
+	if npc.sets_game_flag != "":
+		GameState.set_flag(npc.sets_game_flag)
 
 
 func _set_dialog_active(active: bool) -> void:
