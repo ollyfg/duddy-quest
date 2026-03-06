@@ -27,7 +27,7 @@ size = Vector2(32, 24)
 [sub_resource type="RectangleShape2D" id="Sh_umbrella"]
 size = Vector2(16, 32)
 
-[sub_resource type="RectangleShape2D" id="Sh_lagevase"]
+[sub_resource type="RectangleShape2D" id="Sh_largevase"]
 size = Vector2(24, 32)
 
 [node name="Room" type="Node2D"]
@@ -221,12 +221,13 @@ color = Color(0.6, 0.35, 0.2, 1)
 mouse_filter = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LargeVase"]
-shape = SubResource("Sh_lagevase")
+shape = SubResource("Sh_largevase")
 
 [node name="NPCs" type="Node2D" parent="."]
 
 [node name="PetuniaHoover" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(320.0, 240.0)
+groups=["cinematic_kick_back"]
 is_hostile = true
 movement_mode = 5
 move_speed = 75.0

@@ -186,7 +186,9 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 			if npc.detection_dialog != "":
 				npc.player_detected.connect(_on_npc_player_detected)
-			if room_name == "l1_hallway" and npc.name == "PetuniaHoover":
+			# Any NPC in the "cinematic_kick_back" group triggers the Petunia
+			# kick-back cinematic when it physically contacts the player.
+			if npc.is_in_group("cinematic_kick_back"):
 				npc.player_hit.connect(_on_petunia_hit_player)
 
 	# Connect the bedroom door hint signal (fires first time player bumps door).
