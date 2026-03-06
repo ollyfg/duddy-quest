@@ -43,6 +43,11 @@ enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, PATROL }
 ## player each room visit.  Leave empty to disable.
 @export var detection_dialog: String = ""
 
+## When true, contacting the player emits player_hit and triggers the cinematic
+## kick-back sequence rather than dealing direct damage / knockback.
+## Set this via the Inspector on any NPC that should play a cinematic instead.
+@export var cinematic_kick_back: bool = false
+
 ## When true this NPC is immune to damage and knockback and is never clamped
 ## to the room bounds (allows gate NPCs to sit in exit gaps).
 @export var invincible: bool = false
@@ -117,6 +122,8 @@ func _ready() -> void:
 	else:
 		add_to_group("npc")
 		sprite.color = Color(0.2, 0.4, 0.9)
+	if cinematic_kick_back:
+		add_to_group("cinematic_kick_back")
 	$HitArea.body_entered.connect(_on_hit_area_body_entered)
 	_collect_patrol_points_from_children()
 
@@ -343,7 +350,9 @@ func _on_hit_area_body_entered(body: Node) -> void:
 	if is_hostile and body.is_in_group("player"):
 		var direction: Vector2 = ((body as Node2D).global_position - global_position).normalized()
 		player_hit.emit()
-		body.take_damage(1)
-		body.apply_knockback(direction)
+		# Cinematic NPCs handle player movement themselves; skip direct damage/knockback.
+		if not cinematic_kick_back:
+			body.take_damage(1)
+			body.apply_knockback(direction)
 	elif not is_hostile and body.is_in_group("player"):
 		interaction_requested.emit()

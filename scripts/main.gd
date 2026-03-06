@@ -186,9 +186,13 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 			if npc.detection_dialog != "":
 				npc.player_detected.connect(_on_npc_player_detected)
-			# Any NPC in the "cinematic_kick_back" group triggers the Petunia
+			# Any NPC with cinematic_kick_back set triggers the Petunia
 			# kick-back cinematic when it physically contacts the player.
-			if npc.is_in_group("cinematic_kick_back"):
+			# We also add a physics collision exception so the NPC's body does
+			# not push the player around before the cinematic fires.
+			if npc.cinematic_kick_back:
+				npc.add_collision_exception_with(player)
+				player.add_collision_exception_with(npc)
 				npc.player_hit.connect(_on_petunia_hit_player)
 
 	# Connect the bedroom door hint signal (fires first time player bumps door).

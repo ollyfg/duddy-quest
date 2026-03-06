@@ -227,7 +227,7 @@ shape = SubResource("Sh_largevase")
 
 [node name="PetuniaHoover" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(320.0, 240.0)
-groups=["cinematic_kick_back"]
+cinematic_kick_back = true
 is_hostile = true
 movement_mode = 5
 move_speed = 75.0
