@@ -8,7 +8,7 @@ script = ExtResource("1_dlg")
 
 [node name="Panel" type="Panel" parent="."]
 offset_left = 80.0
-offset_top = 360.0
+offset_top = 338.0
 offset_right = 560.0
 offset_bottom = 460.0
 
@@ -19,6 +19,12 @@ offset_left = 8.0
 offset_top = 8.0
 offset_right = -8.0
 offset_bottom = -8.0
+
+[node name="SpeakerLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+visible = false
+theme_override_font_sizes/font_size = 14
+text = ""
 
 [node name="DialogLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2

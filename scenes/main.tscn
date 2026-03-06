@@ -16,13 +16,12 @@ script = ExtResource("1_main")
 [node name="HUD" type="CanvasLayer" parent="."]
 layer = 1
 
-[node name="HPLabel" type="Label" parent="HUD"]
+[node name="HPBar" type="HBoxContainer" parent="HUD"]
 offset_left = 10.0
 offset_top = 10.0
-offset_right = 200.0
-offset_bottom = 40.0
-text = "●●●●●"
-theme_override_font_sizes/font_size = 24
+offset_right = 170.0
+offset_bottom = 42.0
+theme_override_constants/separation = 2
 
 [node name="KeyLabel" type="Label" parent="HUD"]
 visible = false
