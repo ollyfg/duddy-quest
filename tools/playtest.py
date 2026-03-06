@@ -15,6 +15,7 @@ Usage (CLI)
     python3 tools/playtest.py input <action> [duration_seconds]
     python3 tools/playtest.py release <action>
     python3 tools/playtest.py state
+    python3 tools/playtest.py spawn [--room ROOM] [--x X] [--y Y]
 
 Available actions:
     move_up  move_down  move_left  move_right
@@ -186,6 +187,36 @@ class PlaytestClient:
         """Release a held input action."""
         return self.send_input(action, pressed=False)
 
+    def spawn(
+        self,
+        room: str | None = None,
+        x: float | None = None,
+        y: float | None = None,
+    ) -> dict[str, Any]:
+        """Teleport the player to a specific room and/or position.
+
+        Args:
+            room: Name of the room to load (e.g. "room_b", "l1_hallway").
+                  Must be a room in the current level.  Omit to stay in the
+                  current room.
+            x:    Target X position.  When *room* is given, *x* and *y* must
+                  both be provided to take effect; if either is omitted the
+                  player is placed at the centre of the viewport (320, 240).
+                  When no room is given, *x* and *y* must both be provided.
+            y:    Target Y position.  Same rules as *x*.
+
+        At least one of *room*, or both *x* and *y*, must be provided.
+        Returns the result dict including the final ``room``, ``x``, and ``y``.
+        """
+        cmd: dict[str, Any] = {"type": "spawn"}
+        if room is not None:
+            cmd["room"] = room
+        if x is not None:
+            cmd["x"] = x
+        if y is not None:
+            cmd["y"] = y
+        return self._send(cmd)
+
     def state(self) -> dict[str, Any]:
         """Return the current game state.
 
@@ -255,6 +286,15 @@ def _build_parser() -> argparse.ArgumentParser:
     # state
     sub.add_parser("state", help="Print current game state as JSON")
 
+    # spawn
+    spawn_p = sub.add_parser(
+        "spawn",
+        help="Teleport the player to a room and/or position",
+    )
+    spawn_p.add_argument("--room", default=None, help="Room name to load (e.g. room_b)")
+    spawn_p.add_argument("--x", type=float, default=None, help="Target X position")
+    spawn_p.add_argument("--y", type=float, default=None, help="Target Y position")
+
     return parser
 
 
@@ -287,6 +327,10 @@ def main(argv: list[str] | None = None) -> None:
 
     elif args.command == "state":
         result = client.state()
+        print(json.dumps(result, indent=2))
+
+    elif args.command == "spawn":
+        result = client.spawn(room=args.room, x=args.x, y=args.y)
         print(json.dumps(result, indent=2))
 
 
