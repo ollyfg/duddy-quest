@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://l1hallway"]
+[gd_scene load_steps=12 format=3 uid="uid://l1hallway"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
@@ -17,6 +17,18 @@ size = Vector2(32, 64)
 
 [sub_resource type="RectangleShape2D" id="Sh_linenchest"]
 size = Vector2(80, 32)
+
+[sub_resource type="RectangleShape2D" id="Sh_halltable"]
+size = Vector2(48, 24)
+
+[sub_resource type="RectangleShape2D" id="Sh_shoerack"]
+size = Vector2(32, 24)
+
+[sub_resource type="RectangleShape2D" id="Sh_umbrella"]
+size = Vector2(16, 32)
+
+[sub_resource type="RectangleShape2D" id="Sh_lagevase"]
+size = Vector2(24, 32)
 
 [node name="Room" type="Node2D"]
 script = ExtResource("1_room")
@@ -155,6 +167,62 @@ mouse_filter = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LinenChest"]
 shape = SubResource("Sh_linenchest")
 
+[node name="HallwayTable" type="StaticBody2D" parent="."]
+position = Vector2(304, 176)
+
+[node name="Sprite" type="ColorRect" parent="HallwayTable"]
+offset_left = -24.0
+offset_top = -12.0
+offset_right = 24.0
+offset_bottom = 12.0
+color = Color(0.45, 0.28, 0.1, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HallwayTable"]
+shape = SubResource("Sh_halltable")
+
+[node name="ShoeRack" type="StaticBody2D" parent="."]
+position = Vector2(160, 368)
+
+[node name="Sprite" type="ColorRect" parent="ShoeRack"]
+offset_left = -16.0
+offset_top = -12.0
+offset_right = 16.0
+offset_bottom = 12.0
+color = Color(0.3, 0.18, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShoeRack"]
+shape = SubResource("Sh_shoerack")
+
+[node name="UmbrellaStand" type="StaticBody2D" parent="."]
+position = Vector2(480, 128)
+
+[node name="Sprite" type="ColorRect" parent="UmbrellaStand"]
+offset_left = -8.0
+offset_top = -16.0
+offset_right = 8.0
+offset_bottom = 16.0
+color = Color(0.2, 0.1, 0.05, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="UmbrellaStand"]
+shape = SubResource("Sh_umbrella")
+
+[node name="LargeVase" type="StaticBody2D" parent="."]
+position = Vector2(480, 352)
+
+[node name="Sprite" type="ColorRect" parent="LargeVase"]
+offset_left = -12.0
+offset_top = -16.0
+offset_right = 12.0
+offset_bottom = 16.0
+color = Color(0.6, 0.35, 0.2, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LargeVase"]
+shape = SubResource("Sh_lagevase")
+
 [node name="NPCs" type="Node2D" parent="."]
 
 [node name="PetuniaHoover" parent="NPCs" instance=ExtResource("2_npc")]
@@ -163,7 +231,7 @@ is_hostile = true
 movement_mode = 5
 move_speed = 75.0
 max_hp = 10
+invincible = true
 detection_range = 200.0
 patrol_pause_duration = 1.5
 patrol_points = Array[Vector2]([Vector2(80.0, 240.0), Vector2(560.0, 240.0)])
-detection_dialog = "Back to your room, Duddikins!"

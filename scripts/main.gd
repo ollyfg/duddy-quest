@@ -186,6 +186,8 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
 			if npc.detection_dialog != "":
 				npc.player_detected.connect(_on_npc_player_detected)
+			if room_name == "l1_hallway" and npc.name == "PetuniaHoover":
+				npc.player_hit.connect(_on_petunia_hit_player)
 
 	# Connect the bedroom door hint signal (fires first time player bumps door).
 	if room_name == "l1_bedroom":
@@ -333,6 +335,17 @@ func _on_npc_player_detected(dialog: String) -> void:
 	dialog_box.start_dialog([dialog])
 
 
+## Called when Petunia's HitArea physically contacts the player.
+## Shows her catch line then plays a cinematic marching the player back to the
+## hallway's west exit before loading the previous room.
+func _on_petunia_hit_player() -> void:
+	if _room_loading or player.cinematic_mode or dialog_box.is_active() or _post_dialog_action != "":
+		return
+	_post_dialog_action = "petunia_kick"
+	_set_dialog_active(true)
+	dialog_box.start_dialog(["Back to your room, DUDDIKINS!"])
+
+
 func _on_bedroom_door_approached() -> void:
 	if GameState.l1_bedroom_door_hint_shown or dialog_box.is_active():
 		return
@@ -353,6 +366,18 @@ func _on_dialog_ended() -> void:
 	if action == "go_west":
 		_interacting_npc = null
 		_on_exit_triggered("west")
+		return
+
+	# Petunia catches the player: cinematic marching them back to the bedroom door.
+	if action == "petunia_kick":
+		_interacting_npc = null
+		var kick_origin: Vector2 = player.global_position
+		play_cinematic([
+			{"type": "move_player", "to": Vector2(kick_origin.x, 240.0), "speed": 100.0},
+			{"type": "move_player", "to": Vector2(64.0, 240.0), "speed": 100.0},
+		], func():
+			_on_exit_triggered("west")
+		)
 		return
 
 	# Apply any post-interaction effects for the NPC whose dialog just ended.
