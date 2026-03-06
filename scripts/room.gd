@@ -60,7 +60,6 @@ func _on_exit_body_entered(body: Node, direction: String) -> void:
 				return
 			else:
 				body.remove_key(req_key)
-		print("ROOM_EXIT: %s dir=%s body=%s body_pos=(%s) body_phys=(%s)" % [name, direction, body.name, body.global_position, body.get_global_transform().origin])
 		exit_triggered.emit(direction)
 
 

@@ -171,8 +171,6 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	# previous room.
 	player.global_position = player_pos
 	player.cancel_movement()
-	print("_LOAD_ROOM: teleported player to %s, about to add_child(%s)" % [player.global_position, room_name])
-
 	current_room_name = room_name
 	var level_rooms: Dictionary = LEVELS[current_level_name]["rooms"]
 	current_room = level_rooms[room_name].instantiate()
@@ -224,7 +222,6 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 			door.door_approached.connect(_on_bedroom_door_approached)
 
 	_room_loading = false
-	print("_LOAD_ROOM: done loading %s, player_pos=%s" % [room_name, player.global_position])
 
 	# Demo cinematic on first entry to room_a.
 	if room_name == "room_a" and "room_a" not in _room_states:
@@ -316,7 +313,6 @@ func _on_exit_triggered(direction: String) -> void:
 	if direction not in connections:
 		return
 	var next: Dictionary = connections[direction]
-	print("EXIT: %s --%s--> %s (player_pos=%s, cinematic=%s)" % [current_room_name, direction, next["room"], player.global_position, player.cinematic_mode])
 	_load_room(next["room"], next["entry"])
 
 
