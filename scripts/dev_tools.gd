@@ -12,6 +12,9 @@
 ##   screenshot  {"type":"screenshot","path":"/tmp/shot.png"}
 ##   input       {"type":"input","action":"move_right","pressed":true,"duration":1.0}
 ##   state       {"type":"state"}
+##   spawn       {"type":"spawn","room":"room_b","x":200.0,"y":240.0}
+##               room, x, and y are all optional; omit room to stay in the
+##               current room, omit x/y to use the centre of the viewport.
 ##
 ## See tools/playtest.py for the matching Python client.
 extends Node
@@ -69,6 +72,8 @@ func _dispatch(cmd: Dictionary) -> void:
 			_cmd_input(cmd)
 		"state":
 			_write_result(_build_state())
+		"spawn":
+			_cmd_spawn(cmd)
 		var unknown:
 			_write_result({"error": "Unknown command type: %s" % unknown})
 
@@ -145,6 +150,50 @@ func _build_state() -> Dictionary:
 		state["level"] = null
 
 	return state
+
+
+func _cmd_spawn(cmd: Dictionary) -> void:
+	var main := get_tree().get_root().get_node_or_null("Main")
+	if main == null:
+		_write_result({"error": "Main node not found"})
+		return
+
+	var room_name: String = cmd.get("room", "")
+	var has_x: bool = "x" in cmd
+	var has_y: bool = "y" in cmd
+	var x: float = float(cmd.get("x", 320.0))
+	var y: float = float(cmd.get("y", 240.0))
+
+	var players := get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		_write_result({"error": "No player found"})
+		return
+	var p := players[0]
+
+	if room_name != "":
+		if "_room_loading" in main and main._room_loading:
+			_write_result({"error": "Room transition already in progress"})
+			return
+		var level_rooms: Dictionary = main.LEVELS[main.current_level_name]["rooms"]
+		if room_name not in level_rooms:
+			_write_result({"error": "Room '%s' not found in level '%s'" % [room_name, main.current_level_name]})
+			return
+		var pos := Vector2(x, y) if (has_x and has_y) else Vector2(320.0, 240.0)
+		# _load_room sets player.global_position and calls cancel_movement() internally.
+		await main._load_room(room_name, pos)
+	elif has_x and has_y:
+		p.global_position = Vector2(x, y)
+		p.cancel_movement()
+	else:
+		_write_result({"error": "spawn requires at least 'room' or both 'x' and 'y'"})
+		return
+
+	var result: Dictionary = {"ok": true}
+	if "current_room_name" in main:
+		result["room"] = main.current_room_name
+	result["x"] = snappedf(p.global_position.x, 0.01)
+	result["y"] = snappedf(p.global_position.y, 0.01)
+	_write_result(result)
 
 
 func _write_result(data: Dictionary) -> void:
