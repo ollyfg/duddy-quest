@@ -427,7 +427,7 @@ func _update_hp_display(new_hp: int) -> void:
 
 func _update_key_display(count: int) -> void:
 	if count > 0:
-		key_label.text = "🗝 %d" % count
+		key_label.text = "Key: %d" % count
 		key_label.visible = true
 	else:
 		key_label.visible = false

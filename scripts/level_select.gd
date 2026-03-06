@@ -66,7 +66,7 @@ func _update_list() -> void:
 		if i == _selected:
 			prefix = "> "
 		elif not unlocked:
-			prefix = "  🔒 "
+			prefix = "  [X] "
 		else:
 			prefix = "  "
 		text += prefix + LEVEL_LIST[i]["name"] + "\n"

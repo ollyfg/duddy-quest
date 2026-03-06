@@ -20,7 +20,6 @@ offset_top = -286.0
 offset_right = 284.0
 offset_bottom = -146.0
 mouse_filter = 2
-text = "⬆"
 theme_override_font_sizes/font_size = 32
 
 [node name="BtnLeft" type="Button" parent="Overlay"]
@@ -33,7 +32,6 @@ offset_top = -144.0
 offset_right = 142.0
 offset_bottom = -4.0
 mouse_filter = 2
-text = "⬅"
 theme_override_font_sizes/font_size = 32
 
 [node name="BtnDown" type="Button" parent="Overlay"]
@@ -46,7 +44,6 @@ offset_top = -144.0
 offset_right = 284.0
 offset_bottom = -4.0
 mouse_filter = 2
-text = "⬇"
 theme_override_font_sizes/font_size = 32
 
 [node name="BtnRight" type="Button" parent="Overlay"]
@@ -59,7 +56,6 @@ offset_top = -144.0
 offset_right = 426.0
 offset_bottom = -4.0
 mouse_filter = 2
-text = "➡"
 theme_override_font_sizes/font_size = 32
 
 [node name="BtnRanged" type="Button" parent="Overlay"]
@@ -72,7 +68,6 @@ offset_top = -286.0
 offset_right = -2.0
 offset_bottom = -146.0
 mouse_filter = 2
-text = "⚡"
 theme_override_font_sizes/font_size = 32
 
 [node name="BtnMelee" type="Button" parent="Overlay"]
@@ -85,5 +80,4 @@ offset_top = -144.0
 offset_right = -2.0
 offset_bottom = -4.0
 mouse_filter = 2
-text = "🏏"
 theme_override_font_sizes/font_size = 32
