@@ -168,6 +168,7 @@ shape = SubResource("Sh_flowerbed")
 position = Vector2(628.0, 240.0)
 movement_mode = 1
 invincible = true
+requires_interact = true
 requires_key_id = "mr_tibbles_key"
 key_accept_dialog = ["Oh! You found him! My precious Mr Tibbles!", "Come here, you naughty boy... yes, there's the notch on his left ear.", "Right then. The gate's all yours. Off you trot!"]
 sets_game_flag = "mrs_figg_met"

@@ -41,7 +41,6 @@ const _BTN_ICONS: Dictionary = {
 	"BtnRight":    preload("res://assets/icons/arrow_right.svg"),
 	"BtnMelee":    preload("res://assets/icons/bat.svg"),
 	"BtnRanged":   preload("res://assets/icons/lightning.svg"),
-	"BtnInteract": preload("res://assets/icons/talk.svg"),
 }
 
 
