@@ -3,7 +3,7 @@ extends Node
 ## Persists data that needs to survive scene changes (e.g. selected level).
 
 ## Current game version. Bump this on every new deploy.
-const VERSION: String = "0.1.0"
+const VERSION: String = "0.2.0"
 
 var selected_level: String = "training"
 var completed_levels: Array[String] = []
