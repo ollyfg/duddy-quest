@@ -129,18 +129,6 @@ func _ready() -> void:
 	_load_level(level_name)
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed("interact"):
-		return
-	if dialog_box.is_active() or player.cinematic_mode or _room_loading:
-		return
-	if current_room == null:
-		return
-	var npc: Node = current_room.get_nearby_npc(player.global_position)
-	if npc != null:
-		_on_npc_interaction_requested(npc)
-
-
 func _load_level(level_name: String) -> void:
 	current_level_name = level_name
 	_room_states.clear()

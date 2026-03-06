@@ -5,8 +5,6 @@ extends Node2D
 signal exit_triggered(direction: String)
 signal locked_exit_attempted(direction: String, required_key: String)
 
-const INTERACT_RANGE: float = 60.0
-
 ## Size of this room in pixels.  Used by the camera to clamp the viewport.
 @export var room_size: Vector2 = Vector2(640.0, 480.0)
 
@@ -84,13 +82,3 @@ func _on_switch_toggled(switch_id: String, is_on: bool) -> void:
 ## The camera clamps to this rect so the viewport never shows outside the room.
 func get_room_rect() -> Rect2:
 	return Rect2(global_position, room_size)
-
-
-## Returns the nearest friendly NPC within interaction range, or null.
-func get_nearby_npc(pos: Vector2) -> Node:
-	if not has_node("NPCs"):
-		return null
-	for npc in get_node("NPCs").get_children():
-		if not npc.is_hostile and npc.global_position.distance_to(pos) <= INTERACT_RANGE:
-			return npc
-	return null
