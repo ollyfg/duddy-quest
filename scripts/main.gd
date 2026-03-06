@@ -149,6 +149,7 @@ func _load_level(level_name: String) -> void:
 
 
 func _load_room(room_name: String, player_pos: Vector2) -> void:
+	print("DEBUG _load_room: room=%s pos=%s" % [room_name, player_pos])
 	_room_loading = true
 	if current_room:
 		_save_room_state()
@@ -302,6 +303,7 @@ func _restore_room_state(room_name: String) -> void:
 
 
 func _on_exit_triggered(direction: String) -> void:
+	print("DEBUG _on_exit_triggered: dir=%s current_room=%s player_pos=%s room_loading=%s" % [direction, current_room_name, str(player.global_position), str(_room_loading)])
 	# Guard against re-entrant calls while a room transition is already in
 	# progress (the one-frame await in _load_room leaves the old room's exit
 	# signals connected for one frame, which could cause a concurrent load).
