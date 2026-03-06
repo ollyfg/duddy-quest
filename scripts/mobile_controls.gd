@@ -37,7 +37,7 @@ func _ready() -> void:
 	visible = DisplayServer.is_touchscreen_available() or _is_dev_tools
 	# Apply NotoColorEmoji directly to all buttons so Unicode arrows and emoji
 	# render correctly without relying on font fallback chain.
-	var emoji_font: FontFile = load("res://assets/fonts/NotoColorEmoji.ttf")
+	var emoji_font: FontFile = preload("res://assets/fonts/NotoColorEmoji.ttf")
 	for btn_name: String in _BTN_ACTIONS:
 		var btn: Button = _overlay.get_node(btn_name)
 		btn.set(&"theme_override_fonts/font", emoji_font)

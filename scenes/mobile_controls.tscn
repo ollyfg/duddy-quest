@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/mobile_controls.gd" id="1_mc"]
 
 [node name="MobileControls" type="CanvasLayer"]
-layer = 5
+layer = 35
 script = ExtResource("1_mc")
 
 [node name="Overlay" type="Control" parent="."]
