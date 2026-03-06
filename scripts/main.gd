@@ -129,6 +129,18 @@ func _ready() -> void:
 	_load_level(level_name)
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("interact"):
+		return
+	if dialog_box.is_active() or player.cinematic_mode or _room_loading:
+		return
+	if current_room == null:
+		return
+	var npc: Node = current_room.get_nearby_npc(player.global_position)
+	if npc != null:
+		_on_npc_interaction_requested(npc)
+
+
 func _load_level(level_name: String) -> void:
 	current_level_name = level_name
 	_room_states.clear()
@@ -335,6 +347,11 @@ func _pick_npc_dialog(npc: Node) -> Array:
 	# Key-accepting NPC and the player already carries the required key.
 	if npc.requires_key_id != "" and player.has_key(npc.requires_key_id):
 		return npc.key_accept_dialog if not npc.key_accept_dialog.is_empty() else npc.dialog_lines
+
+	# NPC with after_key_dialog: switch to meow/short lines once the player
+	# has already found the associated key item.
+	if npc.after_key_id != "" and player.has_key(npc.after_key_id):
+		return npc.after_key_dialog if not npc.after_key_dialog.is_empty() else npc.dialog_lines
 
 	# Work out whether any flag gate applies to this NPC.
 	var gate_flag: String = ""

@@ -81,3 +81,15 @@ offset_right = -2.0
 offset_bottom = -4.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 32
+
+[node name="BtnInteract" type="Button" parent="Overlay"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -284.0
+offset_top = -144.0
+offset_right = -144.0
+offset_bottom = -4.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 32

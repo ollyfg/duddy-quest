@@ -168,6 +168,7 @@ shape = SubResource("Sh_flowerbed")
 position = Vector2(628.0, 240.0)
 movement_mode = 1
 invincible = true
+requires_interact = true
 requires_key_id = "mr_tibbles_key"
 key_accept_dialog = ["Oh! You found him! My precious Mr Tibbles!", "Come here, you naughty boy... yes, there's the notch on his left ear.", "Right then. The gate's all yours. Off you trot!"]
 sets_game_flag = "mrs_figg_met"
@@ -189,6 +190,8 @@ shape = SubResource("Sh_mrsfig_hit")
 position = Vector2(160.0, 304.0)
 movement_mode = 2
 requires_flag = "mrs_figg_met"
+after_key_id = "mr_tibbles_key"
+after_key_dialog = ["Mrrrow."]
 pre_flag_dialog = ["Mrrrow."]
 dialog_lines = ["Mrrrow.", "I am Snowy. All white. Entirely magnificent.", "Not who you're after, clearly."]
 
@@ -196,12 +199,15 @@ dialog_lines = ["Mrrrow.", "I am Snowy. All white. Entirely magnificent.", "Not 
 position = Vector2(352.0, 192.0)
 movement_mode = 2
 requires_flag = "mrs_figg_met"
+after_key_id = "mr_tibbles_key"
+after_key_dialog = ["Mrow."]
 pre_flag_dialog = ["Mrow."]
 dialog_lines = ["Mrow.", "Mr Whiskers. Ginger. Red collar.", "Definitely not the tabby you're looking for."]
 
 [node name="MrTibbles" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(480.0, 160.0)
 movement_mode = 2
+invincible = true
 gives_key_id = "mr_tibbles_key"
 gives_key_flag = "mrs_figg_met"
 pre_flag_dialog = ["Mrrp!"]
@@ -211,6 +217,8 @@ dialog_lines = ["Mrrp! *nuzzles your ankle*", "Tabby, notched left ear, blue col
 position = Vector2(256.0, 320.0)
 movement_mode = 2
 requires_flag = "mrs_figg_met"
+after_key_id = "mr_tibbles_key"
+after_key_dialog = ["Mrrrow."]
 pre_flag_dialog = ["Mrrrow."]
 dialog_lines = ["Mrrrow.", "Duchess. Tortoiseshell. No collar.", "Definitely not a tabby."]
 
@@ -218,6 +226,8 @@ dialog_lines = ["Mrrrow.", "Duchess. Tortoiseshell. No collar.", "Definitely not
 position = Vector2(448.0, 288.0)
 movement_mode = 2
 requires_flag = "mrs_figg_met"
+after_key_id = "mr_tibbles_key"
+after_key_dialog = ["Mrrrow.", "Mrp."]
 pre_flag_dialog = ["Mrrrow."]
 dialog_lines = ["Mrrrow.", "Black and white. Not a tabby. Move along."]
 
@@ -225,6 +235,8 @@ dialog_lines = ["Mrrrow.", "Black and white. Not a tabby. Move along."]
 position = Vector2(192.0, 192.0)
 movement_mode = 2
 requires_flag = "mrs_figg_met"
+after_key_id = "mr_tibbles_key"
+after_key_dialog = ["Mrrrow.", "Mrow."]
 pre_flag_dialog = ["Mrrrow."]
 dialog_lines = ["Mrrrow.", "Tom. Grey tabby actually, but the wrong ear is fine.", "No collar at all. Not your cat."]
 
