@@ -20,6 +20,7 @@ const _BTN_ACTIONS: Dictionary = {
 	"BtnRight": "move_right",
 	"BtnMelee": "melee_attack",
 	"BtnRanged": "ranged_attack",
+	"BtnInteract": "interact",
 }
 
 @onready var _overlay: Control = $Overlay

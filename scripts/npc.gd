@@ -75,7 +75,6 @@ enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, PATROL }
 ## dialog (e.g. cats that should stay silent until a flag is set).
 @export var requires_flag: String = ""
 
-
 ## Key item ID that, when held by the player, causes this NPC to show
 ## after_key_dialog instead of the normal dialog_lines.
 @export var after_key_id: String = ""
