@@ -13,6 +13,7 @@ var _showing_options: bool = false
 var _selected_option: int = 0
 
 @onready var panel: Panel = $Panel
+@onready var speaker_label: Label = $Panel/VBox/SpeakerLabel
 @onready var dialog_label: Label = $Panel/VBox/DialogLabel
 @onready var next_button: Button = $Panel/VBox/NextButton
 @onready var options_container: VBoxContainer = $Panel/VBox/OptionsContainer
@@ -28,6 +29,17 @@ func start_dialog(lines: Array) -> void:
 	if lines.is_empty():
 		return
 	_start_sequence(lines)
+
+
+## Set the NPC speaker name shown above the dialog text.
+## Pass an empty string to hide the speaker label (for system messages).
+func set_speaker(name: String) -> void:
+	if name.is_empty():
+		speaker_label.visible = false
+		speaker_label.text = ""
+	else:
+		speaker_label.text = name
+		speaker_label.visible = true
 
 
 ## Returns true while a conversation is displayed.
@@ -103,6 +115,7 @@ func _on_option_selected(index: int) -> void:
 		panel.visible = false
 		_lines = []
 		_current_line = 0
+		set_speaker("")
 		dialog_ended.emit()
 	else:
 		_start_sequence(next_seq)
@@ -135,6 +148,7 @@ func _on_next_pressed() -> void:
 		panel.visible = false
 		_lines = []
 		_current_line = 0
+		set_speaker("")
 		dialog_ended.emit()
 	else:
 		_show_current_line()

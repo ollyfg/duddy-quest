@@ -31,13 +31,23 @@ func _ready() -> void:
 	subtitle.set(&"theme_override_font_sizes/font_size", 20)
 	canvas.add_child(subtitle)
 
+	var prompt_container := HBoxContainer.new()
+	prompt_container.position = Vector2(200, 340)
+	prompt_container.size = Vector2(240, 40)
+	prompt_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	prompt_container.set(&"theme_override_constants/separation", 8)
+	canvas.add_child(prompt_container)
+
+	var key_icon := TextureRect.new()
+	key_icon.texture = preload("res://assets/icons/press_key.svg")
+	key_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	key_icon.custom_minimum_size = Vector2(32, 32)
+	prompt_container.add_child(key_icon)
+
 	var prompt := Label.new()
 	prompt.text = "Press C to Start"
-	prompt.position = Vector2(0, 340)
-	prompt.size = Vector2(640, 40)
-	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	prompt.set(&"theme_override_font_sizes/font_size", 24)
-	canvas.add_child(prompt)
+	prompt_container.add_child(prompt)
 
 	var version_label := Label.new()
 	version_label.text = "v" + GameState.VERSION
