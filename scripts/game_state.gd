@@ -30,11 +30,16 @@ func _ready() -> void:
 ## fallback) so that Unicode arrows (↑↓←→), health dots (●○), and emoji (🗝🏏🪄)
 ## all render correctly throughout the game.
 func _setup_emoji_font() -> void:
-	var main_font: FontFile = load("res://assets/fonts/DejaVuSans.ttf")
-	var emoji_font: FontFile = load("res://assets/fonts/NotoColorEmoji.ttf")
+	var main_font: FontFile = preload("res://assets/fonts/DejaVuSans.ttf")
+	var emoji_font: FontFile = preload("res://assets/fonts/NotoColorEmoji.ttf")
 	main_font.fallbacks = [emoji_font]
 	var theme := Theme.new()
 	theme.default_font = main_font
+	# Explicitly set the font for common control types so the fallback chain
+	# is used even when a control's theme lookup reaches a type-specific entry
+	# before falling back to default_font.
+	for control_type: String in ["Label", "Button", "RichTextLabel"]:
+		theme.set_font("font", control_type, main_font)
 	get_tree().root.theme = theme
 
 
