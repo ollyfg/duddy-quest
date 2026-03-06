@@ -18,6 +18,11 @@ What it checks:
   6. For each exit found in a .tscn, a matching connections entry exists.
   7. Bidirectional symmetry: if A→east→B then B→west must lead back to A.
      Without this check a player going east then west can land in a different room.
+  8. Exit-overlap safety: for A→dir→B, the source room's exit area must not be
+     so close to the destination room's exit in the SAME direction that a player
+     standing in A's exit zone would overlap B's exit zone when B is loaded.
+     This is the class of bug that caused the "Petunia skip" where going east from
+     l1_upper_hall (after being sent back west) skipped l1_hallway entirely.
 
 Supports both the legacy flat ROOM_CONNECTIONS dict and the new LEVELS dict
 introduced by the level-system refactor.
@@ -38,6 +43,17 @@ ROOM_HEIGHT = 480
 WALL_THICK  = 24
 X_MARGIN    = 10   # extra px of slack when checking entry x bounds
 Y_TOLERANCE = 4    # px tolerance when comparing door y-coordinates
+
+# Half-size of the exit Area2D shape (shape is 12×48 px for east/west exits).
+EXIT_HALF_SIZE = 6
+# Half-size of the player body (player CollisionShape2D is 16×16 px).
+PLAYER_HALF_SIZE = 8
+# A player anywhere inside the source exit zone has a center in the range
+# [exit_center - EXIT_HALF_SIZE, exit_center + EXIT_HALF_SIZE].  Expanding by
+# PLAYER_HALF_SIZE gives the full range of player positions that can trigger it.
+# If that range overlaps the same-direction exit in the destination room, a
+# deferred body_entered will fire the moment the new room is loaded.
+EXIT_OVERLAP_THRESHOLD = EXIT_HALF_SIZE + PLAYER_HALF_SIZE  # = 14 px
 
 # How many characters to scan after an Exit node declaration when looking for
 # a position = Vector2(...) property line.
@@ -279,6 +295,39 @@ def check_rooms():
                             room_name, direction, dest_room,
                             dest_room, rev_dir, dest_conns[rev_dir]["room"],
                             room_name)
+                    )
+
+            # 8. Exit-overlap safety: the entry position placed in the destination
+            # room must not land inside any exit Area2D of that room.  If it
+            # did, the player would immediately re-trigger an exit on the very
+            # first frame, causing a spurious room transition.
+            #
+            # For east/west exits the relevant coordinate is X; the exit Area2D
+            # shape is 12 px wide (half-size 6 px) and the player body is 16 px
+            # wide (half-size 8 px).  An overlap exists when the distance from
+            # the entry position to an exit centre is less than the sum of their
+            # half-sizes (6 + 8 = 14 px).
+            dest_exits = room_exits.get(dest_room, {})
+            for exit_dir, dest_exit_pos in dest_exits.items():
+                if dest_exit_pos is None:
+                    continue
+                if exit_dir in ("east", "west"):
+                    entry_coord = entry_x
+                    exit_coord  = dest_exit_pos[0]
+                else:  # north / south
+                    entry_coord = entry_y
+                    exit_coord  = dest_exit_pos[1]
+                separation = abs(entry_coord - exit_coord)
+                min_safe   = EXIT_HALF_SIZE + PLAYER_HALF_SIZE  # 14 px
+                if separation < min_safe:
+                    issues.append(
+                        "[ENTRY INSIDE EXIT] {} -> {} -> {}: "
+                        "entry position ({}, {}) is only {:.0f} px from "
+                        "Exit{} in {} at {:.0f}. "
+                        "Player would immediately re-trigger that exit on spawn.".format(
+                            room_name, direction, dest_room,
+                            entry_x, entry_y, separation,
+                            exit_dir.capitalize(), dest_room, exit_coord)
                     )
 
     return issues

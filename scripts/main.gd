@@ -152,9 +152,25 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	_room_loading = true
 	if current_room:
 		_save_room_state()
+		# Disconnect the old room's exit signals first so that any in-flight
+		# physics body_entered callbacks queued on the old room's exit Area2D
+		# nodes cannot fire _on_exit_triggered in the new room's context.  The
+		# nodes are freed on the same frame via queue_free, but Godot may still
+		# emit a deferred body_entered before the free completes.
+		if current_room.exit_triggered.is_connected(_on_exit_triggered):
+			current_room.exit_triggered.disconnect(_on_exit_triggered)
+		if current_room.locked_exit_attempted.is_connected(_on_locked_exit_attempted):
+			current_room.locked_exit_attempted.disconnect(_on_locked_exit_attempted)
 		current_room.queue_free()
 		await get_tree().process_frame
 
+	# Teleport the player to the entry position BEFORE adding the new room to
+	# the scene so that the physics server records the new position.  The new
+	# room's exit Area2D nodes will see the player at the correct entry point
+	# when they are first registered, not at any stale position from the
+	# previous room.
+	player.global_position = player_pos
+	player.cancel_movement()
 	current_room_name = room_name
 	var level_rooms: Dictionary = LEVELS[current_level_name]["rooms"]
 	current_room = level_rooms[room_name].instantiate()
@@ -195,19 +211,16 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 				player.add_collision_exception_with(npc)
 				npc.player_hit.connect(_on_petunia_hit_player)
 
+	player.set_camera_limits(current_room.get_room_rect())
+	_update_hp_display(player.hp)
+	_update_wand_display()
+
 	# Connect the bedroom door hint signal (fires first time player bumps door).
 	if room_name == "l1_bedroom":
 		var door: Node = current_room.get_node_or_null("MagicDoor")
 		if door != null and door.has_signal("door_approached"):
 			door.door_approached.connect(_on_bedroom_door_approached)
 
-	player.global_position = player_pos
-	# Reset any in-progress grid step so stale movement from the old room
-	# does not carry over and lock the player's controls in the new room.
-	player.cancel_movement()
-	player.set_camera_limits(current_room.get_room_rect())
-	_update_hp_display(player.hp)
-	_update_wand_display()
 	_room_loading = false
 
 	# Demo cinematic on first entry to room_a.
@@ -341,17 +354,6 @@ func _on_npc_player_detected(dialog: String) -> void:
 	dialog_box.start_dialog([dialog])
 
 
-## Called when Petunia's HitArea physically contacts the player.
-## Shows her catch line then plays a cinematic marching the player back to the
-## hallway's west exit before loading the previous room.
-func _on_petunia_hit_player() -> void:
-	if _room_loading or player.cinematic_mode or dialog_box.is_active() or _post_dialog_action != "":
-		return
-	_post_dialog_action = "petunia_kick"
-	_set_dialog_active(true)
-	dialog_box.start_dialog(["Back to your room, DUDDIKINS!"])
-
-
 func _on_bedroom_door_approached() -> void:
 	if GameState.l1_bedroom_door_hint_shown or dialog_box.is_active():
 		return
@@ -361,6 +363,17 @@ func _on_bedroom_door_approached() -> void:
 		"You try to open the door but it's locked.",
 		"Maybe if you whack it enough...",
 	])
+
+
+## Called when Petunia's HitArea physically contacts the player.
+## Shows her catch line then plays a cinematic marching the player back to the
+## hallway's west exit before loading the previous room.
+func _on_petunia_hit_player() -> void:
+	if _room_loading or player.cinematic_mode or dialog_box.is_active() or _post_dialog_action != "":
+		return
+	_post_dialog_action = "petunia_kick"
+	_set_dialog_active(true)
+	dialog_box.start_dialog(["Back to your room, DUDDIKINS!"])
 
 
 func _on_dialog_ended() -> void:
