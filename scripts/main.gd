@@ -152,19 +152,26 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	_room_loading = true
 	if current_room:
 		_save_room_state()
+		# Disconnect the old room's exit signals first so that any in-flight
+		# physics body_entered callbacks queued on the old room's exit Area2D
+		# nodes cannot fire _on_exit_triggered in the new room's context.  The
+		# nodes are freed on the same frame via queue_free, but Godot may still
+		# emit a deferred body_entered before the free completes.
+		if current_room.exit_triggered.is_connected(_on_exit_triggered):
+			current_room.exit_triggered.disconnect(_on_exit_triggered)
+		if current_room.locked_exit_attempted.is_connected(_on_locked_exit_attempted):
+			current_room.locked_exit_attempted.disconnect(_on_locked_exit_attempted)
 		current_room.queue_free()
 		await get_tree().process_frame
 
 	# Teleport the player to the entry position BEFORE adding the new room to
-	# the scene so that the physics server records the new position.  Then wait
-	# for one physics frame so the server flushes any deferred area-overlap
-	# notifications that were queued for the old position.  Without both steps,
-	# the new room's exit Area2D nodes can fire body_entered for the player's
-	# stale position the moment they are registered, causing a spurious room
-	# transition before the player has moved at all.
+	# the scene so that the physics server records the new position.  The new
+	# room's exit Area2D nodes will see the player at the correct entry point
+	# when they are first registered, not at any stale position from the
+	# previous room.
 	player.global_position = player_pos
 	player.cancel_movement()
-	await get_tree().physics_frame
+	print("_LOAD_ROOM: teleported player to %s, about to add_child(%s)" % [player.global_position, room_name])
 
 	current_room_name = room_name
 	var level_rooms: Dictionary = LEVELS[current_level_name]["rooms"]
@@ -217,6 +224,7 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 			door.door_approached.connect(_on_bedroom_door_approached)
 
 	_room_loading = false
+	print("_LOAD_ROOM: done loading %s, player_pos=%s" % [room_name, player.global_position])
 
 	# Demo cinematic on first entry to room_a.
 	if room_name == "room_a" and "room_a" not in _room_states:
@@ -308,6 +316,7 @@ func _on_exit_triggered(direction: String) -> void:
 	if direction not in connections:
 		return
 	var next: Dictionary = connections[direction]
+	print("EXIT: %s --%s--> %s (player_pos=%s, cinematic=%s)" % [current_room_name, direction, next["room"], player.global_position, player.cinematic_mode])
 	_load_room(next["room"], next["entry"])
 
 
