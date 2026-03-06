@@ -72,6 +72,15 @@ enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, PATROL }
 ## dialog (e.g. cats that should stay silent until a flag is set).
 @export var requires_flag: String = ""
 
+## When true, this NPC will NOT start dialog by bumping into the player.
+## The player must instead press the interact key (E) while nearby.
+@export var requires_interact: bool = false
+## Key item ID that, when held by the player, causes this NPC to show
+## after_key_dialog instead of the normal dialog_lines.
+@export var after_key_id: String = ""
+## Dialog shown when the player already holds after_key_id.
+@export var after_key_dialog: Array = []
+
 signal interaction_requested
 ## Emitted once per room visit when a PATROL NPC first spots the player.
 ## Carries the detection_dialog string.
@@ -413,4 +422,5 @@ func _on_hit_area_body_entered(body: Node) -> void:
 			body.take_damage(1)
 			body.apply_knockback(direction)
 	elif not is_hostile and body.is_in_group("player"):
-		interaction_requested.emit()
+		if not requires_interact:
+			interaction_requested.emit()
