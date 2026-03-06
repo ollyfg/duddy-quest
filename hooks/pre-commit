@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Pre-commit hook: ensure VERSION in scripts/game_state.gd has been bumped.
+#
+# Install once (from the repo root):
+#   bash tools/install-hooks.sh
+#
+# The hook compares the staged version of game_state.gd against origin/main.
+# If they are identical it blocks the commit with an actionable error message.
+# If origin/main is unreachable (e.g. offline, no remote) the check is skipped
+# with a warning so it never blocks work unexpectedly.
+
+GAME_STATE="scripts/game_state.gd"
+
+# Portable version extraction using sed (avoids grep -P which is not available
+# on macOS/BSD grep).
+extract_version() {
+    sed -n 's/.*const VERSION: String = "\([^"]*\)".*/\1/p'
+}
+
+# Extract the VERSION from the *staged* (index) copy of game_state.gd so that
+# the check reflects exactly what is about to be committed.
+STAGED=$(git show ":${GAME_STATE}" 2>/dev/null | extract_version)
+if [ -z "$STAGED" ]; then
+    # game_state.gd is not staged at all — nothing to check.
+    exit 0
+fi
+
+# Try to get the version on origin/main.
+MAIN=$(git show "origin/main:${GAME_STATE}" 2>/dev/null | extract_version)
+if [ -z "$MAIN" ]; then
+    echo "⚠️  pre-commit: could not read origin/main:${GAME_STATE} — skipping version check."
+    exit 0
+fi
+
+if [ "$STAGED" = "$MAIN" ]; then
+    echo ""
+    echo "❌  VERSION has not been bumped."
+    echo "    Staged version : ${STAGED}"
+    echo "    origin/main    : ${MAIN}"
+    echo ""
+    echo "    Please update VERSION in ${GAME_STATE} before committing."
+    echo "    Example: const VERSION: String = \"<new-semver>\""
+    echo ""
+    exit 1
+fi
+
+echo "✅  Version bumped: ${MAIN} → ${STAGED}"
+exit 0
