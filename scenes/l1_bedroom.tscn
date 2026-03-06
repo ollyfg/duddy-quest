@@ -161,6 +161,7 @@ shape = SubResource("Sh_wardrobe")
 position = Vector2(240.0, 320.0)
 movement_mode = 1
 dialog_lines = ["What on earth... A letter addressed to D. DURSLEY (THE LARGER ONE).", "A Hogwarts letter! FOR ME! Mum has been hiding this for years!", "The door is stuck fast. Maybe I can break through it if I get REALLY furious.", "Smash things until the rage builds — then it should burst open!"]
+npc_name = "Hogwarts Letter"
 
 [node name="MagicDoor" parent="." instance=ExtResource("3_magicdoor")]
 position = Vector2(628.0, 240.0)

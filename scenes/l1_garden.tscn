@@ -172,6 +172,7 @@ requires_key_id = "mr_tibbles_key"
 key_accept_dialog = ["Oh! You found him! My precious Mr Tibbles!", "Come here, you naughty boy... yes, there's the notch on his left ear.", "Right then. The gate's all yours. Off you trot!"]
 sets_game_flag = "mrs_figg_met"
 dialog_lines = ["Have you seen Mr Tibbles? I'm absolutely frantic.", "He's a tabby — proper tabby, mind you — with a notch in his LEFT ear and a BLUE collar.", "Not Snowy, who is all white and far too smug about it.", "And not Mr Whiskers either — ginger, red collar, always chewing the begonias.", "Find the right cat and I'll step out of your way."]
+npc_name = "Mrs Figg"
 
 [node name="CollisionShape2D" parent="NPCs/MrsFigg"]
 shape = SubResource("Sh_mrsfig_body")
@@ -193,6 +194,7 @@ after_key_id = "mr_tibbles_key"
 after_key_dialog = ["Mrrrow."]
 pre_flag_dialog = ["Mrrrow."]
 dialog_lines = ["Mrrrow.", "I am Snowy. All white. Entirely magnificent.", "Not who you're after, clearly."]
+npc_name = "Snowy"
 
 [node name="MrWhiskers" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(352.0, 192.0)
@@ -202,6 +204,7 @@ after_key_id = "mr_tibbles_key"
 after_key_dialog = ["Mrow."]
 pre_flag_dialog = ["Mrow."]
 dialog_lines = ["Mrow.", "Mr Whiskers. Ginger. Red collar.", "Definitely not the tabby you're looking for."]
+npc_name = "Mr Whiskers"
 
 [node name="MrTibbles" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(480.0, 160.0)
@@ -211,6 +214,7 @@ gives_key_id = "mr_tibbles_key"
 gives_key_flag = "mrs_figg_met"
 pre_flag_dialog = ["Mrrp!"]
 dialog_lines = ["Mrrp! *nuzzles your ankle*", "Tabby, notched left ear, blue collar — this is definitely Mr Tibbles.", "You scoop him up. He's surprisingly heavy for a cat."]
+npc_name = "Mr Tibbles"
 
 [node name="Duchess" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(256.0, 320.0)
@@ -220,6 +224,7 @@ after_key_id = "mr_tibbles_key"
 after_key_dialog = ["Mrrrow."]
 pre_flag_dialog = ["Mrrrow."]
 dialog_lines = ["Mrrrow.", "Duchess. Tortoiseshell. No collar.", "Definitely not a tabby."]
+npc_name = "Duchess"
 
 [node name="Tibbles2" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(448.0, 288.0)
@@ -238,6 +243,7 @@ after_key_id = "mr_tibbles_key"
 after_key_dialog = ["Mrrrow.", "Mrow."]
 pre_flag_dialog = ["Mrrrow."]
 dialog_lines = ["Mrrrow.", "Tom. Grey tabby actually, but the wrong ear is fine.", "No collar at all. Not your cat."]
+npc_name = "Tom"
 
 [node name="Ripper" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(320.0, 384.0)

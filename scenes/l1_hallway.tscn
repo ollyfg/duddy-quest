@@ -236,3 +236,4 @@ invincible = true
 detection_range = 200.0
 patrol_pause_duration = 1.5
 patrol_points = Array[Vector2]([Vector2(80.0, 240.0), Vector2(560.0, 240.0)])
+npc_name = "Petunia"

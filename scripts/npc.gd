@@ -7,6 +7,9 @@ extends CharacterBody2D
 ## Lines shown when the player interacts with a friendly NPC.
 @export var dialog_lines: Array = ["Hello, traveler!", "Good luck on your quest!"]
 
+## Display name shown in the dialog box header when this NPC speaks.
+@export var npc_name: String = ""
+
 @export var move_speed: float = 60.0
 @export var max_hp: int = 3
 

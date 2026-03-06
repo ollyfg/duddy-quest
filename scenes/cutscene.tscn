@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cutscene"]
+[gd_scene load_steps=3 format=3 uid="uid://cutscene"]
 
 [ext_resource type="Script" path="res://scripts/cutscene.gd" id="1_cs"]
+[ext_resource type="Texture2D" path="res://assets/icons/press_key.svg" id="2_pk"]
 
 [node name="Cutscene" type="CanvasLayer"]
 layer = 30
@@ -36,14 +37,24 @@ offset_right = -16.0
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 16
 
-[node name="HintLabel" type="Label" parent="TextPanel"]
+[node name="HintBox" type="HBoxContainer" parent="TextPanel"]
 anchor_left = 0.0
 anchor_top = 0.8
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = -12.0
 offset_bottom = -8.0
-horizontal_alignment = 2
-vertical_alignment = 2
-text = "▶ Press any button to continue"
+alignment = 2
+theme_override_constants/separation = 6
+
+[node name="HintIcon" type="TextureRect" parent="TextPanel/HintBox"]
+layout_mode = 2
+stretch_mode = 4
+custom_minimum_size = Vector2(18, 18)
+texture = ExtResource("2_pk")
+
+[node name="HintLabel" type="Label" parent="TextPanel/HintBox"]
+layout_mode = 2
+vertical_alignment = 1
+text = "Press any button to continue"
 theme_override_font_sizes/font_size = 12

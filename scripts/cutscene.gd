@@ -9,7 +9,7 @@ var _current: int = 0
 @onready var image_rect: TextureRect = $ImageRect
 @onready var text_panel: Panel = $TextPanel
 @onready var text_label: Label = $TextPanel/TextLabel
-@onready var hint_label: Label = $TextPanel/HintLabel
+@onready var hint_box: HBoxContainer = $TextPanel/HintBox
 
 
 func play(slides: Array) -> void:

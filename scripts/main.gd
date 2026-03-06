@@ -1,5 +1,7 @@
 extends Node2D
 
+const _HEART_FULL: Texture2D = preload("res://assets/icons/heart_full.svg")
+const _HEART_EMPTY: Texture2D = preload("res://assets/icons/heart_empty.svg")
 # Each level groups its rooms, connections, starting room and starting position.
 const LEVELS: Dictionary = {
 	"training": {
@@ -82,7 +84,7 @@ var _room_states: Dictionary = {}
 @onready var player = $Player
 # Untyped to allow calling dialog_box.gd methods (is_active, start_dialog).
 @onready var dialog_box = $HUD/DialogBox
-@onready var hp_label: Label = $HUD/HPLabel
+@onready var hp_bar: HBoxContainer = $HUD/HPBar
 @onready var key_label: Label = $HUD/KeyLabel
 @onready var rage_bar: ProgressBar = $HUD/RageBar
 @onready var mobile_controls = $MobileControls
@@ -109,6 +111,7 @@ func _ready() -> void:
 	player.rage_changed.connect(_update_rage_bar)
 	player.rage_attack.connect(_on_rage_attack)
 	dialog_box.dialog_ended.connect(_on_dialog_ended)
+	_init_hp_bar()
 
 	# Allow launching into a specific level via --level <name> CLI argument;
 	# otherwise use the level chosen on the level-select screen.
@@ -321,6 +324,7 @@ func _on_npc_interaction_requested(npc: Node) -> void:
 		return
 	_interacting_npc = npc
 	_set_dialog_active(true)
+	dialog_box.set_speaker(npc.npc_name)
 	dialog_box.start_dialog(_pick_npc_dialog(npc))
 
 
@@ -356,6 +360,7 @@ func _on_npc_player_detected(dialog: String) -> void:
 		return
 	_post_dialog_action = "go_west"
 	_set_dialog_active(true)
+	dialog_box.set_speaker("")
 	dialog_box.start_dialog([dialog])
 
 
@@ -364,6 +369,7 @@ func _on_bedroom_door_approached() -> void:
 		return
 	GameState.l1_bedroom_door_hint_shown = true
 	_set_dialog_active(true)
+	dialog_box.set_speaker("")
 	dialog_box.start_dialog([
 		"You try to open the door but it's locked.",
 		"Maybe if you whack it enough...",
@@ -378,6 +384,7 @@ func _on_petunia_hit_player() -> void:
 		return
 	_post_dialog_action = "petunia_kick"
 	_set_dialog_active(true)
+	dialog_box.set_speaker("Petunia")
 	dialog_box.start_dialog(["Back to your room, DUDDIKINS!"])
 
 
@@ -445,11 +452,19 @@ func _set_dialog_active(active: bool) -> void:
 			npc.is_paused = active
 
 
-func _update_hp_display(new_hp: int) -> void:
-	var dots := ""
+func _init_hp_bar() -> void:
 	for i: int in range(player.MAX_HP):
-		dots += "●" if i < new_hp else "○"
-	hp_label.text = dots
+		var tr := TextureRect.new()
+		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tr.custom_minimum_size = Vector2(28, 28)
+		hp_bar.add_child(tr)
+	_update_hp_display(player.hp)
+
+
+func _update_hp_display(new_hp: int) -> void:
+	for i: int in range(hp_bar.get_child_count()):
+		var tr: TextureRect = hp_bar.get_child(i)
+		tr.texture = _HEART_FULL if i < new_hp else _HEART_EMPTY
 
 
 func _update_key_display(count: int) -> void:
@@ -481,6 +496,7 @@ func _on_rage_attack() -> void:
 func _on_locked_exit_attempted(_direction: String, _key_id: String) -> void:
 	if not dialog_box.is_active():
 		_set_dialog_active(true)
+		dialog_box.set_speaker("")
 		dialog_box.start_dialog(["It's locked."])
 
 
