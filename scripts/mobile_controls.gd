@@ -32,15 +32,26 @@ var _btn_ranged: Button
 var _is_dev_tools: bool = false
 
 
+## Maps button node names to their SVG icon textures.
+const _BTN_ICONS: Dictionary = {
+	"BtnUp":     preload("res://assets/icons/arrow_up.svg"),
+	"BtnDown":   preload("res://assets/icons/arrow_down.svg"),
+	"BtnLeft":   preload("res://assets/icons/arrow_left.svg"),
+	"BtnRight":  preload("res://assets/icons/arrow_right.svg"),
+	"BtnMelee":  preload("res://assets/icons/bat.svg"),
+	"BtnRanged": preload("res://assets/icons/lightning.svg"),
+}
+
+
 func _ready() -> void:
 	_is_dev_tools = "--dev-tools" in OS.get_cmdline_user_args()
 	visible = DisplayServer.is_touchscreen_available() or _is_dev_tools
-	# Apply NotoColorEmoji directly to all buttons so Unicode arrows and emoji
-	# render correctly without relying on font fallback chain.
-	var emoji_font: FontFile = preload("res://assets/fonts/NotoColorEmoji.ttf")
+	# Set SVG icons on each button and clear the placeholder text.
 	for btn_name: String in _BTN_ACTIONS:
 		var btn: Button = _overlay.get_node(btn_name)
-		btn.set(&"theme_override_fonts/font", emoji_font)
+		btn.text = ""
+		btn.icon = _BTN_ICONS[btn_name]
+		btn.expand_icon = true
 		_action_buttons[_BTN_ACTIONS[btn_name]] = btn
 		if btn_name == "BtnRanged":
 			_btn_ranged = btn
