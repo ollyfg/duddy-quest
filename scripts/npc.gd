@@ -360,6 +360,17 @@ func _patrol_move(delta: float) -> void:
 		velocity = (target - global_position).normalized() * move_speed
 
 
+## Called externally (e.g. after a cinematic kick-back) to make this NPC
+## immediately resume its patrol instead of continuing to chase the player.
+## Clears _player_ref so detection logic does not immediately re-engage;
+## the reference is restored next time set_player_reference() is called
+## (which happens automatically when the room is re-entered).
+func reset_patrol() -> void:
+	_patrol_was_chasing = false
+	_player_ref = null
+	_resume_patrol_from_nearest()
+
+
 func _resume_patrol_from_nearest() -> void:
 	if patrol_points.is_empty():
 		return

@@ -390,6 +390,11 @@ func _on_dialog_ended() -> void:
 	# Petunia catches the player: cinematic marching them back to the bedroom door.
 	if action == "petunia_kick":
 		_interacting_npc = null
+		# Return Petunia (and any other cinematic_kick_back NPC) to her patrol
+		# route immediately so she doesn't continue chasing during the escort.
+		for npc: Node in get_tree().get_nodes_in_group("cinematic_kick_back"):
+			if npc.has_method("reset_patrol"):
+				npc.reset_patrol()
 		var kick_origin: Vector2 = player.global_position
 		play_cinematic([
 			{"type": "move_player", "to": Vector2(kick_origin.x, 240.0), "speed": 100.0},
