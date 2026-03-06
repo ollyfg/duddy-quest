@@ -294,7 +294,6 @@ func _add_rage(amount: float) -> void:
 	if rage >= 1.0:
 		rage = 0.0
 		rage_changed.emit(rage)
-		print("DEBUG: rage attack fired! player pos=", global_position)
 		rage_attack.emit()
 		_trigger_rage_attack()
 
@@ -320,7 +319,6 @@ func _trigger_rage_attack() -> void:
 	# Exclude the player itself from the results.
 	query.exclude = [get_rid()]
 	var results: Array[Dictionary] = space.intersect_shape(query)
-	print("DEBUG: rage query at pos=", global_position, " found ", results.size(), " results")
 	for result: Dictionary in results:
 		var body: Node = result["collider"]
 		_on_rage_area_body_entered(body)

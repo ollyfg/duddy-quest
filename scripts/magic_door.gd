@@ -22,7 +22,6 @@ func _on_hint_area_body_entered(body: Node) -> void:
 
 
 func on_rage_attack() -> void:
-	print("DEBUG magic_door on_rage_attack called")
 	_open()
 
 

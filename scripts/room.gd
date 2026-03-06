@@ -51,7 +51,6 @@ func _ready() -> void:
 
 func _on_exit_body_entered(body: Node, direction: String) -> void:
 	if body.is_in_group("player"):
-		print("DEBUG room exit body_entered: dir=%s body_pos=%s" % [direction, body.global_position])
 		if _locked_exits.get(direction, false):
 			return  # Exit is locked by a switch.
 		var req_key: String = _exit_keys.get(direction, "")

@@ -149,7 +149,6 @@ func _load_level(level_name: String) -> void:
 
 
 func _load_room(room_name: String, player_pos: Vector2) -> void:
-	print("DEBUG _load_room: room=%s pos=%s" % [room_name, player_pos])
 	_room_loading = true
 	if current_room:
 		_save_room_state()
@@ -164,14 +163,19 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 			current_room.locked_exit_attempted.disconnect(_on_locked_exit_attempted)
 		current_room.queue_free()
 		await get_tree().process_frame
+		# Teleport the player to the entry position, then wait one physics
+		# frame so that Godot's physics broadphase fully commits the new body
+		# position before the new room's exit Area2D nodes are registered.
+		# Without this wait the broadphase may still hold the player's position
+		# from the previous room, causing the new room's exits to fire a
+		# spurious body_entered on their very first overlap check.
+		player.global_position = player_pos
+		player.cancel_movement()
+		await get_tree().physics_frame
+	else:
+		player.global_position = player_pos
+		player.cancel_movement()
 
-	# Teleport the player to the entry position BEFORE adding the new room to
-	# the scene so that the physics server records the new position.  The new
-	# room's exit Area2D nodes will see the player at the correct entry point
-	# when they are first registered, not at any stale position from the
-	# previous room.
-	player.global_position = player_pos
-	player.cancel_movement()
 	current_room_name = room_name
 	var level_rooms: Dictionary = LEVELS[current_level_name]["rooms"]
 	current_room = level_rooms[room_name].instantiate()
@@ -303,7 +307,6 @@ func _restore_room_state(room_name: String) -> void:
 
 
 func _on_exit_triggered(direction: String) -> void:
-	print("DEBUG _on_exit_triggered: dir=%s current_room=%s player_pos=%s room_loading=%s" % [direction, current_room_name, str(player.global_position), str(_room_loading)])
 	# Guard against re-entrant calls while a room transition is already in
 	# progress (the one-frame await in _load_room leaves the old room's exit
 	# signals connected for one frame, which could cause a concurrent load).
