@@ -71,6 +71,8 @@ signal interaction_requested
 ## Emitted once per room visit when a PATROL NPC first spots the player.
 ## Carries the detection_dialog string.
 signal player_detected(dialog: String)
+## Emitted each time this hostile NPC's HitArea contacts the player.
+signal player_hit
 
 const KNOCKBACK_SPEED: float = 400.0
 const KNOCKBACK_THRESHOLD: float = 5.0
@@ -340,6 +342,7 @@ func apply_knockback(direction: Vector2) -> void:
 func _on_hit_area_body_entered(body: Node) -> void:
 	if is_hostile and body.is_in_group("player"):
 		var direction: Vector2 = ((body as Node2D).global_position - global_position).normalized()
+		player_hit.emit()
 		body.take_damage(1)
 		body.apply_knockback(direction)
 	elif not is_hostile and body.is_in_group("player"):
