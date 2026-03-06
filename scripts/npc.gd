@@ -96,6 +96,9 @@ const HOSTILE_COLOR: Color = Color(0.8, 0.1, 0.1)
 const DAMAGE_FLASH_COLOR: Color = Color(1.0, 0.3, 0.3)
 ## Proximity threshold (px) for considering a patrol waypoint reached.
 const PATROL_ARRIVAL_THRESHOLD: float = 8.0
+## Angles tried in order when the direct path is blocked during obstacle steering.
+## Paired ±values ensure symmetric left/right attempts before wider angles.
+const STEER_ANGLES: Array[int] = [30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180]
 
 var hp: int
 var is_paused: bool = false
@@ -237,7 +240,51 @@ func set_player_reference(player: Node) -> void:
 
 
 func _chase_player() -> void:
-	velocity = (_player_ref.global_position - global_position).normalized() * move_speed
+	velocity = _navigate_toward(_player_ref.global_position) * move_speed
+
+
+## Returns the best direction to move toward `target` while steering around
+## physics obstacles.  Casts a short ray in the desired direction; if blocked,
+## tries progressively-angled alternatives and returns the one that is both
+## clear and closest to the goal direction.  Falls back to the direct direction
+## if every alternative is also blocked (e.g. completely cornered).
+func _navigate_toward(target: Vector2) -> Vector2:
+	var to_target: Vector2 = target - global_position
+	if to_target.length_squared() < 1.0:
+		return Vector2.ZERO
+	var desired_dir: Vector2 = to_target.normalized()
+
+	# Look ahead by ~2.5 body-widths (NPC is 16 px wide).
+	const LOOK_AHEAD: float = 40.0
+	var space: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
+
+	# Build exclusion list: skip this NPC and the player so we only detect
+	# static obstacles (walls, furniture).
+	var excl: Array[RID] = [get_rid()]
+	if _player_ref is CollisionObject2D:
+		excl.append((_player_ref as CollisionObject2D).get_rid())
+
+	var q := PhysicsRayQueryParameters2D.create(
+		global_position, global_position + desired_dir * LOOK_AHEAD)
+	q.exclude = excl
+	if space.intersect_ray(q).is_empty():
+		return desired_dir
+
+	# Direct path is blocked — try progressively wider angles on both sides.
+	var best_dir: Vector2 = desired_dir
+	var best_score: float = -INF
+	for angle_deg: int in STEER_ANGLES:
+		var test_dir: Vector2 = desired_dir.rotated(deg_to_rad(float(angle_deg)))
+		var qt := PhysicsRayQueryParameters2D.create(
+			global_position, global_position + test_dir * LOOK_AHEAD)
+		qt.exclude = excl
+		if space.intersect_ray(qt).is_empty():
+			# Among clear directions prefer those most aligned with the goal.
+			var score: float = test_dir.dot(desired_dir)
+			if score > best_score:
+				best_score = score
+				best_dir = test_dir
+	return best_dir
 
 
 func _wander(delta: float) -> void:
@@ -311,6 +358,17 @@ func _patrol_move(delta: float) -> void:
 		velocity = Vector2.ZERO
 	else:
 		velocity = (target - global_position).normalized() * move_speed
+
+
+## Called externally (e.g. after a cinematic kick-back) to make this NPC
+## immediately resume its patrol instead of continuing to chase the player.
+## Clears _player_ref so detection logic does not immediately re-engage;
+## the reference is restored next time set_player_reference() is called
+## (which happens automatically when the room is re-entered).
+func reset_patrol() -> void:
+	_patrol_was_chasing = false
+	_player_ref = null
+	_resume_patrol_from_nearest()
 
 
 func _resume_patrol_from_nearest() -> void:

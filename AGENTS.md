@@ -1,6 +1,24 @@
 You are an experienced Godot game developer. You are developing this game.
 Played as a top-down roguelike, in the style of early legend of zelda games. It is based on the adoptive brother Dudley from Harry Potter, and follows his unusual journey to get to Hogwarts. The game features melee weapons (his Smeltings Stick), and eventually a wand that fires ranged spells.
 
+## First-time setup (recommended)
+
+Run this **once** immediately after cloning, before making any commits:
+
+```bash
+bash tools/install-hooks.sh
+```
+
+This configures git to use the committed hooks in `hooks/`.  The most
+important hook is `hooks/pre-commit`, which blocks commits where the
+`VERSION` constant in `scripts/game_state.gd` has not been bumped relative
+to `origin/main`.  The hook gracefully skips if `origin/main` is not
+reachable (e.g. in offline environments).
+
+> **Every PR must bump the version.**  If a commit is blocked with
+> `❌ VERSION has not been bumped`, update `VERSION` in
+> `scripts/game_state.gd` (e.g. `"0.2.0"` → `"0.3.0"`) and retry.
+
 ## Playtesting Tools
 
 The `tools/` directory contains scripts that allow you to launch, control, and observe

@@ -1,0 +1,46 @@
+name: Check version bump
+
+# Runs on every pull request targeting main.  Fails if the VERSION constant in
+# scripts/game_state.gd is identical to the version already on main, so that
+# every merged change is always accompanied by a version bump.
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from PR branch
+        id: pr_version
+        run: |
+          VERSION=$(grep -oP 'const VERSION: String = "\K[^"]+' scripts/game_state.gd)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "PR branch version: $VERSION"
+
+      - name: Extract version from main
+        id: main_version
+        run: |
+          git fetch origin main --depth=1
+          VERSION=$(git show origin/main:scripts/game_state.gd | grep -oP 'const VERSION: String = "\K[^"]+')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "main version: $VERSION"
+
+      - name: Fail if version was not bumped
+        run: |
+          PR="${{ steps.pr_version.outputs.version }}"
+          MAIN="${{ steps.main_version.outputs.version }}"
+          if [ "$PR" = "$MAIN" ]; then
+            echo "::error file=scripts/game_state.gd::Version has not been bumped. PR version ($PR) is the same as main ($MAIN). Please update VERSION in scripts/game_state.gd."
+            exit 1
+          fi
+          echo "Version bumped: $MAIN → $PR ✓"
