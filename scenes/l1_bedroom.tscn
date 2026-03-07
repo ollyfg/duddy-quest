@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://l1bedroom"]
+[gd_scene load_steps=12 format=3 uid="uid://l1bedroom"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
@@ -10,8 +10,11 @@ size = Vector2(640, 24)
 [sub_resource type="RectangleShape2D" id="Sh_fullvwall"]
 size = Vector2(24, 480)
 
-[sub_resource type="RectangleShape2D" id="Sh_vwall_seg"]
-size = Vector2(24, 216)
+[sub_resource type="RectangleShape2D" id="Sh_vwall_top"]
+size = Vector2(24, 136)
+
+[sub_resource type="RectangleShape2D" id="Sh_vwall_bot"]
+size = Vector2(24, 296)
 
 [sub_resource type="RectangleShape2D" id="Sh_exit"]
 size = Vector2(12, 48)
@@ -79,35 +82,35 @@ mouse_filter = 2
 shape = SubResource("Sh_fullvwall")
 
 [node name="RightWallTop" type="StaticBody2D" parent="."]
-position = Vector2(628, 108)
+position = Vector2(628, 68)
 
 [node name="Sprite" type="ColorRect" parent="RightWallTop"]
 offset_left = -12.0
-offset_top = -108.0
+offset_top = -68.0
 offset_right = 12.0
-offset_bottom = 108.0
+offset_bottom = 68.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallTop"]
-shape = SubResource("Sh_vwall_seg")
+shape = SubResource("Sh_vwall_top")
 
 [node name="RightWallBottom" type="StaticBody2D" parent="."]
-position = Vector2(628, 372)
+position = Vector2(628, 332)
 
 [node name="Sprite" type="ColorRect" parent="RightWallBottom"]
 offset_left = -12.0
-offset_top = -108.0
+offset_top = -148.0
 offset_right = 12.0
-offset_bottom = 108.0
+offset_bottom = 148.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallBottom"]
-shape = SubResource("Sh_vwall_seg")
+shape = SubResource("Sh_vwall_bot")
 
 [node name="ExitEast" type="Area2D" parent="."]
-position = Vector2(636, 240)
+position = Vector2(636, 160)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]
@@ -164,4 +167,4 @@ dialog_lines = ["What on earth... A letter addressed to D. DURSLEY (THE LARGER O
 npc_name = "Hogwarts Letter"
 
 [node name="MagicDoor" parent="." instance=ExtResource("3_magicdoor")]
-position = Vector2(628.0, 240.0)
+position = Vector2(628.0, 160.0)
