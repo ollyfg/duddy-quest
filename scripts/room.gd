@@ -56,18 +56,15 @@ func _ready() -> void:
 
 
 func get_npcs() -> Array[Node]:
-	var npcs_node: Node = get_node_or_null(_NPCS_NODE)
-	return npcs_node.get_children() if npcs_node != null else []
+	return _get_children_safe(_NPCS_NODE)
 
 
 func get_items() -> Array[Node]:
-	var items_node: Node = get_node_or_null(_ITEMS_NODE)
-	return items_node.get_children() if items_node != null else []
+	return _get_children_safe(_ITEMS_NODE)
 
 
 func get_switches() -> Array[Node]:
-	var switches_node: Node = get_node_or_null(_SWITCHES_NODE)
-	return switches_node.get_children() if switches_node != null else []
+	return _get_children_safe(_SWITCHES_NODE)
 
 
 func get_first_npc_path() -> String:
@@ -78,10 +75,12 @@ func get_first_npc_path() -> String:
 
 
 func _get_exit_node(direction: String) -> Area2D:
-	var node_name: String = _EXIT_NODE_NAMES.get(direction, "")
-	if node_name == "":
-		return null
-	return get_node_or_null(node_name) as Area2D
+	return get_node_or_null(_EXIT_NODE_NAMES.get(direction, "")) as Area2D
+
+
+func _get_children_safe(node_name: String) -> Array[Node]:
+	var node: Node = get_node_or_null(node_name)
+	return node.get_children() if node != null else []
 
 
 func _on_exit_body_entered(body: Node, direction: String) -> void:

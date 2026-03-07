@@ -202,27 +202,26 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 
 	# Give NPCs a reference to the player for hostile chase behaviour.
 	# Connect friendly NPC interaction signals.
-	if current_room.has_method("get_npcs"):
-		for npc in current_room.get_npcs():
-			if npc.is_queued_for_deletion():
-				continue
-			if npc.has_method("set_player_reference"):
-				npc.set_player_reference(player)
-			if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
-				npc.boss_defeated.connect(_on_boss_defeated)
-				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
-			elif not npc.is_hostile:
-				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
-			if npc.detection_dialog != "":
-				npc.player_detected.connect(_on_npc_player_detected)
-			# Any NPC with cinematic_kick_back set triggers the Petunia
-			# kick-back cinematic when it physically contacts the player.
-			# We also add a physics collision exception so the NPC's body does
-			# not push the player around before the cinematic fires.
-			if npc.cinematic_kick_back:
-				npc.add_collision_exception_with(player)
-				player.add_collision_exception_with(npc)
-				npc.player_hit.connect(_on_petunia_hit_player)
+	for npc in current_room.get_npcs():
+		if npc.is_queued_for_deletion():
+			continue
+		if npc.has_method("set_player_reference"):
+			npc.set_player_reference(player)
+		if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
+			npc.boss_defeated.connect(_on_boss_defeated)
+			npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
+		elif not npc.is_hostile:
+			npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
+		if npc.detection_dialog != "":
+			npc.player_detected.connect(_on_npc_player_detected)
+		# Any NPC with cinematic_kick_back set triggers the Petunia
+		# kick-back cinematic when it physically contacts the player.
+		# We also add a physics collision exception so the NPC's body does
+		# not push the player around before the cinematic fires.
+		if npc.cinematic_kick_back:
+			npc.add_collision_exception_with(player)
+			player.add_collision_exception_with(npc)
+			npc.player_hit.connect(_on_petunia_hit_player)
 
 	player.set_camera_limits(current_room.get_room_rect())
 	_update_hp_display(player.hp)
@@ -238,7 +237,7 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 
 	# Demo cinematic on first entry to room_a.
 	if room_name == "room_a" and "room_a" not in _room_states:
-		var npc_path: String = current_room.get_first_npc_path() if current_room.has_method("get_first_npc_path") else ""
+		var npc_path: String = current_room.get_first_npc_path()
 		if npc_path != "":
 			play_cinematic([
 				{"type": "dialog", "speaker": npc_path, "lines": ["Welcome to the training area, Dudley!"]},
@@ -250,27 +249,24 @@ func _save_room_state() -> void:
 	if current_room == null or current_room_name == "":
 		return
 	var npc_states: Dictionary = {}
-	if current_room.has_method("get_npcs"):
-		for npc in current_room.get_npcs():
-			# Skip NPCs that have already been removed (e.g. picked-up cats).
-			if npc.is_queued_for_deletion():
-				continue
-			npc_states[npc.name] = {
-				"position": npc.global_position,
-				"hp": npc.hp,
-			}
+	for npc in current_room.get_npcs():
+		# Skip NPCs that have already been removed (e.g. picked-up cats).
+		if npc.is_queued_for_deletion():
+			continue
+		npc_states[npc.name] = {
+			"position": npc.global_position,
+			"hp": npc.hp,
+		}
 	# Items: record the names of items that are still present (picked-up items
 	# will have already been queue_free()'d and won't appear here).
 	var item_names: Array[String] = []
-	if current_room.has_method("get_items"):
-		for item in current_room.get_items():
-			if not item.is_queued_for_deletion():
-				item_names.append(item.name)
+	for item in current_room.get_items():
+		if not item.is_queued_for_deletion():
+			item_names.append(item.name)
 	# Switches: record each switch's current on/off state.
 	var switch_states: Dictionary = {}
-	if current_room.has_method("get_switches"):
-		for sw in current_room.get_switches():
-			switch_states[sw.name] = sw.is_on
+	for sw in current_room.get_switches():
+		switch_states[sw.name] = sw.is_on
 	_room_states[current_room_name] = {
 		"npcs": npc_states,
 		"items": item_names,
@@ -288,7 +284,7 @@ func _restore_room_state(room_name: String) -> void:
 		return
 	var state: Dictionary = _room_states[room_name]
 	# Restore NPCs.
-	if current_room.has_method("get_npcs") and "npcs" in state:
+	if "npcs" in state:
 		var npc_states: Dictionary = state["npcs"]
 		for npc in current_room.get_npcs():
 			if npc.name not in npc_states:
@@ -298,7 +294,7 @@ func _restore_room_state(room_name: String) -> void:
 				npc.global_position = npc_data["position"]
 				npc.hp = npc_data["hp"]
 	# Restore items: remove any item that was already collected.
-	if current_room.has_method("get_items") and "items" in state:
+	if "items" in state:
 		var present_items: Array[String] = state["items"]
 		for item in current_room.get_items():
 			if item.name not in present_items:
@@ -307,7 +303,7 @@ func _restore_room_state(room_name: String) -> void:
 	# from its starting state so the visual, door, and locked-exit are updated.
 	# on_hit() is called at most once per switch (the condition guarantees this),
 	# toggling from starts_on to the saved state in a single authorized step.
-	if current_room.has_method("get_switches") and "switches" in state:
+	if "switches" in state:
 		var switch_states: Dictionary = state["switches"]
 		for sw in current_room.get_switches():
 			if sw.name in switch_states and sw.is_on != switch_states[sw.name]:
@@ -457,7 +453,8 @@ func _handle_post_npc_dialog(npc: Node) -> void:
 
 func _set_dialog_active(active: bool) -> void:
 	player.is_in_dialog = active
-	if current_room and current_room.has_method("get_npcs"):
+	if current_room:
+		# room.gd get_npcs() safely returns [] when a room has no NPCs node.
 		for npc in current_room.get_npcs():
 			npc.is_paused = active
 
