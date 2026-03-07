@@ -17,18 +17,18 @@ const LEVELS: Dictionary = {
 		},
 		"connections": {
 			"room_a": {
-				"east": {"room": "room_b", "entry": Vector2(64.0, 240.0)},
+				"east": {"room": "room_b", "entry": Vector2(64.0, 160.0)},
 			},
 			"room_b": {
-				"west": {"room": "room_a", "entry": Vector2(576.0, 240.0)},
-				"east": {"room": "room_c", "entry": Vector2(64.0, 240.0)},
+				"west": {"room": "room_a", "entry": Vector2(576.0, 160.0)},
+				"east": {"room": "room_c", "entry": Vector2(64.0, 320.0)},
 			},
 			"room_c": {
-				"west": {"room": "room_b", "entry": Vector2(576.0, 240.0)},
-				"east": {"room": "room_d", "entry": Vector2(64.0, 240.0)},
+				"west": {"room": "room_b", "entry": Vector2(576.0, 320.0)},
+				"east": {"room": "room_d", "entry": Vector2(64.0, 192.0)},
 			},
 			"room_d": {
-				"west": {"room": "room_c", "entry": Vector2(576.0, 240.0)},
+				"west": {"room": "room_c", "entry": Vector2(576.0, 192.0)},
 			},
 		},
 	},
@@ -48,30 +48,30 @@ const LEVELS: Dictionary = {
 		},
 		"connections": {
 			"l1_bedroom": {
-				"east": {"room": "l1_upper_hall", "entry": Vector2(64.0, 240.0)},
+				"east": {"room": "l1_upper_hall", "entry": Vector2(64.0, 160.0)},
 			},
 			"l1_upper_hall": {
-				"west": {"room": "l1_bedroom", "entry": Vector2(576.0, 240.0)},
-				"east": {"room": "l1_hallway", "entry": Vector2(64.0, 240.0)},
-				"north": {"room": "l1_vernon_room", "entry": Vector2(320.0, 416.0)},
+				"west": {"room": "l1_bedroom", "entry": Vector2(576.0, 160.0)},
+				"east": {"room": "l1_hallway", "entry": Vector2(64.0, 320.0)},
+				"north": {"room": "l1_vernon_room", "entry": Vector2(192.0, 416.0)},
 			},
 			"l1_vernon_room": {
-				"south": {"room": "l1_upper_hall", "entry": Vector2(320.0, 64.0)},
+				"south": {"room": "l1_upper_hall", "entry": Vector2(192.0, 64.0)},
 			},
 			"l1_hallway": {
-				"west": {"room": "l1_upper_hall", "entry": Vector2(576.0, 240.0)},
-				"east": {"room": "l1_front_hall", "entry": Vector2(64.0, 240.0)},
+				"west": {"room": "l1_upper_hall", "entry": Vector2(576.0, 320.0)},
+				"east": {"room": "l1_front_hall", "entry": Vector2(64.0, 160.0)},
 			},
 			"l1_front_hall": {
-				"west": {"room": "l1_hallway", "entry": Vector2(576.0, 240.0)},
-				"east": {"room": "l1_garden", "entry": Vector2(64.0, 240.0)},
+				"west": {"room": "l1_hallway", "entry": Vector2(576.0, 160.0)},
+				"east": {"room": "l1_garden", "entry": Vector2(64.0, 320.0)},
 			},
 			"l1_garden": {
-				"west": {"room": "l1_front_hall", "entry": Vector2(576.0, 240.0)},
-				"east": {"room": "l1_street", "entry": Vector2(64.0, 240.0)},
+				"west": {"room": "l1_front_hall", "entry": Vector2(576.0, 320.0)},
+				"east": {"room": "l1_street", "entry": Vector2(64.0, 160.0)},
 			},
 			"l1_street": {
-				"west": {"room": "l1_garden", "entry": Vector2(576.0, 240.0)},
+				"west": {"room": "l1_garden", "entry": Vector2(576.0, 160.0)},
 			},
 		},
 	},
@@ -419,8 +419,8 @@ func _on_dialog_ended() -> void:
 				npc.reset_patrol()
 		var kick_origin: Vector2 = player.global_position
 		play_cinematic([
-			{"type": "move_player", "to": Vector2(kick_origin.x, 240.0), "speed": 100.0},
-			{"type": "move_player", "to": Vector2(64.0, 240.0), "speed": 100.0},
+			{"type": "move_player", "to": Vector2(kick_origin.x, 320.0), "speed": 100.0},
+			{"type": "move_player", "to": Vector2(64.0, 320.0), "speed": 100.0},
 		], func():
 			_on_exit_triggered("west")
 		)
