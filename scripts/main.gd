@@ -234,6 +234,11 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 		if door != null and door.has_signal("door_approached"):
 			door.door_approached.connect(_on_bedroom_door_approached)
 
+	# Keep transition guard active for one additional physics frame after the
+	# new room is instantiated.  On some runs Godot can emit an exit
+	# body_entered on that first frame from stale broadphase overlap data,
+	# which would immediately chain into a second room transition.
+	await get_tree().physics_frame
 	_room_loading = false
 
 	# Demo cinematic on first entry to room_a.
