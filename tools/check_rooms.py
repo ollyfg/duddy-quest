@@ -263,21 +263,36 @@ def check_rooms():
                         x_min, x_max, y_min, y_max)
                 )
 
-            # 4. Reverse exit y-coordinate matches entry y
+            # 4. Reverse exit coordinate matches entry (Y for east/west, X for north/south).
+            # For east/west connections both rooms' doors should be at the same Y so
+            # the opening lines up visually.  For north/south connections the doors
+            # must share the same X instead.
             rev_dir = REVERSE.get(direction)
             if rev_dir:
                 dest_exits = room_exits.get(dest_room, {})
                 if rev_dir in dest_exits:
                     rev_pos = dest_exits[rev_dir]
                     if rev_pos is not None:
-                        if abs(rev_pos[1] - entry_y) > Y_TOLERANCE:
-                            issues.append(
-                                "[Y MISMATCH] {} -> {} -> {}: "
-                                "entry y={} but {}'s {} exit is at y={}. "
-                                "Doors won't line up visually.".format(
-                                    room_name, direction, dest_room,
-                                    entry_y, dest_room, rev_dir, rev_pos[1])
-                            )
+                        if direction in ("east", "west"):
+                            # Check Y alignment
+                            if abs(rev_pos[1] - entry_y) > Y_TOLERANCE:
+                                issues.append(
+                                    "[Y MISMATCH] {} -> {} -> {}: "
+                                    "entry y={} but {}'s {} exit is at y={}. "
+                                    "Doors won't line up visually.".format(
+                                        room_name, direction, dest_room,
+                                        entry_y, dest_room, rev_dir, rev_pos[1])
+                                )
+                        else:
+                            # north/south: check X alignment
+                            if abs(rev_pos[0] - entry_x) > Y_TOLERANCE:
+                                issues.append(
+                                    "[X MISMATCH] {} -> {} -> {}: "
+                                    "entry x={} but {}'s {} exit is at x={}. "
+                                    "Doors won't line up visually.".format(
+                                        room_name, direction, dest_room,
+                                        entry_x, dest_room, rev_dir, rev_pos[0])
+                                )
 
                 # 7. Bidirectional symmetry: B→reverse(dir) must lead back to A.
                 dest_conns = connections.get(dest_room, {})

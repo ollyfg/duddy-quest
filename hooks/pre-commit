@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
-# Pre-commit hook: ensure VERSION in scripts/game_state.gd has been bumped.
+# Pre-commit hook: run all static-analysis checks before every commit.
+#
+# Checks performed:
+#   1. VERSION bump  – scripts/game_state.gd must differ from origin/main.
+#   2. Grid alignment – all room .tscn gameplay nodes must be on the 16-px grid
+#                       (tools/check_alignment.py).
 #
 # Install once (from the repo root):
 #   bash tools/install-hooks.sh
 #
-# The hook compares the staged version of game_state.gd against origin/main.
-# If they are identical it blocks the commit with an actionable error message.
-# If origin/main is unreachable (e.g. offline, no remote) the check is skipped
-# with a warning so it never blocks work unexpectedly.
+# The version check compares the staged game_state.gd against origin/main.
+# If origin/main is unreachable (e.g. offline, no remote) the version check is
+# skipped with a warning so it never blocks work unexpectedly.
 
 GAME_STATE="scripts/game_state.gd"
+
+# ---------------------------------------------------------------------------
+# 1. VERSION bump check
+# ---------------------------------------------------------------------------
 
 # Portable version extraction using sed (avoids grep -P which is not available
 # on macOS/BSD grep).
@@ -21,28 +29,53 @@ extract_version() {
 # the check reflects exactly what is about to be committed.
 STAGED=$(git show ":${GAME_STATE}" 2>/dev/null | extract_version)
 if [ -z "$STAGED" ]; then
-    # game_state.gd is not staged at all — nothing to check.
+    true  # game_state.gd is not staged — skip version check.
+else
+    # Try to get the version on origin/main.
+    MAIN=$(git show "origin/main:${GAME_STATE}" 2>/dev/null | extract_version)
+    if [ -z "$MAIN" ]; then
+        echo "⚠️  pre-commit: could not read origin/main:${GAME_STATE} — skipping version check."
+    elif [ "$STAGED" = "$MAIN" ]; then
+        echo ""
+        echo "❌  VERSION has not been bumped."
+        echo "    Staged version : ${STAGED}"
+        echo "    origin/main    : ${MAIN}"
+        echo ""
+        echo "    Please update VERSION in ${GAME_STATE} before committing."
+        echo "    Example: const VERSION: String = \"<new-semver>\""
+        echo ""
+        exit 1
+    else
+        echo "✅  Version bumped: ${MAIN} → ${STAGED}"
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# 2. Grid-alignment check
+# ---------------------------------------------------------------------------
+
+# Only run if Python 3 is available.
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "⚠️  pre-commit: python3 not found — skipping grid-alignment check."
     exit 0
 fi
 
-# Try to get the version on origin/main.
-MAIN=$(git show "origin/main:${GAME_STATE}" 2>/dev/null | extract_version)
-if [ -z "$MAIN" ]; then
-    echo "⚠️  pre-commit: could not read origin/main:${GAME_STATE} — skipping version check."
+# Run the checker against the working tree.  This catches issues in any staged
+# .tscn files without requiring a stash-based index-only approach.
+CHECK_SCRIPT="tools/check_alignment.py"
+if [ ! -f "$CHECK_SCRIPT" ]; then
+    echo "⚠️  pre-commit: ${CHECK_SCRIPT} not found — skipping grid-alignment check."
     exit 0
 fi
 
-if [ "$STAGED" = "$MAIN" ]; then
+if ! python3 "$CHECK_SCRIPT"; then
     echo ""
-    echo "❌  VERSION has not been bumped."
-    echo "    Staged version : ${STAGED}"
-    echo "    origin/main    : ${MAIN}"
-    echo ""
-    echo "    Please update VERSION in ${GAME_STATE} before committing."
-    echo "    Example: const VERSION: String = \"<new-semver>\""
+    echo "❌  Grid-alignment check failed."
+    echo "    Fix the issues above, then retry the commit."
+    echo "    Run  python3 tools/check_alignment.py  to reproduce outside the hook."
     echo ""
     exit 1
 fi
 
-echo "✅  Version bumped: ${MAIN} → ${STAGED}"
+echo "✅  Grid alignment: all room nodes on the 16-px grid."
 exit 0

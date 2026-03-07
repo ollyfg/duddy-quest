@@ -99,7 +99,7 @@ def _parse_tscn(path):
         r'\[sub_resource\s+type="([^"]+)"\s+id="([^"]+)"\]([^\[]*)',
         re.DOTALL,
     )
-    vec2_re = re.compile(r'Vector2\(\s*([\d.]+)\s*,\s*([\d.]+)\s*\)')
+    vec2_re = re.compile(r'Vector2\(\s*([-\d.]+)\s*,\s*([-\d.]+)\s*\)')
 
     for m in sr_header_re.finditer(text):
         sr_type, sr_id, sr_body = m.group(1), m.group(2), m.group(3)
@@ -219,8 +219,11 @@ def _is_exempt_for_position(node):
 
 def _is_on_grid(coord):
     """True if the coordinate is an exact multiple of GRID_SIZE."""
-    # Use round() to handle floating-point representation (e.g. 239.9999…).
-    return round(coord) % GRID_SIZE == 0
+    # int(round()) handles floating-point imprecision (e.g. 239.9999…) and
+    # works correctly for negative coordinates where Python's % would otherwise
+    # return a positive remainder (e.g. round(-16) % 16 == 0, but
+    # round(-1) % 16 == 15 not -1).
+    return int(round(coord)) % GRID_SIZE == 0
 
 
 def check_alignment():
@@ -237,21 +240,32 @@ def check_alignment():
         sub_resources = scene["sub_resources"]
         nodes         = scene["nodes"]
 
-        # Build a lookup of node name → node dict so we can climb the hierarchy.
+        # Build a name→node lookup so we can walk the ancestry chain.
         node_by_name = {n["name"]: n for n in nodes}
 
-        # For each node, pre-compute whether any ancestor is structural.
         def _any_ancestor_structural(node):
-            """Walk parent chain; return True if any parent is structural."""
+            """
+            Walk the full parent chain and return True if any ancestor has a
+            structural name (Wall, Exit, Door, …).
+
+            The .tscn ``parent`` attribute is either ``"."`` (direct child of
+            the root) or a slash-separated path such as
+            ``"Doors/Door_east_door"``.  We resolve each path component
+            against ``node_by_name`` and recurse until we reach ``"."`` or
+            exhaust the chain.
+            """
             parent_path = node["parent"]
-            # parent is "." for direct children of Room
             if parent_path == ".":
                 return False
-            # parent_path may be a path like "Doors/Door_east_door"
-            # Check each component
+            # Each component of the path is a node name.
             for part in parent_path.split("/"):
                 if _is_structural_name(part):
                     return True
+                # Recurse into the actual parent node (if found).
+                parent_node = node_by_name.get(part)
+                if parent_node and parent_node["name"] != node["name"]:
+                    if _any_ancestor_structural(parent_node):
+                        return True
             return False
 
         # ---- 1. Position alignment check ------------------------------------
