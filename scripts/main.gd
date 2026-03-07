@@ -79,7 +79,8 @@ const LEVELS: Dictionary = {
 
 var current_level_name: String = ""
 var current_room_name: String = ""
-# Untyped to allow calling room.gd methods (get_nearby_npc, exit_triggered).
+# Untyped to allow calling room.gd helper APIs (get_npcs, get_items,
+# get_switches, get_first_npc_path, get_room_rect, and room signals).
 var current_room = null
 # Persists room state (surviving NPC positions/HP) across room transitions.
 var _room_states: Dictionary = {}
@@ -95,6 +96,7 @@ var _room_states: Dictionary = {}
 @onready var mobile_controls = $MobileControls
 
 var _cinematic_player: Node = null
+const _CINEMATIC_PLAYER_SCRIPT: Script = preload("res://scripts/cinematic_player.gd")
 ## Action to run when dialog closes (used for player catch/kickback flows).
 enum PostDialogAction { NONE, GO_WEST, PETUNIA_KICK }
 var _post_dialog_action: int = PostDialogAction.NONE
@@ -193,8 +195,10 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 
 	# Connect level-end triggers.
 	for trigger in get_tree().get_nodes_in_group("level_end"):
-		if trigger.has_signal("level_end_reached") and not trigger.level_end_reached.is_connected(_on_level_end_reached):
-			trigger.level_end_reached.connect(_on_level_end_reached.bind(trigger))
+		if trigger.has_signal("level_end_reached"):
+			var level_end_cb: Callable = _on_level_end_reached.bind(trigger)
+			if not trigger.level_end_reached.is_connected(level_end_cb):
+				trigger.level_end_reached.connect(level_end_cb)
 
 	# Restore saved state (remove dead NPCs, reapply positions/HP) before
 	# connecting any signals so we never wire up nodes about to be freed.
@@ -430,7 +434,7 @@ func _on_dialog_ended() -> void:
 	# Apply any post-interaction effects for the NPC whose dialog just ended.
 	var npc: Node = _interacting_npc
 	_interacting_npc = null
-	if npc != null and not npc.is_queued_for_deletion():
+	if npc != null and is_instance_valid(npc) and not npc.is_queued_for_deletion():
 		_handle_post_npc_dialog(npc)
 
 
@@ -588,7 +592,7 @@ func _show_level_complete(trigger: Node = null) -> void:
 func play_cinematic(sequence: Array, on_finish: Callable) -> void:
 	if _cinematic_player == null:
 		_cinematic_player = Node.new()
-		_cinematic_player.set_script(load("res://scripts/cinematic_player.gd"))
+		_cinematic_player.set_script(_CINEMATIC_PLAYER_SCRIPT)
 		add_child(_cinematic_player)
 	_cinematic_player.sequence_finished.connect(on_finish, CONNECT_ONE_SHOT)
 	_cinematic_player.play(sequence, current_room, player, dialog_box)

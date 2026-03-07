@@ -14,6 +14,9 @@ size = Vector2(24, 136)
 [sub_resource type="RectangleShape2D" id="Sh_lwall_bot"]
 size = Vector2(24, 296)
 
+[sub_resource type="RectangleShape2D" id="Sh_vwall_seg"]
+size = Vector2(24, 216)
+
 [sub_resource type="RectangleShape2D" id="Sh_exit"]
 size = Vector2(12, 48)
 
