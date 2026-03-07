@@ -2,6 +2,8 @@ extends Node
 
 signal sequence_finished
 
+const NavigationUtils = preload("res://scripts/navigation_utils.gd")
+
 var _room: Node = null
 var _player: Node = null
 var _dialog_box: Node = null
@@ -68,7 +70,14 @@ func _move_node(node: Node2D, target: Vector2, speed: float) -> void:
 	while node.global_position.distance_to(target) > 4.0:
 		var dir: Vector2
 		if node is CharacterBody2D:
-			dir = _navigate_node_toward(node as CharacterBody2D, target)
+			var body: CharacterBody2D = node as CharacterBody2D
+			var space: PhysicsDirectSpaceState2D = body.get_world_2d().direct_space_state
+			dir = NavigationUtils.navigate_toward(
+				body.global_position,
+				target,
+				space,
+				[body.get_rid()]
+			)
 		else:
 			dir = (target - node.global_position).normalized()
 		node.velocity = dir * speed
@@ -76,39 +85,3 @@ func _move_node(node: Node2D, target: Vector2, speed: float) -> void:
 		await get_tree().process_frame
 	node.global_position = target
 	node.velocity = Vector2.ZERO
-
-
-## Returns the best direction to steer `node` toward `target` while avoiding
-## static obstacles (walls, furniture).  Uses the same short-range raycast
-## context-steering algorithm as npc.gd's _navigate_toward().
-func _navigate_node_toward(node: CharacterBody2D, target: Vector2) -> Vector2:
-	var to_target: Vector2 = target - node.global_position
-	if to_target.length_squared() < 1.0:
-		return Vector2.ZERO
-	var desired_dir: Vector2 = to_target.normalized()
-
-	const LOOK_AHEAD: float = 40.0
-	var space: PhysicsDirectSpaceState2D = node.get_world_2d().direct_space_state
-
-	var excl: Array[RID] = [node.get_rid()]
-	var q := PhysicsRayQueryParameters2D.create(
-		node.global_position, node.global_position + desired_dir * LOOK_AHEAD)
-	q.exclude = excl
-	if space.intersect_ray(q).is_empty():
-		return desired_dir
-
-	# Direct path blocked — try progressively wider angles on both sides.
-	var steer_angles: Array[int] = [30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180]
-	var best_dir: Vector2 = desired_dir
-	var best_score: float = -INF
-	for angle_deg: int in steer_angles:
-		var test_dir: Vector2 = desired_dir.rotated(deg_to_rad(float(angle_deg)))
-		var qt := PhysicsRayQueryParameters2D.create(
-			node.global_position, node.global_position + test_dir * LOOK_AHEAD)
-		qt.exclude = excl
-		if space.intersect_ray(qt).is_empty():
-			var score: float = test_dir.dot(desired_dir)
-			if score > best_score:
-				best_score = score
-				best_dir = test_dir
-	return best_dir

@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+const NavigationUtils = preload("res://scripts/navigation_utils.gd")
+
 ## Whether this NPC is a hostile enemy (chases and attacks on contact) or a
 ## friendly NPC (wanders and can be talked to).
 @export var is_hostile: bool = false
@@ -105,10 +107,6 @@ const HOSTILE_COLOR: Color = Color(0.8, 0.1, 0.1)
 const DAMAGE_FLASH_COLOR: Color = Color(1.0, 0.3, 0.3)
 ## Proximity threshold (px) for considering a patrol waypoint reached.
 const PATROL_ARRIVAL_THRESHOLD: float = 8.0
-## Angles tried in order when the direct path is blocked during obstacle steering.
-## Paired ±values ensure symmetric left/right attempts before wider angles.
-const STEER_ANGLES: Array[int] = [30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180]
-
 var hp: int
 var is_paused: bool = false
 var _wander_timer: float = 0.0
@@ -258,13 +256,6 @@ func _chase_player() -> void:
 ## clear and closest to the goal direction.  Falls back to the direct direction
 ## if every alternative is also blocked (e.g. completely cornered).
 func _navigate_toward(target: Vector2) -> Vector2:
-	var to_target: Vector2 = target - global_position
-	if to_target.length_squared() < 1.0:
-		return Vector2.ZERO
-	var desired_dir: Vector2 = to_target.normalized()
-
-	# Look ahead by ~2.5 body-widths (NPC is 16 px wide).
-	const LOOK_AHEAD: float = 40.0
 	var space: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
 
 	# Build exclusion list: skip this NPC and the player so we only detect
@@ -272,28 +263,7 @@ func _navigate_toward(target: Vector2) -> Vector2:
 	var excl: Array[RID] = [get_rid()]
 	if _player_ref is CollisionObject2D:
 		excl.append((_player_ref as CollisionObject2D).get_rid())
-
-	var q := PhysicsRayQueryParameters2D.create(
-		global_position, global_position + desired_dir * LOOK_AHEAD)
-	q.exclude = excl
-	if space.intersect_ray(q).is_empty():
-		return desired_dir
-
-	# Direct path is blocked — try progressively wider angles on both sides.
-	var best_dir: Vector2 = desired_dir
-	var best_score: float = -INF
-	for angle_deg: int in STEER_ANGLES:
-		var test_dir: Vector2 = desired_dir.rotated(deg_to_rad(float(angle_deg)))
-		var qt := PhysicsRayQueryParameters2D.create(
-			global_position, global_position + test_dir * LOOK_AHEAD)
-		qt.exclude = excl
-		if space.intersect_ray(qt).is_empty():
-			# Among clear directions prefer those most aligned with the goal.
-			var score: float = test_dir.dot(desired_dir)
-			if score > best_score:
-				best_score = score
-				best_dir = test_dir
-	return best_dir
+	return NavigationUtils.navigate_toward(global_position, target, space, excl)
 
 
 func _wander(delta: float) -> void:
