@@ -79,7 +79,8 @@ const LEVELS: Dictionary = {
 
 var current_level_name: String = ""
 var current_room_name: String = ""
-# Untyped to allow calling room.gd methods (get_nearby_npc, exit_triggered).
+# Untyped to allow calling room.gd helper APIs (get_npcs, get_items,
+# get_switches, get_first_npc_path, get_room_rect, and room signals).
 var current_room = null
 # Persists room state (surviving NPC positions/HP) across room transitions.
 var _room_states: Dictionary = {}
@@ -95,9 +96,10 @@ var _room_states: Dictionary = {}
 @onready var mobile_controls = $MobileControls
 
 var _cinematic_player: Node = null
-## Set to "go_west" by _on_npc_player_detected; consumed in _on_dialog_ended
-## to send the player back to the previous room after the "caught" dialog.
-var _post_dialog_action: String = ""
+const _CINEMATIC_PLAYER_SCRIPT: Script = preload("res://scripts/cinematic_player.gd")
+## Action to run when dialog closes (used for player catch/kickback flows).
+enum PostDialogAction { NONE, GO_WEST, PETUNIA_KICK }
+var _post_dialog_action: int = PostDialogAction.NONE
 ## Tracks the NPC whose dialog is currently active so post-dialog actions
 ## (giving keys, accepting keys, setting flags) can be applied on close.
 var _interacting_npc: Node = null
@@ -193,8 +195,9 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 
 	# Connect level-end triggers.
 	for trigger in get_tree().get_nodes_in_group("level_end"):
-		if trigger.has_signal("level_end_reached") and not trigger.level_end_reached.is_connected(_on_level_end_reached):
+		if trigger.has_signal("level_end_reached") and not trigger.has_meta("_duddy_level_end_connected"):
 			trigger.level_end_reached.connect(_on_level_end_reached.bind(trigger))
+			trigger.set_meta("_duddy_level_end_connected", true)
 
 	# Restore saved state (remove dead NPCs, reapply positions/HP) before
 	# connecting any signals so we never wire up nodes about to be freed.
@@ -202,27 +205,26 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 
 	# Give NPCs a reference to the player for hostile chase behaviour.
 	# Connect friendly NPC interaction signals.
-	if current_room.has_node("NPCs"):
-		for npc in current_room.get_node("NPCs").get_children():
-			if npc.is_queued_for_deletion():
-				continue
-			if npc.has_method("set_player_reference"):
-				npc.set_player_reference(player)
-			if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
-				npc.boss_defeated.connect(_on_boss_defeated)
-				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
-			elif not npc.is_hostile:
-				npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
-			if npc.detection_dialog != "":
-				npc.player_detected.connect(_on_npc_player_detected)
-			# Any NPC with cinematic_kick_back set triggers the Petunia
-			# kick-back cinematic when it physically contacts the player.
-			# We also add a physics collision exception so the NPC's body does
-			# not push the player around before the cinematic fires.
-			if npc.cinematic_kick_back:
-				npc.add_collision_exception_with(player)
-				player.add_collision_exception_with(npc)
-				npc.player_hit.connect(_on_petunia_hit_player)
+	for npc in current_room.get_npcs():
+		if npc.is_queued_for_deletion():
+			continue
+		if npc.has_method("set_player_reference"):
+			npc.set_player_reference(player)
+		if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
+			npc.boss_defeated.connect(_on_boss_defeated)
+			npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
+		elif not npc.is_hostile:
+			npc.interaction_requested.connect(_on_npc_interaction_requested.bind(npc))
+		if npc.detection_dialog != "":
+			npc.player_detected.connect(_on_npc_player_detected)
+		# Any NPC with cinematic_kick_back set triggers the Petunia
+		# kick-back cinematic when it physically contacts the player.
+		# We also add a physics collision exception so the NPC's body does
+		# not push the player around before the cinematic fires.
+		if npc.cinematic_kick_back:
+			npc.add_collision_exception_with(player)
+			player.add_collision_exception_with(npc)
+			npc.player_hit.connect(_on_petunia_hit_player)
 
 	player.set_camera_limits(current_room.get_room_rect())
 	_update_hp_display(player.hp)
@@ -243,8 +245,8 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 
 	# Demo cinematic on first entry to room_a.
 	if room_name == "room_a" and "room_a" not in _room_states:
-		if current_room.has_node("NPCs") and current_room.get_node("NPCs").get_child_count() > 0:
-			var npc_path: String = "NPCs/" + current_room.get_node("NPCs").get_child(0).name
+		var npc_path: String = current_room.get_first_npc_path()
+		if npc_path != "":
 			play_cinematic([
 				{"type": "dialog", "speaker": npc_path, "lines": ["Welcome to the training area, Dudley!"]},
 			], func() -> void: pass)
@@ -255,27 +257,24 @@ func _save_room_state() -> void:
 	if current_room == null or current_room_name == "":
 		return
 	var npc_states: Dictionary = {}
-	if current_room.has_node("NPCs"):
-		for npc in current_room.get_node("NPCs").get_children():
-			# Skip NPCs that have already been removed (e.g. picked-up cats).
-			if npc.is_queued_for_deletion():
-				continue
-			npc_states[npc.name] = {
-				"position": npc.global_position,
-				"hp": npc.hp,
-			}
+	for npc in current_room.get_npcs():
+		# Skip NPCs that have already been removed (e.g. picked-up cats).
+		if npc.is_queued_for_deletion():
+			continue
+		npc_states[npc.name] = {
+			"position": npc.global_position,
+			"hp": npc.hp,
+		}
 	# Items: record the names of items that are still present (picked-up items
 	# will have already been queue_free()'d and won't appear here).
 	var item_names: Array[String] = []
-	if current_room.has_node("Items"):
-		for item in current_room.get_node("Items").get_children():
-			if not item.is_queued_for_deletion():
-				item_names.append(item.name)
+	for item in current_room.get_items():
+		if not item.is_queued_for_deletion():
+			item_names.append(item.name)
 	# Switches: record each switch's current on/off state.
 	var switch_states: Dictionary = {}
-	if current_room.has_node("Switches"):
-		for sw in current_room.get_node("Switches").get_children():
-			switch_states[sw.name] = sw.is_on
+	for sw in current_room.get_switches():
+		switch_states[sw.name] = sw.is_on
 	_room_states[current_room_name] = {
 		"npcs": npc_states,
 		"items": item_names,
@@ -293,9 +292,9 @@ func _restore_room_state(room_name: String) -> void:
 		return
 	var state: Dictionary = _room_states[room_name]
 	# Restore NPCs.
-	if current_room.has_node("NPCs") and "npcs" in state:
+	if "npcs" in state:
 		var npc_states: Dictionary = state["npcs"]
-		for npc in current_room.get_node("NPCs").get_children():
+		for npc in current_room.get_npcs():
 			if npc.name not in npc_states:
 				npc.queue_free()
 			else:
@@ -303,18 +302,18 @@ func _restore_room_state(room_name: String) -> void:
 				npc.global_position = npc_data["position"]
 				npc.hp = npc_data["hp"]
 	# Restore items: remove any item that was already collected.
-	if current_room.has_node("Items") and "items" in state:
+	if "items" in state:
 		var present_items: Array[String] = state["items"]
-		for item in current_room.get_node("Items").get_children():
+		for item in current_room.get_items():
 			if item.name not in present_items:
 				item.queue_free()
 	# Restore switches: call on_hit() for any switch whose saved state differs
 	# from its starting state so the visual, door, and locked-exit are updated.
 	# on_hit() is called at most once per switch (the condition guarantees this),
 	# toggling from starts_on to the saved state in a single authorized step.
-	if current_room.has_node("Switches") and "switches" in state:
+	if "switches" in state:
 		var switch_states: Dictionary = state["switches"]
-		for sw in current_room.get_node("Switches").get_children():
+		for sw in current_room.get_switches():
 			if sw.name in switch_states and sw.is_on != switch_states[sw.name]:
 				sw.on_hit()
 
@@ -371,9 +370,9 @@ func _pick_npc_dialog(npc: Node) -> Array:
 ## Called when a PATROL NPC spots the player for the first time this room visit.
 ## Shows the NPC's detection line then sends the player back the way they came.
 func _on_npc_player_detected(dialog: String) -> void:
-	if dialog_box.is_active() or _post_dialog_action != "":
+	if dialog_box.is_active() or _post_dialog_action != PostDialogAction.NONE:
 		return
-	_post_dialog_action = "go_west"
+	_post_dialog_action = PostDialogAction.GO_WEST
 	_set_dialog_active(true)
 	dialog_box.set_speaker("")
 	dialog_box.start_dialog([dialog])
@@ -395,9 +394,9 @@ func _on_bedroom_door_approached() -> void:
 ## Shows her catch line then plays a cinematic marching the player back to the
 ## hallway's west exit before loading the previous room.
 func _on_petunia_hit_player() -> void:
-	if _room_loading or player.cinematic_mode or dialog_box.is_active() or _post_dialog_action != "":
+	if _room_loading or player.cinematic_mode or dialog_box.is_active() or _post_dialog_action != PostDialogAction.NONE:
 		return
-	_post_dialog_action = "petunia_kick"
+	_post_dialog_action = PostDialogAction.PETUNIA_KICK
 	_set_dialog_active(true)
 	dialog_box.set_speaker("Petunia")
 	dialog_box.start_dialog(["Back to your room, DUDDIKINS!"])
@@ -405,17 +404,17 @@ func _on_petunia_hit_player() -> void:
 
 func _on_dialog_ended() -> void:
 	_set_dialog_active(false)
-	var action: String = _post_dialog_action
-	_post_dialog_action = ""
+	var action: int = _post_dialog_action
+	_post_dialog_action = PostDialogAction.NONE
 
 	# A "go_west" post-dialog action takes priority (Petunia sending player back).
-	if action == "go_west":
+	if action == PostDialogAction.GO_WEST:
 		_interacting_npc = null
 		_on_exit_triggered("west")
 		return
 
 	# Petunia catches the player: cinematic marching them back to the bedroom door.
-	if action == "petunia_kick":
+	if action == PostDialogAction.PETUNIA_KICK:
 		_interacting_npc = null
 		# Return Petunia (and any other cinematic_kick_back NPC) to her patrol
 		# route immediately so she doesn't continue chasing during the escort.
@@ -434,7 +433,7 @@ func _on_dialog_ended() -> void:
 	# Apply any post-interaction effects for the NPC whose dialog just ended.
 	var npc: Node = _interacting_npc
 	_interacting_npc = null
-	if npc != null and not npc.is_queued_for_deletion():
+	if npc != null and is_instance_valid(npc):
 		_handle_post_npc_dialog(npc)
 
 
@@ -462,8 +461,9 @@ func _handle_post_npc_dialog(npc: Node) -> void:
 
 func _set_dialog_active(active: bool) -> void:
 	player.is_in_dialog = active
-	if current_room and current_room.has_node("NPCs"):
-		for npc in current_room.get_node("NPCs").get_children():
+	if current_room:
+		# room.gd get_npcs() safely returns [] when a room has no NPCs node.
+		for npc in current_room.get_npcs():
 			npc.is_paused = active
 
 
@@ -591,7 +591,7 @@ func _show_level_complete(trigger: Node = null) -> void:
 func play_cinematic(sequence: Array, on_finish: Callable) -> void:
 	if _cinematic_player == null:
 		_cinematic_player = Node.new()
-		_cinematic_player.set_script(load("res://scripts/cinematic_player.gd"))
+		_cinematic_player.set_script(_CINEMATIC_PLAYER_SCRIPT)
 		add_child(_cinematic_player)
 	_cinematic_player.sequence_finished.connect(on_finish, CONNECT_ONE_SHOT)
 	_cinematic_player.play(sequence, current_room, player, dialog_box)

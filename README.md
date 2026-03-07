@@ -109,3 +109,43 @@ duddy-quest/
 - **Cutscenes & cinematics**: Slide-show cutscenes play at level start/end.  In-game cinematic sequences can move NPCs and the player programmatically.
 - **Mobile controls**: An on-screen touch overlay simulates all keyboard actions on touchscreen devices.
 - **Playtesting tools**: Headless automated playtesting via `tools/launch.sh` and `tools/playtest.py` (see `AGENTS.md` for full documentation).
+
+## Architecture Red Flags (Scalability Watchlist)
+
+The current implementation works well for a small game, but these areas are the
+main growth risks for larger content-heavy Zelda-style development:
+
+1. **`scripts/main.gd` is a monolith (~600 lines)**  
+   Room loading, persistence, UI, dialog logic, cutscenes, and level progression
+   all live in one controller.  Adding new systems (quests, inventory screens,
+   boss variants, save slots) will increasingly cause cross-feature coupling.
+
+2. **High dependence on hardcoded scene node paths**  
+   Logic in `main.gd` and `room.gd` repeatedly queries `"NPCs"`, `"Items"`,
+   `"Switches"`, `"Doors/Door_*"`, `"ExitEast"` style names.  Scene hierarchy
+   refactors become brittle because gameplay logic depends on exact node names.
+
+3. **Level/room data is code-defined instead of data-driven**  
+   `LEVELS` in `main.gd` hardcodes room scene preloads, connections, titles, and
+   spawn points.  This keeps iteration fast for a few rooms, but scales poorly
+   when level count grows and non-programmer content editing is needed.
+
+4. **NPC dialog gating is tightly encoded in one function**  
+   `_pick_npc_dialog()` in `main.gd` hardcodes priority/branching for keys and
+   flags.  New gate types (quests, stats, time/stateful conditions) currently
+   require editing central game logic instead of composing reusable conditions.
+
+5. **Some core gameplay constants are duplicated per-script**  
+   Knockback and room-bound assumptions are embedded in multiple scripts (e.g.
+   `player.gd`/`npc.gd`).  A shared tuning/config source would reduce drift and
+   make balancing or resolution/room-size changes safer.
+
+### Suggested next refactor order
+
+1. Split `main.gd` into smaller managers (room transitions, dialog orchestration,
+   and level progression).
+2. Introduce room/NPC helper APIs (or cached node references) to reduce direct
+   string-path lookups.
+3. Move level topology from code into resource/data files.
+4. Extract reusable dialog condition evaluators.
+5. Consolidate gameplay tuning constants into one shared config script.
