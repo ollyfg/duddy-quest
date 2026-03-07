@@ -127,7 +127,7 @@ mouse_filter = 2
 shape = SubResource("Sh_bed")
 
 [node name="Wardrobe" type="StaticBody2D" parent="."]
-position = Vector2(80, 200)
+position = Vector2(80, 192)
 
 [node name="Sprite" type="ColorRect" parent="Wardrobe"]
 offset_left = -32.0

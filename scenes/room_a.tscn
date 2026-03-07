@@ -114,11 +114,11 @@ dialog_lines = ["I say! These wizarding folk are quite odd.", "Perhaps I should 
 [node name="Items" type="Node2D" parent="."]
 
 [node name="WandItem" parent="Items" instance=ExtResource("3_item")]
-position = Vector2(160.0, 350.0)
+position = Vector2(160.0, 352.0)
 item_type = 1
 
 [node name="HealthItem" parent="Items" instance=ExtResource("3_item")]
-position = Vector2(200.0, 350.0)
+position = Vector2(208.0, 352.0)
 
 [node name="MagicDoor" parent="." instance=ExtResource("4_magicdoor")]
 position = Vector2(628.0, 240.0)
