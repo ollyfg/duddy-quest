@@ -1,15 +1,21 @@
-[gd_scene load_steps=7 format=3 uid="uid://l1upperhall"]
+[gd_scene load_steps=9 format=3 uid="uid://l1upperhall"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 
-[sub_resource type="RectangleShape2D" id="Sh_hwall"]
+[sub_resource type="RectangleShape2D" id="Sh_hwall_full"]
 size = Vector2(640, 24)
+
+[sub_resource type="RectangleShape2D" id="Sh_hwall_half"]
+size = Vector2(296, 24)
 
 [sub_resource type="RectangleShape2D" id="Sh_vwall_seg"]
 size = Vector2(24, 216)
 
 [sub_resource type="RectangleShape2D" id="Sh_exit"]
 size = Vector2(12, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_exit_ns"]
+size = Vector2(48, 12)
 
 [sub_resource type="RectangleShape2D" id="Sh_bookcase"]
 size = Vector2(48, 80)
@@ -28,19 +34,40 @@ offset_bottom = 480.0
 color = Color(0.88, 0.82, 0.68, 1)
 mouse_filter = 2
 
-[node name="TopWall" type="StaticBody2D" parent="."]
-position = Vector2(320, 12)
+[node name="TopWallLeft" type="StaticBody2D" parent="."]
+position = Vector2(148, 12)
 
-[node name="Sprite" type="ColorRect" parent="TopWall"]
-offset_left = -320.0
+[node name="Sprite" type="ColorRect" parent="TopWallLeft"]
+offset_left = -148.0
 offset_top = -12.0
-offset_right = 320.0
+offset_right = 148.0
 offset_bottom = 12.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWall"]
-shape = SubResource("Sh_hwall")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWallLeft"]
+shape = SubResource("Sh_hwall_half")
+
+[node name="TopWallRight" type="StaticBody2D" parent="."]
+position = Vector2(492, 12)
+
+[node name="Sprite" type="ColorRect" parent="TopWallRight"]
+offset_left = -148.0
+offset_top = -12.0
+offset_right = 148.0
+offset_bottom = 12.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWallRight"]
+shape = SubResource("Sh_hwall_half")
+
+[node name="ExitNorth" type="Area2D" parent="."]
+position = Vector2(320, 6)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitNorth"]
+shape = SubResource("Sh_exit_ns")
 
 [node name="BottomWall" type="StaticBody2D" parent="."]
 position = Vector2(320, 468)
@@ -54,7 +81,7 @@ color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWall"]
-shape = SubResource("Sh_hwall")
+shape = SubResource("Sh_hwall_full")
 
 [node name="LeftWallTop" type="StaticBody2D" parent="."]
 position = Vector2(12, 108)
