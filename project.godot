@@ -72,6 +72,10 @@ interact={
 GameState="*res://scripts/game_state.gd"
 DevTools="*res://scripts/dev_tools.gd"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
+
 [rendering]
 
 renderer/rendering_method="mobile"
