@@ -44,6 +44,7 @@ const LEVELS: Dictionary = {
 			"l1_front_hall": preload("res://scenes/l1_front_hall.tscn"),
 			"l1_garden": preload("res://scenes/l1_garden.tscn"),
 			"l1_street": preload("res://scenes/l1_street.tscn"),
+			"l1_vernon_room": preload("res://scenes/l1_vernon_room.tscn"),
 		},
 		"connections": {
 			"l1_bedroom": {
@@ -52,6 +53,10 @@ const LEVELS: Dictionary = {
 			"l1_upper_hall": {
 				"west": {"room": "l1_bedroom", "entry": Vector2(576.0, 240.0)},
 				"east": {"room": "l1_hallway", "entry": Vector2(64.0, 240.0)},
+				"north": {"room": "l1_vernon_room", "entry": Vector2(320.0, 416.0)},
+			},
+			"l1_vernon_room": {
+				"south": {"room": "l1_upper_hall", "entry": Vector2(320.0, 64.0)},
 			},
 			"l1_hallway": {
 				"west": {"room": "l1_upper_hall", "entry": Vector2(576.0, 240.0)},
