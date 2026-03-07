@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://l1vernonroom"]
+[gd_scene load_steps=11 format=3 uid="uid://l1vernonroom"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
@@ -6,8 +6,11 @@
 [sub_resource type="RectangleShape2D" id="Sh_hwall_full"]
 size = Vector2(640, 24)
 
-[sub_resource type="RectangleShape2D" id="Sh_hwall_half"]
-size = Vector2(296, 24)
+[sub_resource type="RectangleShape2D" id="Sh_hwall_left"]
+size = Vector2(168, 24)
+
+[sub_resource type="RectangleShape2D" id="Sh_hwall_right"]
+size = Vector2(424, 24)
 
 [sub_resource type="RectangleShape2D" id="Sh_fullvwall"]
 size = Vector2(24, 480)
@@ -50,35 +53,35 @@ mouse_filter = 2
 shape = SubResource("Sh_hwall_full")
 
 [node name="BottomWallLeft" type="StaticBody2D" parent="."]
-position = Vector2(148, 468)
+position = Vector2(84, 468)
 
 [node name="Sprite" type="ColorRect" parent="BottomWallLeft"]
-offset_left = -148.0
+offset_left = -84.0
 offset_top = -12.0
-offset_right = 148.0
+offset_right = 84.0
 offset_bottom = 12.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWallLeft"]
-shape = SubResource("Sh_hwall_half")
+shape = SubResource("Sh_hwall_left")
 
 [node name="BottomWallRight" type="StaticBody2D" parent="."]
-position = Vector2(492, 468)
+position = Vector2(428, 468)
 
 [node name="Sprite" type="ColorRect" parent="BottomWallRight"]
-offset_left = -148.0
+offset_left = -212.0
 offset_top = -12.0
-offset_right = 148.0
+offset_right = 212.0
 offset_bottom = 12.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWallRight"]
-shape = SubResource("Sh_hwall_half")
+shape = SubResource("Sh_hwall_right")
 
 [node name="ExitSouth" type="Area2D" parent="."]
-position = Vector2(320, 474)
+position = Vector2(192, 474)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitSouth"]

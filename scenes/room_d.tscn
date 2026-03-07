@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://room_d"]
+[gd_scene load_steps=9 format=3 uid="uid://room_d"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
@@ -10,8 +10,11 @@ size = Vector2(640, 24)
 [sub_resource type="RectangleShape2D" id="Sh_rwall"]
 size = Vector2(24, 480)
 
-[sub_resource type="RectangleShape2D" id="Sh_lwall_seg"]
-size = Vector2(24, 216)
+[sub_resource type="RectangleShape2D" id="Sh_lwall_top"]
+size = Vector2(24, 168)
+
+[sub_resource type="RectangleShape2D" id="Sh_lwall_bot"]
+size = Vector2(24, 264)
 
 [sub_resource type="RectangleShape2D" id="Sh_exit"]
 size = Vector2(12, 48)
@@ -70,35 +73,35 @@ mouse_filter = 2
 shape = SubResource("Sh_rwall")
 
 [node name="LeftWallTop" type="StaticBody2D" parent="."]
-position = Vector2(12, 108)
+position = Vector2(12, 84)
 
 [node name="Sprite" type="ColorRect" parent="LeftWallTop"]
 offset_left = -12.0
-offset_top = -108.0
+offset_top = -84.0
 offset_right = 12.0
-offset_bottom = 108.0
+offset_bottom = 84.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWallTop"]
-shape = SubResource("Sh_lwall_seg")
+shape = SubResource("Sh_lwall_top")
 
 [node name="LeftWallBottom" type="StaticBody2D" parent="."]
-position = Vector2(12, 372)
+position = Vector2(12, 348)
 
 [node name="Sprite" type="ColorRect" parent="LeftWallBottom"]
 offset_left = -12.0
-offset_top = -108.0
+offset_top = -132.0
 offset_right = 12.0
-offset_bottom = 108.0
+offset_bottom = 132.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWallBottom"]
-shape = SubResource("Sh_lwall_seg")
+shape = SubResource("Sh_lwall_bot")
 
 [node name="ExitWest" type="Area2D" parent="."]
-position = Vector2(18, 240)
+position = Vector2(18, 192)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitWest"]
