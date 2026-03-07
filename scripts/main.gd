@@ -195,10 +195,9 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 
 	# Connect level-end triggers.
 	for trigger in get_tree().get_nodes_in_group("level_end"):
-		if trigger.has_signal("level_end_reached"):
-			var level_end_cb: Callable = _on_level_end_reached.bind(trigger)
-			if not trigger.level_end_reached.is_connected(level_end_cb):
-				trigger.level_end_reached.connect(level_end_cb)
+		if trigger.has_signal("level_end_reached") and not trigger.has_meta("_duddy_level_end_connected"):
+			trigger.level_end_reached.connect(_on_level_end_reached.bind(trigger))
+			trigger.set_meta("_duddy_level_end_connected", true)
 
 	# Restore saved state (remove dead NPCs, reapply positions/HP) before
 	# connecting any signals so we never wire up nodes about to be freed.
@@ -434,7 +433,7 @@ func _on_dialog_ended() -> void:
 	# Apply any post-interaction effects for the NPC whose dialog just ended.
 	var npc: Node = _interacting_npc
 	_interacting_npc = null
-	if npc != null and is_instance_valid(npc) and not npc.is_queued_for_deletion():
+	if npc != null and is_instance_valid(npc):
 		_handle_post_npc_dialog(npc)
 
 
