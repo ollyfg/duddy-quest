@@ -9,6 +9,14 @@ const NavigationUtils = preload("res://scripts/navigation_utils.gd")
 ## Lines shown when the player interacts with a friendly NPC.
 @export var dialog_lines: Array = ["Hello, traveler!", "Good luck on your quest!"]
 
+## Optional pool of dialog arrays for random variation.  When non-empty, one
+## array is chosen at random each interaction and appended after dialog_lines.
+@export var dialog_pools: Array = []
+
+## Lines always appended at the very end of every interaction, after dialog_lines
+## and any randomly chosen pool.  Useful for a fixed closing beat.
+@export var dialog_suffix: Array = []
+
 ## Display name shown in the dialog box header when this NPC speaks.
 @export var npc_name: String = ""
 
