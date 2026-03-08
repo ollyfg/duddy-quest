@@ -49,7 +49,7 @@ import sys
 SCENES_DIR = os.path.join(os.path.dirname(__file__), "..", "scenes")
 GRID_SIZE  = 16
 
-# Pattern that identifies room scene files (training rooms and level rooms).
+# Pattern that identifies room scene files.
 ROOM_FILENAME_RE = re.compile(r'^(?:room_|l\d+_).+\.tscn$')
 
 # Node names or name patterns that are exempt from position alignment checks.

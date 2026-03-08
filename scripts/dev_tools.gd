@@ -12,7 +12,7 @@
 ##   screenshot  {"type":"screenshot","path":"/tmp/shot.png"}
 ##   input       {"type":"input","action":"move_right","pressed":true,"duration":1.0}
 ##   state       {"type":"state"}
-##   spawn       {"type":"spawn","room":"room_b","x":200.0,"y":240.0}
+##   spawn       {"type":"spawn","room":"l1_hallway","x":200.0,"y":240.0}
 ##               room, x, and y are all optional; omit room to stay in the
 ##               current room, omit x/y to use the centre of the viewport.
 ##

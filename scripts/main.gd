@@ -4,34 +4,6 @@ const _HEART_FULL: Texture2D = preload("res://assets/icons/heart_full.svg")
 const _HEART_EMPTY: Texture2D = preload("res://assets/icons/heart_empty.svg")
 # Each level groups its rooms, connections, starting room and starting position.
 const LEVELS: Dictionary = {
-	"training": {
-		"title": "Training",
-		"next_level": "",
-		"start_room": "room_a",
-		"start_pos": Vector2(96.0, 240.0),
-		"rooms": {
-			"room_a": preload("res://scenes/room_a.tscn"),
-			"room_b": preload("res://scenes/room_b.tscn"),
-			"room_c": preload("res://scenes/room_c.tscn"),
-			"room_d": preload("res://scenes/room_d.tscn"),
-		},
-		"connections": {
-			"room_a": {
-				"east": {"room": "room_b", "entry": Vector2(64.0, 160.0)},
-			},
-			"room_b": {
-				"west": {"room": "room_a", "entry": Vector2(576.0, 160.0)},
-				"east": {"room": "room_c", "entry": Vector2(64.0, 320.0)},
-			},
-			"room_c": {
-				"west": {"room": "room_b", "entry": Vector2(576.0, 320.0)},
-				"east": {"room": "room_d", "entry": Vector2(64.0, 192.0)},
-			},
-			"room_d": {
-				"west": {"room": "room_c", "entry": Vector2(576.0, 192.0)},
-			},
-		},
-	},
 	"level_1": {
 		"title": "A Perfectly Normal Catastrophe",
 		"next_level": "",
@@ -123,8 +95,8 @@ func _ready() -> void:
 	# Allow launching into a specific level via --level <name> CLI argument;
 	# otherwise use the level chosen on the level-select screen.
 	var args := OS.get_cmdline_user_args()
-	# Fall back to "training" if the stored level is missing from LEVELS.
-	var level_name: String = GameState.selected_level if GameState.selected_level in LEVELS else "training"
+	# Fall back to level_1 if the stored level is missing from LEVELS.
+	var level_name: String = GameState.selected_level if GameState.selected_level in LEVELS else "level_1"
 	var idx := args.find("--level")
 	if idx >= 0:
 		if idx + 1 < args.size():
@@ -143,12 +115,7 @@ func _load_level(level_name: String) -> void:
 	current_level_name = level_name
 	_room_states.clear()
 	var level: Dictionary = LEVELS[level_name]
-	if level_name == "training":
-		play_cutscene([
-			{"image": null, "text": "D. DURSLEY (THE LARGER ONE)...\nYour journey begins.", "background_color": Color(0.05, 0.05, 0.15)},
-			{"image": null, "text": "Find the exits and fight your way through the training rooms.", "background_color": Color(0.05, 0.05, 0.15)},
-		], func(): _load_room(level["start_room"], level["start_pos"]))
-	elif level_name == "level_1":
+	if level_name == "level_1":
 		play_cutscene([
 			{"image": null, "text": "4 PRIVET DRIVE, LITTLE WHINGING\nA perfectly normal Saturday morning.", "background_color": Color(0.12, 0.08, 0.04)},
 			{"image": null, "text": "You are DUDLEY DURSLEY.\nYou have just found an unopened Hogwarts letter\nhidden in Aunt Petunia's shoebox.", "background_color": Color(0.12, 0.08, 0.04)},
@@ -243,15 +210,6 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	await get_tree().physics_frame
 	_room_loading = false
 
-	# Demo cinematic on first entry to room_a.
-	if room_name == "room_a" and "room_a" not in _room_states:
-		var npc_path: String = current_room.get_first_npc_path()
-		if npc_path != "":
-			play_cinematic([
-				{"type": "dialog", "speaker": npc_path, "lines": ["Welcome to the training area, Dudley!"]},
-			], func() -> void: pass)
-
-
 ## Snapshot the current room's NPC, item, and switch states before transitioning away.
 func _save_room_state() -> void:
 	if current_room == null or current_room_name == "":
@@ -275,10 +233,16 @@ func _save_room_state() -> void:
 	var switch_states: Dictionary = {}
 	for sw in current_room.get_switches():
 		switch_states[sw.name] = sw.is_on
+	# Magic doors: remember whether each one has already been opened/destroyed.
+	var magic_door_states: Dictionary = {}
+	for door in current_room.find_children("*", "StaticBody2D", true, false):
+		if door.has_method("on_rage_attack") and door.has_signal("door_opened"):
+			magic_door_states[door.name] = not door.visible
 	_room_states[current_room_name] = {
 		"npcs": npc_states,
 		"items": item_names,
 		"switches": switch_states,
+		"magic_doors": magic_door_states,
 	}
 
 
@@ -316,6 +280,18 @@ func _restore_room_state(room_name: String) -> void:
 		for sw in current_room.get_switches():
 			if sw.name in switch_states and sw.is_on != switch_states[sw.name]:
 				sw.on_hit()
+	# Restore magic doors: opened/destroyed doors should stay removed.
+	if "magic_doors" in state:
+		var door_states: Dictionary = state["magic_doors"]
+		for door_name: String in door_states:
+			var door: Node = current_room.get_node_or_null(door_name)
+			if door == null:
+				continue
+			var opened: bool = door_states[door_name]
+			door.visible = not opened
+			var collision: CollisionShape2D = door.get_node_or_null("CollisionShape2D") as CollisionShape2D
+			if collision != null:
+				collision.set_deferred("disabled", opened)
 
 
 func _on_exit_triggered(direction: String) -> void:

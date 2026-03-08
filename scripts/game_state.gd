@@ -5,7 +5,7 @@ extends Node
 ## Current game version. Bump this on every new deploy.
 const VERSION: String = "0.8.1"
 
-var selected_level: String = "training"
+var selected_level: String = "level_1"
 var completed_levels: Array[String] = []
 
 ## Generic boolean flags for one-off story events.
