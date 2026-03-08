@@ -1,10 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://main"]
+[gd_scene load_steps=5 format=3 uid="uid://main"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/dialog_box.tscn" id="3_dialog"]
 [ext_resource type="PackedScene" path="res://scenes/mobile_controls.tscn" id="4_mobile"]
-[ext_resource type="Script" path="res://scripts/grid_overlay.gd" id="5_grid"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -45,9 +44,3 @@ value = 0.0
 [node name="DialogBox" parent="HUD" instance=ExtResource("3_dialog")]
 
 [node name="MobileControls" parent="." instance=ExtResource("4_mobile")]
-
-[node name="GridOverlayLayer" type="CanvasLayer" parent="."]
-layer = 10
-
-[node name="GridOverlay" type="Node2D" parent="GridOverlayLayer"]
-script = ExtResource("5_grid")

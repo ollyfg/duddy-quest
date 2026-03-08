@@ -20,7 +20,6 @@ const _BTN_ACTIONS: Dictionary = {
 	"BtnRight": "move_right",
 	"BtnMelee": "melee_attack",
 	"BtnRanged": "ranged_attack",
-	"BtnInteract": "interact",
 }
 
 @onready var _overlay: Control = $Overlay
@@ -41,7 +40,6 @@ const _BTN_ICONS: Dictionary = {
 	"BtnRight":    preload("res://assets/icons/arrow_right.svg"),
 	"BtnMelee":    preload("res://assets/icons/bat.svg"),
 	"BtnRanged":   preload("res://assets/icons/lightning.svg"),
-	"BtnInteract": preload("res://assets/icons/talk.svg"),
 }
 
 

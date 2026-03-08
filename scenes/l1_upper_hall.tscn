@@ -3,13 +3,13 @@
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall_full"]
-size = Vector2(640, 24)
+size = Vector2(640, 88)
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall_left"]
-size = Vector2(168, 24)
+size = Vector2(168, 88)
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall_right"]
-size = Vector2(424, 24)
+size = Vector2(424, 88)
 
 [sub_resource type="RectangleShape2D" id="Sh_lwall_top"]
 size = Vector2(24, 136)
@@ -51,9 +51,9 @@ position = Vector2(84, 12)
 
 [node name="Sprite" type="ColorRect" parent="TopWallLeft"]
 offset_left = -84.0
-offset_top = -12.0
+offset_top = -44.0
 offset_right = 84.0
-offset_bottom = 12.0
+offset_bottom = 44.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -65,9 +65,9 @@ position = Vector2(428, 12)
 
 [node name="Sprite" type="ColorRect" parent="TopWallRight"]
 offset_left = -212.0
-offset_top = -12.0
+offset_top = -44.0
 offset_right = 212.0
-offset_bottom = 12.0
+offset_bottom = 44.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -86,9 +86,9 @@ position = Vector2(320, 468)
 
 [node name="Sprite" type="ColorRect" parent="BottomWall"]
 offset_left = -320.0
-offset_top = -12.0
+offset_top = -44.0
 offset_right = 320.0
-offset_bottom = 12.0
+offset_bottom = 44.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
