@@ -70,6 +70,7 @@ var _room_states: Dictionary = {}
 
 var _cinematic_player: Node = null
 const _CINEMATIC_PLAYER_SCRIPT: Script = preload("res://scripts/cinematic_player.gd")
+const _PATHFINDER_SCRIPT: Script = preload("res://scripts/pathfinder.gd")
 ## Action to run when dialog closes (used for player catch/kickback flows).
 enum PostDialogAction { NONE, GO_WEST, PETUNIA_KICK }
 var _post_dialog_action: int = PostDialogAction.NONE
@@ -80,6 +81,9 @@ var _interacting_npc: Node = null
 ## await in _load_room (prevents concurrent room loads via the old room's
 ## still-connected exit signals).
 var _room_loading: bool = false
+## A* pathfinder for the current room; rebuilt each time a room loads.
+## Null in rooms where no NPC has use_astar enabled.
+var _current_pathfinder = null
 
 
 func _ready() -> void:
@@ -243,6 +247,10 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	await get_tree().physics_frame
 	_room_loading = false
 
+	# Build (or clear) the A* pathfinder for this room now that all physics
+	# bodies are registered with the physics server.
+	_rebuild_pathfinder()
+
 	# Trigger first-visit intro cinematics.
 	if room_name == "l1_hallway" and not GameState.l1_hallway_intro_shown:
 		_play_hallway_intro()
@@ -388,11 +396,11 @@ func _pick_npc_dialog(npc: Node) -> Array:
 
 
 ## Called when a PATROL NPC spots the player for the first time this room visit.
-## Shows the NPC's detection line then sends the player back the way they came.
+## Shows the NPC's detection line as a warning; Petunia begins chasing but the
+## player is only sent back if she physically catches them (cinematic_kick_back).
 func _on_npc_player_detected(dialog: String) -> void:
 	if dialog_box.is_active() or _post_dialog_action != PostDialogAction.NONE:
 		return
-	_post_dialog_action = PostDialogAction.GO_WEST
 	_set_dialog_active(true)
 	dialog_box.set_speaker("")
 	dialog_box.start_dialog([dialog])
@@ -622,8 +630,34 @@ func play_cinematic(sequence: Array, on_finish: Callable) -> void:
 		_cinematic_player = Node.new()
 		_cinematic_player.set_script(_CINEMATIC_PLAYER_SCRIPT)
 		add_child(_cinematic_player)
+	# Pass the current room's A* pathfinder so cinematic movement (e.g. the
+	# Petunia kick-back escort) navigates around furniture correctly.
+	if _cinematic_player.has_method("set_pathfinder"):
+		_cinematic_player.set_pathfinder(_current_pathfinder)
 	_cinematic_player.sequence_finished.connect(on_finish, CONNECT_ONE_SHOT)
 	_cinematic_player.play(sequence, current_room, player, dialog_box)
+
+
+## Builds an A* pathfinder for the current room if any NPC in it has
+## use_astar enabled, then distributes the pathfinder to those NPCs.
+## Called after each room load once the physics server has settled.
+func _rebuild_pathfinder() -> void:
+	_current_pathfinder = null
+	if current_room == null:
+		return
+	var needs_astar: bool = false
+	for npc: Node in current_room.get_npcs():
+		if npc.get("use_astar"):
+			needs_astar = true
+			break
+	if not needs_astar:
+		return
+	var pathfinder = _PATHFINDER_SCRIPT.new()
+	pathfinder.build(get_world_2d().direct_space_state, current_room.global_position)
+	_current_pathfinder = pathfinder
+	for npc: Node in current_room.get_npcs():
+		if npc.get("use_astar") and npc.has_method("set_pathfinder"):
+			npc.set_pathfinder(_current_pathfinder)
 
 
 ## First-time intro for the hallway: Petunia paces while muttering to herself.
