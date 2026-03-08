@@ -131,13 +131,24 @@ func _load_level(level_name: String) -> void:
 func _start_level_1_intro() -> void:
 	await _load_room("l1_dining_room", Vector2(448.0, 304.0))
 	play_cinematic([
+		{"type": "dialog", "speaker": "Vernon", "lines": [
+			"Fine day, Sunday. In my opinion, best day of the week. Why is that, Dudley?",
+		]},
+		{"type": "wait", "duration": 0.8},
 		{"type": "dialog", "speaker": "Harry", "lines": [
-			"Not again — MORE letters!",
-			"They're coming through the letter box, the windows — even the chimney!",
+			"Because there's no post on Sundays?",
+		]},
+		{"type": "dialog", "speaker": "Vernon", "lines": [
+			"Right you are, Harry! No post on Sunday. No blasted letters today! No, sir. Not one single bloody letter. Not one! No, sir, not one blasted, miserable\u2026",
+		]},
+		{"type": "set_visible", "node": "FlyingLetters", "visible": true},
+		{"type": "wait", "duration": 0.5},
+		{"type": "dialog", "speaker": "Harry", "lines": [
+			"Whoopee!",
 		]},
 		{"type": "dialog", "speaker": "", "lines": [
 			"Letters everywhere. Hundreds of them. All addressed to POTTER.",
-			"But wait. This one says...",
+			"But wait. This one says\u2026",
 			"'D. DURSLEY (THE LARGER ONE).'",
 			"That's ME. Hogwarts wants ME.",
 		]},

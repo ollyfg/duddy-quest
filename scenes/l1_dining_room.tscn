@@ -175,6 +175,12 @@ shape = SubResource("Sh_sideboard")
 
 [node name="NPCs" type="Node2D" parent="."]
 
+[node name="Vernon" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(320.0, 128.0)
+movement_mode = 1
+dialog_lines = []
+npc_name = "Vernon"
+
 [node name="Harry" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(192.0, 304.0)
 movement_mode = 1
@@ -182,6 +188,7 @@ dialog_lines = []
 npc_name = "Harry"
 
 [node name="FlyingLetters" type="Node2D" parent="."]
+visible = false
 
 [node name="Letter1" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
 position = Vector2(128.0, 128.0)

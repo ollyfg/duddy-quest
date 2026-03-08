@@ -57,6 +57,12 @@ func _run_step(step: Dictionary) -> void:
 				_dialog_box.set_speaker(step.get("speaker", ""))
 				_dialog_box.start_dialog(step.get("lines", []))
 				await _dialog_box.dialog_ended
+		"set_visible":
+			var vis_node: Node = _room.get_node_or_null(step.get("node", ""))
+			if vis_node:
+				vis_node.visible = step.get("visible", true)
+			else:
+				push_warning("cinematic set_visible: node not found: %s" % step.get("node", ""))
 		"wait":
 			await get_tree().create_timer(step.get("duration", 1.0)).timeout
 		"play_cutscene":
