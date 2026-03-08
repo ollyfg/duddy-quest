@@ -170,7 +170,8 @@ shape = SubResource("Sh_sidetable")
 [node name="UncleVernon" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(352.0, 176.0)
 movement_mode = 1
-dialog_lines = ["PERFECTLY normal household! Perfectly NORMAL!", "Nothing unusual here. No letters. No — PUT THAT DOWN.", "The front door is... the front door is FINE. Everything is FINE."]
+dialog_lines = []
+dialog_pools = [["PERFECTLY normal household! Perfectly NORMAL!", "There are no letters. There WERE no letters. There WILL be no letters.", "I don't know what you think you saw, boy, but I suggest you forget it immediately."], ["I won't have it! There will be NO nonsense in this house!", "Normal people! Normal jobs! Normal EVERYTHING! That is what we ARE!", "If I hear ONE more word about any of this, you're sleeping in the other cupboard."], ["That lot! THOSE people! They are NOT our kind, do you understand?", "YOUR kind of people just — there IS no 'your kind'! You're a DURSLEY. Remember that!", "*Uncle Vernon's face turns an impressive shade of puce.*"], ["The neighbours! If the NEIGHBOURS knew — they must NEVER know!", "Marge is visiting soon. You will be NORMAL. You will be PERFECTLY NORMAL.", "So help me, if I see one more owl in this neighbourhood..."]]
 npc_name = "Uncle Vernon"
 
 [node name="Items" type="Node2D" parent="."]
