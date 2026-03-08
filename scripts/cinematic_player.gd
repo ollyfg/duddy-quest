@@ -54,6 +54,7 @@ func _run_step(step: Dictionary) -> void:
 			await _move_node(_player, step["to"], step.get("speed", 150.0))
 		"dialog":
 			if _dialog_box:
+				_dialog_box.set_speaker(step.get("speaker", ""))
 				_dialog_box.start_dialog(step.get("lines", []))
 				await _dialog_box.dialog_ended
 		"wait":

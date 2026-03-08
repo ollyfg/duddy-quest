@@ -1,0 +1,214 @@
+[gd_scene load_steps=19 format=3 uid="uid://l1diningroom"]
+
+[ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
+[ext_resource type="PackedScene" path="res://scenes/flying_letter.tscn" id="3_flyletter"]
+
+[sub_resource type="RectangleShape2D" id="Sh_hwall"]
+size = Vector2(640, 88)
+
+[sub_resource type="RectangleShape2D" id="Sh_fullvwall"]
+size = Vector2(24, 480)
+
+[sub_resource type="RectangleShape2D" id="Sh_table"]
+size = Vector2(192, 80)
+
+[sub_resource type="RectangleShape2D" id="Sh_chair_h"]
+size = Vector2(48, 16)
+
+[sub_resource type="RectangleShape2D" id="Sh_chair_v"]
+size = Vector2(16, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_sideboard"]
+size = Vector2(96, 32)
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+
+[node name="Floor" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.88, 0.84, 0.68, 1)
+mouse_filter = 2
+
+[node name="TopWall" type="StaticBody2D" parent="."]
+position = Vector2(320, 12)
+
+[node name="Sprite" type="ColorRect" parent="TopWall"]
+offset_left = -320.0
+offset_top = -44.0
+offset_right = 320.0
+offset_bottom = 44.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWall"]
+shape = SubResource("Sh_hwall")
+
+[node name="BottomWall" type="StaticBody2D" parent="."]
+position = Vector2(320, 468)
+
+[node name="Sprite" type="ColorRect" parent="BottomWall"]
+offset_left = -320.0
+offset_top = -44.0
+offset_right = 320.0
+offset_bottom = 44.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWall"]
+shape = SubResource("Sh_hwall")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(12, 240)
+
+[node name="Sprite" type="ColorRect" parent="LeftWall"]
+offset_left = -12.0
+offset_top = -240.0
+offset_right = 12.0
+offset_bottom = 240.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("Sh_fullvwall")
+
+[node name="RightWall" type="StaticBody2D" parent="."]
+position = Vector2(628, 240)
+
+[node name="Sprite" type="ColorRect" parent="RightWall"]
+offset_left = -12.0
+offset_top = -240.0
+offset_right = 12.0
+offset_bottom = 240.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall"]
+shape = SubResource("Sh_fullvwall")
+
+[node name="DiningTable" type="StaticBody2D" parent="."]
+position = Vector2(320, 224)
+
+[node name="Sprite" type="ColorRect" parent="DiningTable"]
+offset_left = -96.0
+offset_top = -40.0
+offset_right = 96.0
+offset_bottom = 40.0
+color = Color(0.45, 0.25, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DiningTable"]
+shape = SubResource("Sh_table")
+
+[node name="ChairNorth" type="StaticBody2D" parent="."]
+position = Vector2(320, 160)
+
+[node name="Sprite" type="ColorRect" parent="ChairNorth"]
+offset_left = -24.0
+offset_top = -8.0
+offset_right = 24.0
+offset_bottom = 8.0
+color = Color(0.3, 0.15, 0.05, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ChairNorth"]
+shape = SubResource("Sh_chair_h")
+
+[node name="ChairSouth" type="StaticBody2D" parent="."]
+position = Vector2(320, 288)
+
+[node name="Sprite" type="ColorRect" parent="ChairSouth"]
+offset_left = -24.0
+offset_top = -8.0
+offset_right = 24.0
+offset_bottom = 8.0
+color = Color(0.3, 0.15, 0.05, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ChairSouth"]
+shape = SubResource("Sh_chair_h")
+
+[node name="ChairWest" type="StaticBody2D" parent="."]
+position = Vector2(208, 224)
+
+[node name="Sprite" type="ColorRect" parent="ChairWest"]
+offset_left = -8.0
+offset_top = -24.0
+offset_right = 8.0
+offset_bottom = 24.0
+color = Color(0.3, 0.15, 0.05, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ChairWest"]
+shape = SubResource("Sh_chair_v")
+
+[node name="ChairEast" type="StaticBody2D" parent="."]
+position = Vector2(432, 224)
+
+[node name="Sprite" type="ColorRect" parent="ChairEast"]
+offset_left = -8.0
+offset_top = -24.0
+offset_right = 8.0
+offset_bottom = 24.0
+color = Color(0.3, 0.15, 0.05, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ChairEast"]
+shape = SubResource("Sh_chair_v")
+
+[node name="Sideboard" type="StaticBody2D" parent="."]
+position = Vector2(96, 384)
+
+[node name="Sprite" type="ColorRect" parent="Sideboard"]
+offset_left = -48.0
+offset_top = -16.0
+offset_right = 48.0
+offset_bottom = 16.0
+color = Color(0.3, 0.15, 0.05, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sideboard"]
+shape = SubResource("Sh_sideboard")
+
+[node name="NPCs" type="Node2D" parent="."]
+
+[node name="Harry" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(192.0, 304.0)
+movement_mode = 1
+dialog_lines = []
+npc_name = "Harry"
+
+[node name="FlyingLetters" type="Node2D" parent="."]
+
+[node name="Letter1" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(128.0, 128.0)
+
+[node name="Letter2" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(320.0, 80.0)
+
+[node name="Letter3" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(512.0, 128.0)
+
+[node name="Letter4" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(80.0, 240.0)
+
+[node name="Letter5" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(560.0, 320.0)
+
+[node name="Letter6" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(160.0, 384.0)
+
+[node name="Letter7" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(416.0, 384.0)
+
+[node name="Letter8" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(544.0, 192.0)
+
+[node name="Letter9" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(256.0, 160.0)
+
+[node name="Letter10" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(480.0, 256.0)
