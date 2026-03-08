@@ -367,9 +367,9 @@ func _pick_npc_dialog(npc: Node) -> Array:
 	# If the NPC has random dialog pools, pick one and append it to the base lines.
 	if not npc.dialog_pools.is_empty():
 		var pool: Array = npc.dialog_pools.pick_random()
-		return npc.dialog_lines + pool
+		return npc.dialog_lines + pool + npc.dialog_suffix
 
-	return npc.dialog_lines
+	return npc.dialog_lines + npc.dialog_suffix
 
 
 ## Called when a PATROL NPC spots the player for the first time this room visit.
