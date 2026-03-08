@@ -426,7 +426,8 @@ func apply_knockback(direction: Vector2) -> void:
 	_stun_timer = STUN_DURATION
 
 
-## Returns true when the player is inside the forward-facing detection cone.
+## Returns true when the player is inside the forward-facing detection cone
+## AND no static obstacle blocks the line of sight.
 ## The cone is centred on _facing_dir with a half-angle of detection_cone_angle/2
 ## and radius detection_range.
 func _is_player_in_cone() -> bool:
@@ -436,7 +437,15 @@ func _is_player_in_cone() -> bool:
 	if to_player.length() > detection_range:
 		return false
 	var angle_diff: float = _facing_dir.angle_to(to_player)
-	return absf(angle_diff) <= deg_to_rad(detection_cone_angle * 0.5)
+	if absf(angle_diff) > deg_to_rad(detection_cone_angle * 0.5):
+		return false
+	# Line-of-sight check: cast a ray to the player and reject if a static
+	# body (wall or furniture) is in the way.
+	var space_state: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
+	var query := PhysicsRayQueryParameters2D.create(global_position, _player_ref.global_position)
+	query.exclude = [get_rid(), _player_ref.get_rid()]
+	var result: Dictionary = space_state.intersect_ray(query)
+	return result.is_empty()
 
 
 ## Updates _facing_dir from vel (when moving) and marks the canvas item dirty

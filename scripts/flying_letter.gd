@@ -8,11 +8,22 @@ const _ROOM_WIDTH: float = 640.0
 const _ROOM_HEIGHT: float = 480.0
 const _WALL_MARGIN: float = 48.0
 
+## Base launch angle in radians.  When >= 0 the letter flies in this direction
+## (plus a small random variation) — useful for spawning from a wall with a
+## direction normal to that wall.  When negative a fully random direction is
+## chosen.
+@export var spawn_velocity_angle: float = -1.0
+
 var _velocity: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
-	var angle: float = randf_range(0.0, TAU)
+	var angle: float
+	if spawn_velocity_angle >= 0.0:
+		# Normal to the spawn wall plus a small random variation (±0.25 rad ≈ ±14.3°).
+		angle = spawn_velocity_angle + randf_range(-0.25, 0.25)
+	else:
+		angle = randf_range(0.0, TAU)
 	var speed: float = randf_range(60.0, 130.0)
 	_velocity = Vector2(cos(angle), sin(angle)) * speed
 

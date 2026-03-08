@@ -146,9 +146,15 @@ func _start_level_1_intro() -> void:
 			"Right you are, Harry! No post on Sunday. No blasted letters today! No, sir. Not one single bloody letter. Not one! No, sir, not one blasted, miserable\u2026",
 		]},
 		{"type": "set_visible", "node": "FlyingLetters", "visible": true},
-		{"type": "wait", "duration": 0.5},
+		{"type": "wait", "duration": 1.2},
+		{"type": "dialog", "speaker": "Vernon", "lines": [
+			"AAARRRGGHH!",
+		]},
 		{"type": "dialog", "speaker": "Harry", "lines": [
 			"Whoopee!",
+		]},
+		{"type": "dialog", "speaker": "Vernon", "lines": [
+			"GIVE ME THAT LETTER!",
 		]},
 		{"type": "dialog", "speaker": "", "lines": [
 			"Letters everywhere. Hundreds of them. All addressed to POTTER.",
@@ -433,6 +439,11 @@ func _on_petunia_hit_player() -> void:
 		"Dudley Dursley! Where do you think YOU'RE going?!",
 		"NOT one more step! Your father will hear about this!",
 		"You'll spoil your APPETITE! GET BACK HERE!",
+		"DUDLEY VERNON DURSLEY! Turn around THIS INSTANT!",
+		"Not another step, young man! I have EYES in the back of my head!",
+		"Ohhh no no no. Not today. Back inside. NOW.",
+		"This is NOT how we behave in this family! UPSTAIRS!",
+		"I did NOT raise you to go gallivanting about! INSIDE!",
 	]
 	dialog_box.start_dialog([catch_phrases.pick_random()])
 
