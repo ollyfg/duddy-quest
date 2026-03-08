@@ -12,6 +12,10 @@ var completed_levels: Array[String] = []
 var flags: Dictionary = {}
 ## Set to true once the bedroom door hint dialog has been shown.
 var l1_bedroom_door_hint_shown: bool = false
+## Set to true once the hallway intro cinematic has been shown.
+var l1_hallway_intro_shown: bool = false
+## Set to true once the street intro cinematic has been shown.
+var l1_street_intro_shown: bool = false
 
 
 func set_flag(flag_name: String) -> void:
