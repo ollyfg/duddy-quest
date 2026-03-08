@@ -52,10 +52,6 @@ duddy-quest/
 │   ├── push_puzzle_trigger.tscn # Detects when pushed blocks reach targets
 │   ├── level_end_trigger.tscn   # Area that ends the current level
 │   ├── boss_quirrell.tscn # Professor Quirrell boss scene
-│   ├── room_a.tscn        # Training room 1 (friendly NPC, east exit)
-│   ├── room_b.tscn        # Training room 2 (hostile enemy)
-│   ├── room_c.tscn        # Training room 3
-│   ├── room_d.tscn        # Training room 4
 │   ├── l1_bedroom.tscn    # Level 1: Dudley's bedroom
 │   ├── l1_upper_hall.tscn # Level 1: upper hallway
 │   ├── l1_hallway.tscn    # Level 1: main hallway (Petunia patrol)

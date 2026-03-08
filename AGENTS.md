@@ -148,7 +148,7 @@ Returns JSON like:
 ```json
 {
   "player": { "x": 100.0, "y": 240.0, "hp": 5 },
-  "room": "room_a"
+  "room": "l1_bedroom"
 }
 ```
 
@@ -209,4 +209,3 @@ Supported command types:
 // Query game state
 { "type": "state" }
 ```
-
