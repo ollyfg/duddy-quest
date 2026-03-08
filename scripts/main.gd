@@ -388,11 +388,11 @@ func _pick_npc_dialog(npc: Node) -> Array:
 
 
 ## Called when a PATROL NPC spots the player for the first time this room visit.
-## Shows the NPC's detection line then sends the player back the way they came.
+## Shows the NPC's detection line as a warning; Petunia begins chasing but the
+## player is only sent back if she physically catches them (cinematic_kick_back).
 func _on_npc_player_detected(dialog: String) -> void:
 	if dialog_box.is_active() or _post_dialog_action != PostDialogAction.NONE:
 		return
-	_post_dialog_action = PostDialogAction.GO_WEST
 	_set_dialog_active(true)
 	dialog_box.set_speaker("")
 	dialog_box.start_dialog([dialog])
