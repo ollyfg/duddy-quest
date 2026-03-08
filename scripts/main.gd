@@ -11,6 +11,7 @@ const LEVELS: Dictionary = {
 		"start_pos": Vector2(80.0, 240.0),
 		"rooms": {
 			"l1_bedroom": preload("res://scenes/l1_bedroom.tscn"),
+			"l1_dining_room": preload("res://scenes/l1_dining_room.tscn"),
 			"l1_upper_hall": preload("res://scenes/l1_upper_hall.tscn"),
 			"l1_hallway": preload("res://scenes/l1_hallway.tscn"),
 			"l1_front_hall": preload("res://scenes/l1_front_hall.tscn"),
@@ -120,9 +121,41 @@ func _load_level(level_name: String) -> void:
 			{"image": null, "text": "4 PRIVET DRIVE, LITTLE WHINGING\nA perfectly normal Saturday morning.", "background_color": Color(0.12, 0.08, 0.04)},
 			{"image": null, "text": "You are DUDLEY DURSLEY.\nYou have just found an unopened Hogwarts letter\nhidden in Aunt Petunia's shoebox.", "background_color": Color(0.12, 0.08, 0.04)},
 			{"image": null, "text": "Smeltings stick in hand, you are about to take\nthe most roundabout path to Hogwarts\nin the school's nine-hundred-year history.", "background_color": Color(0.12, 0.08, 0.04)},
-		], func(): _load_room(level["start_room"], level["start_pos"]))
+		], func(): _start_level_1_intro())
 	else:
 		_load_room(level["start_room"], level["start_pos"])
+
+
+## Plays the level-1 dining-room intro cinematic then loads the bedroom.
+## Called after the opening text cutscene finishes.
+func _start_level_1_intro() -> void:
+	await _load_room("l1_dining_room", Vector2(448.0, 304.0))
+	play_cinematic([
+		{"type": "dialog", "speaker": "Vernon", "lines": [
+			"Fine day, Sunday. In my opinion, best day of the week. Why is that, Dudley?",
+		]},
+		{"type": "wait", "duration": 0.8},
+		{"type": "dialog", "speaker": "Harry", "lines": [
+			"Because there's no post on Sundays?",
+		]},
+		{"type": "dialog", "speaker": "Vernon", "lines": [
+			"Right you are, Harry! No post on Sunday. No blasted letters today! No, sir. Not one single bloody letter. Not one! No, sir, not one blasted, miserable\u2026",
+		]},
+		{"type": "set_visible", "node": "FlyingLetters", "visible": true},
+		{"type": "wait", "duration": 0.5},
+		{"type": "dialog", "speaker": "Harry", "lines": [
+			"Whoopee!",
+		]},
+		{"type": "dialog", "speaker": "", "lines": [
+			"Letters everywhere. Hundreds of them. All addressed to POTTER.",
+			"But wait. This one says\u2026",
+			"'D. DURSLEY (THE LARGER ONE).'",
+			"That's ME. Hogwarts wants ME.",
+		]},
+		{"type": "wait", "duration": 0.5},
+	], func():
+		_load_room(LEVELS["level_1"]["start_room"], LEVELS["level_1"]["start_pos"])
+	)
 
 
 func _load_room(room_name: String, player_pos: Vector2) -> void:
@@ -209,6 +242,12 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	# which would immediately chain into a second room transition.
 	await get_tree().physics_frame
 	_room_loading = false
+
+	# Trigger first-visit intro cinematics.
+	if room_name == "l1_hallway" and not GameState.l1_hallway_intro_shown:
+		_play_hallway_intro()
+	elif room_name == "l1_street" and not GameState.l1_street_intro_shown:
+		_play_street_intro()
 
 ## Snapshot the current room's NPC, item, and switch states before transitioning away.
 func _save_room_state() -> void:
@@ -450,9 +489,11 @@ func _handle_post_npc_dialog(npc: Node) -> void:
 func _set_dialog_active(active: bool) -> void:
 	player.is_in_dialog = active
 	if current_room:
-		# room.gd get_npcs() safely returns [] when a room has no NPCs node.
+		# Keep NPCs paused during an active cinematic; only fully unpause when
+		# both dialog ends AND no cinematic is playing.
+		var should_pause: bool = active or player.cinematic_mode
 		for npc in current_room.get_npcs():
-			npc.is_paused = active
+			npc.is_paused = should_pause
 
 
 func _init_hp_bar() -> void:
@@ -583,6 +624,50 @@ func play_cinematic(sequence: Array, on_finish: Callable) -> void:
 		add_child(_cinematic_player)
 	_cinematic_player.sequence_finished.connect(on_finish, CONNECT_ONE_SHOT)
 	_cinematic_player.play(sequence, current_room, player, dialog_box)
+
+
+## First-time intro for the hallway: Petunia paces while muttering to herself.
+func _play_hallway_intro() -> void:
+	GameState.l1_hallway_intro_shown = true
+	_set_dialog_active(true)
+	play_cinematic([
+		{"type": "pan_camera", "to": Vector2(320.0, 240.0), "duration": 1.2},
+		{"type": "dialog", "speaker": "Petunia", "lines": [
+			"Breathe. Everything is fine.",
+			"A good vacuum, that's what we need.",
+			"Everything will be fine if I just keep cleaning.",
+		]},
+		{"type": "reset_camera", "duration": 0.8},
+	], func() -> void: _finish_room_intro())
+
+
+## First-time intro for the street: Piers and his gang scheme against Dudley.
+func _play_street_intro() -> void:
+	GameState.l1_street_intro_shown = true
+	_set_dialog_active(true)
+	play_cinematic([
+		{"type": "pan_camera", "to": Vector2(416.0, 256.0), "duration": 1.2},
+		{"type": "dialog", "speaker": "Piers", "lines": [
+			"Did you see Dudley sneaking off with that letter?",
+			"'Hogwarts School of Witchcraft and Wizardry.' Ha!",
+		]},
+		{"type": "dialog", "speaker": "Gang Member", "lines": [
+			"Witchcraft? Like his cousin Potter?",
+		]},
+		{"type": "dialog", "speaker": "Piers", "lines": [
+			"Looks like Dudders wants to join the freaks.",
+			"Can't have that — he'll ruin our reputation.",
+			"Teach him a lesson, lads.",
+			"Remind him where he belongs.",
+		]},
+		{"type": "reset_camera", "duration": 0.8},
+	], func() -> void: _finish_room_intro())
+
+
+## Shared cleanup called when any room intro cinematic finishes.
+func _finish_room_intro() -> void:
+	_set_dialog_active(false)
+	player.set_camera_limits(current_room.get_room_rect())
 
 
 func play_cutscene(slides: Array, on_finish: Callable) -> void:

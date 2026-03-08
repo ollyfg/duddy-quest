@@ -3,6 +3,8 @@ extends Node
 signal sequence_finished
 
 const NavigationUtils = preload("res://scripts/navigation_utils.gd")
+## Large limit value used to allow free camera movement during pan steps.
+const UNLIMITED_CAMERA_LIMIT: int = 100000
 
 var _room: Node = null
 var _player: Node = null
@@ -54,8 +56,16 @@ func _run_step(step: Dictionary) -> void:
 			await _move_node(_player, step["to"], step.get("speed", 150.0))
 		"dialog":
 			if _dialog_box:
+				if _dialog_box.has_method("set_speaker"):
+					_dialog_box.set_speaker(step.get("speaker", ""))
 				_dialog_box.start_dialog(step.get("lines", []))
 				await _dialog_box.dialog_ended
+		"set_visible":
+			var vis_node: Node = _room.get_node_or_null(step.get("node", ""))
+			if vis_node:
+				vis_node.visible = step.get("visible", true)
+			else:
+				push_warning("cinematic set_visible: node not found: %s" % step.get("node", ""))
 		"wait":
 			await get_tree().create_timer(step.get("duration", 1.0)).timeout
 		"play_cutscene":
@@ -64,6 +74,28 @@ func _run_step(step: Dictionary) -> void:
 				_player.get_parent().play_cutscene(step.get("slides", []), func() -> void: done = true)
 				while not done:
 					await get_tree().process_frame
+		"pan_camera":
+			var cam: Camera2D = _player.get_node_or_null("Camera2D") as Camera2D
+			if cam:
+				cam.position_smoothing_enabled = false
+				# Expand limits so the camera can pan freely within the room.
+				cam.limit_left = -UNLIMITED_CAMERA_LIMIT
+				cam.limit_top = -UNLIMITED_CAMERA_LIMIT
+				cam.limit_right = UNLIMITED_CAMERA_LIMIT
+				cam.limit_bottom = UNLIMITED_CAMERA_LIMIT
+				var target_offset: Vector2 = step["to"] - _player.global_position
+				var duration: float = step.get("duration", 1.0)
+				var tween: Tween = cam.create_tween()
+				tween.tween_property(cam, "offset", target_offset, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+				await tween.finished
+		"reset_camera":
+			var cam: Camera2D = _player.get_node_or_null("Camera2D") as Camera2D
+			if cam:
+				var duration: float = step.get("duration", 1.0)
+				var tween: Tween = cam.create_tween()
+				tween.tween_property(cam, "offset", Vector2.ZERO, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+				await tween.finished
+				cam.position_smoothing_enabled = true
 
 
 func _move_node(node: Node2D, target: Vector2, speed: float) -> void:
