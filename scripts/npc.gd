@@ -61,6 +61,13 @@ enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, PATROL }
 ## Set this via the Inspector on any NPC that should play a cinematic instead.
 @export var cinematic_kick_back: bool = false
 
+## When true, player detection uses a forward-facing cone instead of a full
+## radius.  The cone is also rendered as a transparent yellow overlay.
+@export var use_cone_detection: bool = false
+## Full angle of the detection cone in degrees (e.g. 90 = ±45° either side of
+## the facing direction).
+@export var detection_cone_angle: float = 90.0
+
 ## When true this NPC is immune to damage and knockback and is never clamped
 ## to the room bounds (allows gate NPCs to sit in exit gaps).
 @export var invincible: bool = false
@@ -113,6 +120,8 @@ const FRIENDLY_COLOR: Color = Color(0.2, 0.4, 0.9)
 const HOSTILE_COLOR: Color = Color(0.8, 0.1, 0.1)
 ## Flash color used when any NPC takes damage.
 const DAMAGE_FLASH_COLOR: Color = Color(1.0, 0.3, 0.3)
+## Fill colour for the visible detection cone overlay.
+const CONE_COLOR: Color = Color(1.0, 1.0, 0.0, 0.25)
 ## Proximity threshold (px) for considering a patrol waypoint reached.
 const PATROL_ARRIVAL_THRESHOLD: float = 8.0
 var hp: int
@@ -128,6 +137,8 @@ var _patrol_pause_timer: float = 0.0
 var _patrol_was_chasing: bool = false
 ## Prevents detection_dialog from firing more than once per room visit.
 var _detection_triggered: bool = false
+## Current facing direction (normalised); used for cone detection and drawing.
+var _facing_dir: Vector2 = Vector2.RIGHT
 
 @onready var sprite: ColorRect = $Sprite
 
@@ -144,6 +155,12 @@ func _ready() -> void:
 		add_to_group("cinematic_kick_back")
 	$HitArea.body_entered.connect(_on_hit_area_body_entered)
 	_collect_patrol_points_from_children()
+	# Seed the facing direction toward the first patrol waypoint so the cone
+	# is oriented correctly before the first physics tick.
+	if use_cone_detection and not patrol_points.is_empty():
+		var offset: Vector2 = patrol_points[0] - global_position
+		if offset.length_squared() > 0.0:
+			_facing_dir = offset.normalized()
 
 
 func _physics_process(delta: float) -> void:
@@ -179,7 +196,10 @@ func _physics_process(delta: float) -> void:
 	# Determine whether the player is within detection range.
 	var in_range: bool = true
 	if is_hostile and _player_ref and detection_range > 0.0:
-		in_range = global_position.distance_to(_player_ref.global_position) <= detection_range
+		if use_cone_detection:
+			in_range = _is_player_in_cone()
+		else:
+			in_range = global_position.distance_to(_player_ref.global_position) <= detection_range
 
 	# PATROL is handled separately: it is the base mode and CHASE is the
 	# activated state when a hostile NPC detects the player.
@@ -201,6 +221,7 @@ func _physics_process(delta: float) -> void:
 				_patrol_was_chasing = false
 				_resume_patrol_from_nearest()
 			_patrol_move(delta)
+		_update_facing_and_redraw(velocity)
 		move_and_slide()
 		if not invincible:
 			global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
@@ -242,6 +263,7 @@ func _physics_process(delta: float) -> void:
 				_shoot_timer = shoot_cooldown
 				_fire_projectile()
 
+	_update_facing_and_redraw(velocity)
 	move_and_slide()
 	# Prevent knockback from pushing NPCs through exit gaps in the walls.
 	# Invincible NPCs (gate blockers) are exempt so they can sit in exit gaps.
@@ -389,6 +411,45 @@ func apply_knockback(direction: Vector2) -> void:
 		return
 	_knockback_velocity = direction.normalized() * KNOCKBACK_SPEED
 	_stun_timer = STUN_DURATION
+
+
+## Returns true when the player is inside the forward-facing detection cone.
+## The cone is centred on _facing_dir with a half-angle of detection_cone_angle/2
+## and radius detection_range.
+func _is_player_in_cone() -> bool:
+	if _player_ref == null:
+		return false
+	var to_player: Vector2 = _player_ref.global_position - global_position
+	if to_player.length() > detection_range:
+		return false
+	var angle_diff: float = _facing_dir.angle_to(to_player)
+	return absf(angle_diff) <= deg_to_rad(detection_cone_angle * 0.5)
+
+
+## Updates _facing_dir from vel (when moving) and marks the canvas item dirty
+## so the detection cone overlay is redrawn this frame.  Called at the end of
+## every active physics-process path so the cone always reflects current state.
+func _update_facing_and_redraw(vel: Vector2) -> void:
+	if vel.length_squared() > 0.01:
+		_facing_dir = vel.normalized()
+	if use_cone_detection:
+		queue_redraw()
+
+
+## Draws the transparent-yellow detection cone when use_cone_detection is true.
+func _draw() -> void:
+	if not use_cone_detection:
+		return
+	var half_rad: float = deg_to_rad(detection_cone_angle * 0.5)
+	var base_angle: float = _facing_dir.angle()
+	var num_segments: int = 16
+	var points: PackedVector2Array = PackedVector2Array()
+	points.append(Vector2.ZERO)
+	for i in range(num_segments + 1):
+		var t: float = float(i) / float(num_segments)
+		var a: float = base_angle - half_rad + t * (half_rad * 2.0)
+		points.append(Vector2(cos(a), sin(a)) * detection_range)
+	draw_polygon(points, PackedColorArray([CONE_COLOR]))
 
 
 func _on_hit_area_body_entered(body: Node) -> void:
