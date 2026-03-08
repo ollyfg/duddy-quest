@@ -1,8 +1,9 @@
-[gd_scene load_steps=19 format=3 uid="uid://l1diningroom"]
+[gd_scene load_steps=20 format=3 uid="uid://l1diningroom"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
 [ext_resource type="PackedScene" path="res://scenes/flying_letter.tscn" id="3_flyletter"]
+[ext_resource type="Script" path="res://scripts/flying_letters_container.gd" id="4_flyletcont"]
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall"]
 size = Vector2(640, 88)
@@ -189,33 +190,104 @@ npc_name = "Harry"
 
 [node name="FlyingLetters" type="Node2D" parent="."]
 visible = false
+script = ExtResource("4_flyletcont")
 
 [node name="Letter1" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
-position = Vector2(128.0, 128.0)
+position = Vector2(64.0, 48.0)
+spawn_velocity_angle = 1.5708
 
 [node name="Letter2" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
-position = Vector2(320.0, 80.0)
+position = Vector2(48.0, 64.0)
+spawn_velocity_angle = 0.0
 
 [node name="Letter3" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
-position = Vector2(512.0, 128.0)
+position = Vector2(592.0, 64.0)
+spawn_velocity_angle = 3.14159
 
 [node name="Letter4" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
-position = Vector2(80.0, 240.0)
+position = Vector2(128.0, 48.0)
+spawn_velocity_angle = 1.5708
 
 [node name="Letter5" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
-position = Vector2(560.0, 320.0)
+position = Vector2(48.0, 112.0)
+spawn_velocity_angle = 0.0
 
 [node name="Letter6" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
-position = Vector2(160.0, 384.0)
+position = Vector2(592.0, 112.0)
+spawn_velocity_angle = 3.14159
 
 [node name="Letter7" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
-position = Vector2(416.0, 384.0)
+position = Vector2(192.0, 48.0)
+spawn_velocity_angle = 1.5708
 
 [node name="Letter8" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
-position = Vector2(544.0, 192.0)
+position = Vector2(48.0, 160.0)
+spawn_velocity_angle = 0.0
 
 [node name="Letter9" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
-position = Vector2(256.0, 160.0)
+position = Vector2(592.0, 160.0)
+spawn_velocity_angle = 3.14159
 
 [node name="Letter10" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
-position = Vector2(480.0, 256.0)
+position = Vector2(256.0, 48.0)
+spawn_velocity_angle = 1.5708
+
+[node name="Letter11" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(48.0, 208.0)
+spawn_velocity_angle = 0.0
+
+[node name="Letter12" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(592.0, 208.0)
+spawn_velocity_angle = 3.14159
+
+[node name="Letter13" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(320.0, 48.0)
+spawn_velocity_angle = 1.5708
+
+[node name="Letter14" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(48.0, 256.0)
+spawn_velocity_angle = 0.0
+
+[node name="Letter15" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(592.0, 256.0)
+spawn_velocity_angle = 3.14159
+
+[node name="Letter16" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(384.0, 48.0)
+spawn_velocity_angle = 1.5708
+
+[node name="Letter17" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(48.0, 304.0)
+spawn_velocity_angle = 0.0
+
+[node name="Letter18" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(592.0, 304.0)
+spawn_velocity_angle = 3.14159
+
+[node name="Letter19" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(448.0, 48.0)
+spawn_velocity_angle = 1.5708
+
+[node name="Letter20" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(48.0, 352.0)
+spawn_velocity_angle = 0.0
+
+[node name="Letter21" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(592.0, 352.0)
+spawn_velocity_angle = 3.14159
+
+[node name="Letter22" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(512.0, 48.0)
+spawn_velocity_angle = 1.5708
+
+[node name="Letter23" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(48.0, 400.0)
+spawn_velocity_angle = 0.0
+
+[node name="Letter24" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(592.0, 400.0)
+spawn_velocity_angle = 3.14159
+
+[node name="Letter25" parent="FlyingLetters" instance=ExtResource("3_flyletter")]
+position = Vector2(576.0, 48.0)
+spawn_velocity_angle = 1.5708
