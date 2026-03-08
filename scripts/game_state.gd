@@ -3,9 +3,9 @@ extends Node
 ## Persists data that needs to survive scene changes (e.g. selected level).
 
 ## Current game version. Bump this on every new deploy.
-const VERSION: String = "0.7.0"
+const VERSION: String = "0.8.0"
 
-var selected_level: String = "training"
+var selected_level: String = "level_1"
 var completed_levels: Array[String] = []
 
 ## Generic boolean flags for one-off story events.

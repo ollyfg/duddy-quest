@@ -24,8 +24,8 @@ scenes/
   npc.tscn             # NPC / enemy, reused for friendly and hostile (scripts/npc.gd)
   projectile.tscn      # Projectile (scripts/projectile.gd)
   dialog_box.tscn      # NPC dialog overlay (scripts/dialog_box.gd)
-  room_a.tscn          # First room — friendly NPC, east exit
-  room_b.tscn          # Second room — hostile enemy, west exit
+  l1_bedroom.tscn      # Level 1: Dudley's bedroom
+  l1_hallway.tscn      # Level 1: main hallway
 scripts/
   main.gd              # Room loading/transitions; defines ROOMS and ROOM_CONNECTIONS dicts
   player.gd            # Movement, melee (MeleeArea), ranged attack, HP, knockback

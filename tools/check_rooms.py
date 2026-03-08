@@ -89,7 +89,7 @@ def _parse_connections_block(block):
     connections = {}
 
     # Match any key that contains an underscore – this covers both the
-    # training rooms (room_a, room_b, …) and level rooms (l1_bedroom, …)
+    # room scenes (l1_bedroom, l2_*, ...)
     # while excluding bare direction keys (east, west, north, south).
     room_key_re = re.compile(r'"(\w+_\w+)"\s*:')
     dir_re = re.compile(
@@ -198,7 +198,7 @@ def check_rooms():
         room_exits[room_name] = find_exit_nodes(tscn)
 
     # Scan all room .tscn files to catch exits not listed in connections.
-    # Match training rooms (room_*) and level rooms (l<digit>_*).
+    # Match level room scenes (l<digit>_*).
     all_tscns = sorted(
         f for f in os.listdir(SCENES_DIR)
         if re.match(r'^(?:room_|l\d+_)', f) and f.endswith(".tscn")

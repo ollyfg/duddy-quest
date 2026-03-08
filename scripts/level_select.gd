@@ -4,7 +4,6 @@ const MobileControls = preload("res://scenes/mobile_controls.tscn")
 
 ## Maps level IDs (matching LEVELS keys in main.gd) to display names.
 const LEVEL_LIST: Array[Dictionary] = [
-	{"id": "training", "name": "Training"},
 	{"id": "level_1",  "name": "Level 1 - Privet Drive"},
 	{"id": "level_2",  "name": "Level 2 - Diagon Alley"},
 	{"id": "level_3",  "name": "Level 3 - King's Cross"},
@@ -53,9 +52,9 @@ func _ready() -> void:
 
 
 func _is_unlocked(index: int) -> bool:
-	# Training (0) and Level 1 (1) are always unlocked; further levels require
+	# Level 1 (0) is always unlocked; further levels require
 	# the previous level to be completed.
-	return index <= 1 or GameState.is_complete(LEVEL_LIST[index - 1]["id"])
+	return index == 0 or GameState.is_complete(LEVEL_LIST[index - 1]["id"])
 
 
 func _update_list() -> void:

@@ -196,7 +196,7 @@ class PlaytestClient:
         """Teleport the player to a specific room and/or position.
 
         Args:
-            room: Name of the room to load (e.g. "room_b", "l1_hallway").
+            room: Name of the room to load (e.g. "l1_hallway", "l1_street").
                   Must be a room in the current level.  Omit to stay in the
                   current room.
             x:    Target X position.  When *room* is given, *x* and *y* must
@@ -224,7 +224,7 @@ class PlaytestClient:
 
             {
                 "player": {"x": 100.0, "y": 240.0, "hp": 5},
-                "room": "room_a"
+                "room": "l1_bedroom"
             }
         """
         return self._send({"type": "state"})
@@ -291,7 +291,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "spawn",
         help="Teleport the player to a room and/or position",
     )
-    spawn_p.add_argument("--room", default=None, help="Room name to load (e.g. room_b)")
+    spawn_p.add_argument("--room", default=None, help="Room name to load (e.g. l1_hallway)")
     spawn_p.add_argument("--x", type=float, default=None, help="Target X position")
     spawn_p.add_argument("--y", type=float, default=None, help="Target Y position")
 
