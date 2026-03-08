@@ -128,3 +128,22 @@ func test_reset_patrol_clears_chasing_flag() -> void:
 	assert_false(_npc._patrol_was_chasing,
 		"reset_patrol should clear the _patrol_was_chasing flag")
 
+
+# ---------------------------------------------------------------------------
+# A* pathfinder (set_pathfinder)
+# ---------------------------------------------------------------------------
+
+func test_set_pathfinder_stores_reference() -> void:
+	var pf: Object = preload("res://scripts/pathfinder.gd").new()
+	_npc.set_pathfinder(pf)
+	assert_eq(_npc._pathfinder, pf,
+		"set_pathfinder should store the supplied RoomPathfinder as _pathfinder")
+
+
+func test_set_pathfinder_accepts_null() -> void:
+	var pf: Object = preload("res://scripts/pathfinder.gd").new()
+	_npc.set_pathfinder(pf)
+	_npc.set_pathfinder(null)
+	assert_eq(_npc._pathfinder, null,
+		"set_pathfinder(null) should clear the stored pathfinder reference")
+

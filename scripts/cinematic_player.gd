@@ -10,6 +10,12 @@ var _room: Node = null
 var _player: Node = null
 var _dialog_box: Node = null
 var _is_playing: bool = false
+## A* pathfinder for the current room; null when not available.
+var _pathfinder = null
+
+
+func set_pathfinder(pf) -> void:
+	_pathfinder = pf
 
 
 func play(sequence: Array, room: Node, player: Node, dialog_box: Node = null) -> void:
@@ -102,14 +108,17 @@ func _move_node(node: Node2D, target: Vector2, speed: float) -> void:
 	while node.global_position.distance_to(target) > 4.0:
 		var dir: Vector2
 		if node is CharacterBody2D:
-			var body: CharacterBody2D = node as CharacterBody2D
-			var space: PhysicsDirectSpaceState2D = body.get_world_2d().direct_space_state
-			dir = NavigationUtils.navigate_toward(
-				body.global_position,
-				target,
-				space,
-				[body.get_rid()]
-			)
+			if _pathfinder != null:
+				dir = _pathfinder.get_next_direction(node.global_position, target)
+			else:
+				var body: CharacterBody2D = node as CharacterBody2D
+				var space: PhysicsDirectSpaceState2D = body.get_world_2d().direct_space_state
+				dir = NavigationUtils.navigate_toward(
+					body.global_position,
+					target,
+					space,
+					[body.get_rid()]
+				)
 		else:
 			dir = (target - node.global_position).normalized()
 		node.velocity = dir * speed

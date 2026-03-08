@@ -64,6 +64,9 @@ enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, PATROL }
 ## When true, player detection uses a forward-facing cone instead of a full
 ## radius.  The cone is also rendered as a transparent yellow overlay.
 @export var use_cone_detection: bool = false
+## When true, this NPC uses A* grid pathfinding (via a RoomPathfinder supplied
+## by main.gd) instead of short-range raycasting to navigate around obstacles.
+@export var use_astar: bool = false
 ## Full angle of the detection cone in degrees (e.g. 90 = ±45° either side of
 ## the facing direction).
 @export var detection_cone_angle: float = 90.0
@@ -139,6 +142,8 @@ var _patrol_was_chasing: bool = false
 var _detection_triggered: bool = false
 ## Current facing direction (normalised); used for cone detection and drawing.
 var _facing_dir: Vector2 = Vector2.RIGHT
+## A* pathfinder supplied by the room loader; null when not using A*.
+var _pathfinder = null
 
 @onready var sprite: ColorRect = $Sprite
 
@@ -276,16 +281,24 @@ func set_player_reference(player: Node) -> void:
 	_player_ref = player
 
 
+## Called by the game controller to supply an A* pathfinder built for the
+## current room.  Pass null to revert to raycasting navigation.
+func set_pathfinder(pf) -> void:
+	_pathfinder = pf
+
+
 func _chase_player() -> void:
 	velocity = _navigate_toward(_player_ref.global_position) * move_speed
 
 
 ## Returns the best direction to move toward `target` while steering around
-## physics obstacles.  Casts a short ray in the desired direction; if blocked,
-## tries progressively-angled alternatives and returns the one that is both
-## clear and closest to the goal direction.  Falls back to the direct direction
-## if every alternative is also blocked (e.g. completely cornered).
+## physics obstacles.  Uses A* grid pathfinding when a pathfinder has been
+## supplied (use_astar NPCs), otherwise falls back to the legacy short-range
+## raycasting approach.
 func _navigate_toward(target: Vector2) -> Vector2:
+	if _pathfinder != null:
+		return _pathfinder.get_next_direction(global_position, target)
+
 	var space: PhysicsDirectSpaceState2D = get_world_2d().direct_space_state
 
 	# Build exclusion list: skip this NPC and the player so we only detect

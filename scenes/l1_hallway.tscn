@@ -242,6 +242,7 @@ movement_mode = 5
 move_speed = 75.0
 max_hp = 10
 invincible = true
+use_astar = true
 use_cone_detection = true
 detection_range = 200.0
 patrol_pause_duration = 1.5
