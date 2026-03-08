@@ -340,7 +340,12 @@ func _pick_npc_dialog(npc: Node) -> Array:
 	if gate_flag != "" and not GameState.has_flag(gate_flag):
 		return npc.pre_flag_dialog if not npc.pre_flag_dialog.is_empty() else ["..."]
 
-	return npc.dialog_lines
+	# If the NPC has random dialog pools, pick one and append it to the base lines.
+	if not npc.dialog_pools.is_empty():
+		var pool: Array = npc.dialog_pools.pick_random()
+		return npc.dialog_lines + pool + npc.dialog_suffix
+
+	return npc.dialog_lines + npc.dialog_suffix
 
 
 ## Called when a PATROL NPC spots the player for the first time this room visit.
@@ -375,7 +380,14 @@ func _on_petunia_hit_player() -> void:
 	_post_dialog_action = PostDialogAction.PETUNIA_KICK
 	_set_dialog_active(true)
 	dialog_box.set_speaker("Petunia")
-	dialog_box.start_dialog(["Back to your room, DUDDIKINS!"])
+	var catch_phrases: Array = [
+		"Back to your room, DUDDIKINS!",
+		"Oh NO you don't, young man! BACK!",
+		"Dudley Dursley! Where do you think YOU'RE going?!",
+		"NOT one more step! Your father will hear about this!",
+		"You'll spoil your APPETITE! GET BACK HERE!",
+	]
+	dialog_box.start_dialog([catch_phrases.pick_random()])
 
 
 func _on_dialog_ended() -> void:
