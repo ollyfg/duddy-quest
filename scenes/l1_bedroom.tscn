@@ -163,8 +163,15 @@ shape = SubResource("Sh_wardrobe")
 [node name="HogwartsNote" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(240.0, 320.0)
 movement_mode = 1
-dialog_lines = ["What on earth... A letter addressed to D. DURSLEY (THE LARGER ONE).", "A Hogwarts letter! FOR ME! Mum has been hiding this for years!", "The door is stuck fast. Maybe I can break through it if I get REALLY furious.", "Smash things until the rage builds — then it should burst open!"]
+dialog_lines = ["What on earth... A letter. Addressed to D. DURSLEY (THE LARGER ONE).", "HOGWARTS SCHOOL OF WITCHCRAFT AND WIZARDRY", "Dear Mr. Dursley, We are pleased to inform you that you have been accepted at Hogwarts School of Witchcraft and Wizardry.", "Please find enclosed a list of all necessary books and equipment. Term begins on 1 September.", "We await your owl by no later than 31 July. Yours sincerely, Minerva McGonagall, Deputy Headmistress.", "A Hogwarts letter! FOR ME! Mum has been hiding this for years!"]
 npc_name = "Hogwarts Letter"
+
+[node name="Computer" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(160.0, 176.0)
+movement_mode = 1
+dialog_lines = []
+dialog_pools = [["Your computer. You don't feel like playing Minecraft right now."], ["Your computer. You don't feel like playing Fortnite right now."], ["Your computer. You don't feel like playing Grand Theft Auto V right now."], ["Your computer. You don't feel like playing FIFA 26 right now."], ["Your computer. You don't feel like playing Call of Duty right now."], ["Your computer. You don't feel like playing The Sims 4 right now."], ["Your computer. You don't feel like playing Pokémon right now."]]
+npc_name = "Computer"
 
 [node name="MagicDoor" parent="." instance=ExtResource("3_magicdoor")]
 position = Vector2(628.0, 160.0)
