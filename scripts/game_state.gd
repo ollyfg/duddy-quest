@@ -3,7 +3,7 @@ extends Node
 ## Persists data that needs to survive scene changes (e.g. selected level).
 
 ## Current game version. Bump this on every new deploy.
-const VERSION: String = "0.8.1"
+const VERSION: String = "0.9.0"
 
 var selected_level: String = "level_1"
 var completed_levels: Array[String] = []
@@ -12,6 +12,10 @@ var completed_levels: Array[String] = []
 var flags: Dictionary = {}
 ## Set to true once the bedroom door hint dialog has been shown.
 var l1_bedroom_door_hint_shown: bool = false
+## Set to true once the hallway intro cinematic has been shown.
+var l1_hallway_intro_shown: bool = false
+## Set to true once the street intro cinematic has been shown.
+var l1_street_intro_shown: bool = false
 
 
 func set_flag(flag_name: String) -> void:

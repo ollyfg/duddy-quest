@@ -164,6 +164,7 @@ theme_override_font_sizes/font_size = 9
 position = Vector2(352.0, 192.0)
 is_hostile = true
 detection_range = 200.0
+npc_name = "Piers"
 
 [node name="GangMember1" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(480.0, 256.0)
