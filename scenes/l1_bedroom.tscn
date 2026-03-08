@@ -170,8 +170,20 @@ npc_name = "Hogwarts Letter"
 position = Vector2(160.0, 176.0)
 movement_mode = 1
 dialog_lines = []
-dialog_pools = [["Your computer. You don't feel like playing Minecraft right now."], ["Your computer. You don't feel like playing Fortnite right now."], ["Your computer. You don't feel like playing Grand Theft Auto V right now."], ["Your computer. You don't feel like playing FIFA 26 right now."], ["Your computer. You don't feel like playing Call of Duty right now."], ["Your computer. You don't feel like playing The Sims 4 right now."], ["Your computer. You don't feel like playing Pokémon right now."]]
+dialog_pools = [["Your computer. You don't feel like playing Smash 'n' Bash 3 right now."], ["Your computer. You don't feel like playing Wrestler Rampage: Grudge Match right now."], ["Your computer. You don't feel like playing Knuckleduster KO right now."], ["Your computer. You don't feel like playing Brawl School Academy right now."], ["Your computer. You don't feel like playing Mega Muscles Championship right now."], ["Your computer. You don't feel like playing Punch-Up Pete right now."], ["Your computer. You don't feel like playing Smeltings Showdown right now."]]
 npc_name = "Computer"
+
+[node name="TV" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(112.0, 304.0)
+movement_mode = 1
+dialog_lines = ["Your TV. Seventeen channels of complete rubbish."]
+npc_name = "TV"
+
+[node name="TrophyShelf" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(400.0, 272.0)
+movement_mode = 1
+dialog_lines = ["Your boxing trophy. 'SMELTINGS INTER-SCHOOL CHAMPION — D. DURSLEY', three years running.", "You're dead proud of this."]
+npc_name = "Trophy Shelf"
 
 [node name="MagicDoor" parent="." instance=ExtResource("3_magicdoor")]
 position = Vector2(628.0, 160.0)
