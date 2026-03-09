@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://l1garden"]
+[gd_scene load_steps=14 format=3 uid="uid://l1garden"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
@@ -33,6 +33,9 @@ size = Vector2(24, 48)
 
 [sub_resource type="RectangleShape2D" id="Sh_mrsfig_hit"]
 size = Vector2(64, 56)
+
+[sub_resource type="RectangleShape2D" id="Sh_figg_blocker"]
+size = Vector2(32, 48)
 
 [node name="Room" type="Node2D"]
 script = ExtResource("1_room")
@@ -197,6 +200,12 @@ offset_bottom = 24.0
 
 [node name="CollisionShape2D" parent="NPCs/MrsFigg/HitArea"]
 shape = SubResource("Sh_mrsfig_hit")
+
+[node name="FiggBlocker" type="StaticBody2D" parent="NPCs/MrsFigg"]
+position = Vector2(32, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NPCs/MrsFigg/FiggBlocker"]
+shape = SubResource("Sh_figg_blocker")
 
 [node name="Snowy" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(160.0, 304.0)
