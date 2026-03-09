@@ -3,21 +3,24 @@ extends RefCounted
 
 ## Grid cell size in pixels — must match the project's 16-px layout grid.
 const CELL_SIZE: int = 16
-## Room dimensions in cells for the standard 640×480 viewport.
-const COLS: int = 40
-const ROWS: int = 30
 
 var _astar: AStarGrid2D = null
 var _room_origin: Vector2 = Vector2.ZERO
+var _cols: int = 0
+var _rows: int = 0
 
 
 ## Build the A* grid by scanning `space` for StaticBody2D obstacles.
-## `room_origin` is the global_position of the Room node; the path points
-## returned by get_next_direction() will be in the same coordinate space.
-func build(space: PhysicsDirectSpaceState2D, room_origin: Vector2 = Vector2.ZERO) -> void:
+## `room_origin` is the global_position of the Room node; `room_size` is the
+## pixel dimensions of the room (defaults to 640×480 for backward compatibility).
+## The path points returned by get_next_direction() are in the same world
+## coordinate space as the NPC's global_position.
+func build(space: PhysicsDirectSpaceState2D, room_origin: Vector2 = Vector2.ZERO, room_size: Vector2 = Vector2(640.0, 480.0)) -> void:
 	_room_origin = room_origin
+	_cols = max(1, ceili(room_size.x / CELL_SIZE))
+	_rows = max(1, ceili(room_size.y / CELL_SIZE))
 	_astar = AStarGrid2D.new()
-	_astar.region = Rect2i(0, 0, COLS, ROWS)
+	_astar.region = Rect2i(0, 0, _cols, _rows)
 	_astar.cell_size = Vector2(CELL_SIZE, CELL_SIZE)
 	# Setting offset to room_origin makes get_point_path() return world-space
 	# positions directly, matching the NPC's global_position coordinate space.
@@ -27,8 +30,8 @@ func build(space: PhysicsDirectSpaceState2D, room_origin: Vector2 = Vector2.ZERO
 	_astar.update()
 
 	# Scan every cell and mark those containing static obstacle geometry solid.
-	for row in range(ROWS):
-		for col in range(COLS):
+	for row in range(_rows):
+		for col in range(_cols):
 			var cell_center: Vector2 = room_origin + Vector2(
 				col * CELL_SIZE + CELL_SIZE * 0.5,
 				row * CELL_SIZE + CELL_SIZE * 0.5
@@ -57,8 +60,8 @@ func get_next_direction(from_world: Vector2, to_world: Vector2) -> Vector2:
 	var from_cell: Vector2i = _world_to_cell(from_world)
 	var to_cell: Vector2i = _world_to_cell(to_world)
 	# Clamp to valid grid bounds.
-	from_cell = from_cell.clamp(Vector2i.ZERO, Vector2i(COLS - 1, ROWS - 1))
-	to_cell = to_cell.clamp(Vector2i.ZERO, Vector2i(COLS - 1, ROWS - 1))
+	from_cell = from_cell.clamp(Vector2i.ZERO, Vector2i(_cols - 1, _rows - 1))
+	to_cell = to_cell.clamp(Vector2i.ZERO, Vector2i(_cols - 1, _rows - 1))
 
 	# If the start cell is solid (e.g. NPC spawned inside geometry), go direct.
 	if _astar.is_point_solid(from_cell):

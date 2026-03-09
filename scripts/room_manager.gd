@@ -106,6 +106,8 @@ func load_room(room_name: String, player_pos: Vector2) -> void:
 			continue
 		if npc.has_method("set_player_reference"):
 			npc.set_player_reference(_player)
+		if npc.has_method("set_room_bounds"):
+			npc.set_room_bounds(current_room.get_room_rect())
 		if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
 			npc.boss_defeated.connect(_main.level_manager._on_boss_defeated)
 			npc.interaction_requested.connect(_main.dialog_manager.on_npc_interaction_requested.bind(npc))
@@ -250,7 +252,7 @@ func _rebuild_pathfinder() -> void:
 	if not needs_astar:
 		return
 	var pathfinder = _PATHFINDER_SCRIPT.new()
-	pathfinder.build(_main.get_world_2d().direct_space_state, current_room.global_position)
+	pathfinder.build(_main.get_world_2d().direct_space_state, current_room.global_position, current_room.room_size)
 	_current_pathfinder = pathfinder
 	for npc: Node in current_room.get_npcs():
 		if npc.get("use_astar") and npc.has_method("set_pathfinder"):
