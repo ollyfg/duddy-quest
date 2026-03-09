@@ -24,17 +24,11 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node) -> void:
-	if body.is_in_group("player"):
-		_pickup(body)
-
-
-func _pickup(player: Node) -> void:
-	match item_type:
-		ItemType.HEALTH:
-			player.hp += heal_amount
-		ItemType.WAND:
-			player.has_wand = true
-		ItemType.KEY:
-			player.inventory.append(key_id)
-			player.keys_changed.emit(player.inventory.size())
-	queue_free()
+	if body.has_method("collect_item"):
+		var type_str: String
+		match item_type:
+			ItemType.HEALTH: type_str = "health"
+			ItemType.WAND:   type_str = "wand"
+			ItemType.KEY:    type_str = "key"
+		body.collect_item(type_str, {"amount": heal_amount, "key_id": key_id})
+		queue_free()

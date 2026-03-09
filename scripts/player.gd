@@ -256,6 +256,19 @@ func apply_knockback(direction: Vector2) -> void:
 	_knockback_velocity = direction.normalized() * KNOCKBACK_SPEED
 
 
+## Applies an item effect to the player.  Called by item.gd (and anything else
+## that can hand items to a collector) so items never need to know player internals.
+func collect_item(item_type: String, data: Dictionary) -> void:
+	match item_type:
+		"health":
+			self.hp += data.get("amount", 1)
+		"wand":
+			self.has_wand = true
+		"key":
+			inventory.append(data.get("key_id", ""))
+			keys_changed.emit(inventory.size())
+
+
 ## Cancels any in-progress grid step and clears knockback.
 ## Call this whenever the player is teleported to a new position (e.g. room
 ## transition) so stale movement state from the old room does not carry over.
