@@ -41,6 +41,8 @@ func _process(delta: float) -> void:
 		var child: Node = _pending.pop_front()
 		if child is CanvasItem:
 			(child as CanvasItem).visible = true
+		if child.has_method("start_flying"):
+			child.start_flying()
 		_next_spawn_time += _spawn_interval
 	if _pending.is_empty():
 		_active = false
