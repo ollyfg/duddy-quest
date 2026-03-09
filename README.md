@@ -66,6 +66,7 @@ duddy-quest/
 │   ├── room.gd            # Room exit detection, switch/key logic, NPC helpers
 │   ├── dialog_box.gd      # Multi-line NPC conversation display with choices
 │   ├── game_state.gd      # Autoload: persists level selection & completion flags
+│   ├── config.gd          # **Designer tuning hub**: all gameplay constants (speeds, ranges, timings)
 │   ├── dev_tools.gd       # Autoload: file-IPC server for automated playtesting
 │   ├── mobile_controls.gd # Touch overlay: simulates keyboard input actions
 │   ├── title_screen.gd    # Title screen logic
@@ -105,6 +106,7 @@ duddy-quest/
 - **Cutscenes & cinematics**: Slide-show cutscenes play at level start/end.  In-game cinematic sequences can move NPCs and the player programmatically.
 - **Mobile controls**: An on-screen touch overlay simulates all keyboard actions on touchscreen devices.
 - **Playtesting tools**: Headless automated playtesting via `tools/launch.sh` and `tools/playtest.py` (see `AGENTS.md` for full documentation).
+- **Gameplay tuning**: All numeric constants (speeds, ranges, timings, probabilities) are centralised in `scripts/config.gd` (`GameConfig`).  Edit that file to adjust any value without grepping the codebase.
 
 ## Architecture Red Flags (Scalability Watchlist)
 

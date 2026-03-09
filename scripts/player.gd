@@ -11,8 +11,8 @@ const SPEED: float = 150.0
 const MELEE_COOLDOWN: float = 0.5
 const SHOOT_COOLDOWN: float = 0.4
 const MAX_HP: int = 5
-const KNOCKBACK_SPEED: float = 300.0
-const GRID_SIZE: int = 16
+const KNOCKBACK_SPEED: float = GameConfig.PLAYER_KNOCKBACK_SPEED
+const GRID_SIZE: int = GameConfig.GRID_SIZE
 const KNOCKBACK_THRESHOLD: float = 5.0
 const GRID_SNAP_THRESHOLD: float = 2.0
 const PLAYER_COLOR: Color = Color(0, 0.75, 0.2)
@@ -97,7 +97,7 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * 6.0)
+	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * GameConfig.KNOCKBACK_DECAY_MULTIPLIER)
 
 	if is_in_dialog:
 		velocity = Vector2.ZERO
@@ -216,12 +216,12 @@ func _perform_melee() -> void:
 	if _melee_timer > 0.0:
 		return
 	_melee_timer = MELEE_COOLDOWN
-	melee_area.position = facing * 24.0
+	melee_area.position = facing * GameConfig.MELEE_RANGE
 	melee_area.monitoring = true
 	melee_area.monitorable = true
 	melee_sprite.visible = true
 	_add_rage(RAGE_PER_SWING)
-	await get_tree().create_timer(0.15).timeout
+	await get_tree().create_timer(GameConfig.MELEE_ACTIVE_DURATION).timeout
 	melee_area.monitoring = false
 	melee_area.monitorable = false
 	melee_sprite.visible = false
@@ -301,7 +301,7 @@ func _add_rage(amount: float) -> void:
 func _trigger_rage_attack() -> void:
 	# Spin through all four facing directions for visual effect.
 	for dir: Vector2 in [Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT, Vector2.UP]:
-		melee_area.position = dir * 24.0
+		melee_area.position = dir * GameConfig.MELEE_RANGE
 		melee_sprite.visible = true
 		sprite.color = RAGE_COLOR
 		await get_tree().create_timer(0.05).timeout
@@ -312,7 +312,7 @@ func _trigger_rage_attack() -> void:
 	var space := get_world_2d().direct_space_state
 	var query := PhysicsShapeQueryParameters2D.new()
 	var shape := CircleShape2D.new()
-	shape.radius = 64.0
+	shape.radius = GameConfig.RAGE_AOE_RADIUS
 	query.shape = shape
 	query.transform = global_transform
 	query.collision_mask = 1
