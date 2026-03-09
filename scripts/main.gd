@@ -120,52 +120,7 @@ func _load_level(level_name: String) -> void:
 	current_level_name = level_name
 	_room_states.clear()
 	var level: Dictionary = LEVELS[level_name]
-	if level_name == "level_1":
-		play_cutscene([
-			{"image": null, "text": "4 PRIVET DRIVE, LITTLE WHINGING\nA perfectly normal Saturday morning.", "background_color": Color(0.12, 0.08, 0.04)},
-			{"image": null, "text": "You are DUDLEY DURSLEY.\nYou have just found an unopened Hogwarts letter\nhidden in Aunt Petunia's shoebox.", "background_color": Color(0.12, 0.08, 0.04)},
-			{"image": null, "text": "Smeltings stick in hand, you are about to take\nthe most roundabout path to Hogwarts\nin the school's nine-hundred-year history.", "background_color": Color(0.12, 0.08, 0.04)},
-		], func(): _start_level_1_intro())
-	else:
-		_load_room(level["start_room"], level["start_pos"])
-
-
-## Plays the level-1 dining-room intro cinematic then loads the bedroom.
-## Called after the opening text cutscene finishes.
-func _start_level_1_intro() -> void:
-	await _load_room("l1_dining_room", Vector2(448.0, 304.0))
-	play_cinematic([
-		{"type": "dialog", "speaker": "Vernon", "lines": [
-			"Fine day, Sunday. In my opinion, best day of the week. Why is that, Dudley?",
-		]},
-		{"type": "wait", "duration": 0.8},
-		{"type": "dialog", "speaker": "Harry", "lines": [
-			"Because there's no post on Sundays?",
-		]},
-		{"type": "dialog", "speaker": "Vernon", "lines": [
-			"Right you are, Harry! No post on Sunday. No blasted letters today! No, sir. Not one single bloody letter. Not one! No, sir, not one blasted, miserable\u2026",
-		]},
-		{"type": "set_visible", "node": "FlyingLetters", "visible": true},
-		{"type": "wait", "duration": 1.2},
-		{"type": "dialog", "speaker": "Vernon", "lines": [
-			"AAARRRGGHH!",
-		]},
-		{"type": "dialog", "speaker": "Harry", "lines": [
-			"Whoopee!",
-		]},
-		{"type": "dialog", "speaker": "Vernon", "lines": [
-			"GIVE ME THAT LETTER!",
-		]},
-		{"type": "dialog", "speaker": "", "lines": [
-			"Letters everywhere. Hundreds of them. All addressed to POTTER.",
-			"But wait. This one says\u2026",
-			"'D. DURSLEY (THE LARGER ONE).'",
-			"That's ME. Hogwarts wants ME.",
-		]},
-		{"type": "wait", "duration": 0.5},
-	], func():
-		_load_room(LEVELS["level_1"]["start_room"], LEVELS["level_1"]["start_pos"])
-	)
+	_load_room(level["start_room"], level["start_pos"])
 
 
 func _load_room(room_name: String, player_pos: Vector2) -> void:
