@@ -193,7 +193,7 @@ dialog_lines = ["Your TV. Seventeen channels of complete rubbish."]
 npc_name = "TV"
 
 [node name="TrophyShelf" parent="NPCs" instance=ExtResource("2_npc")]
-position = Vector2(320.0, 192.0)
+position = Vector2(384.0, 288.0)
 movement_mode = 1
 dialog_lines = ["Your boxing trophy. 'SMELTINGS INTER-SCHOOL CHAMPION — D. DURSLEY', three years running.", "You're dead proud of this."]
 npc_name = "Trophy Shelf"
