@@ -75,7 +75,17 @@ func load_room(room_name: String, player_pos: Vector2) -> void:
 
 	current_room_name = room_name
 	var level_rooms: Dictionary = _main.LEVELS[_main.current_level_name]["rooms"]
-	current_room = level_rooms[room_name].instantiate()
+	var scene_path: String = level_rooms.get(room_name, "")
+	if scene_path == "":
+		push_error("room_manager: no scene path for room '%s' in level '%s'" % [room_name, _main.current_level_name])
+		_room_loading = false
+		return
+	var packed: PackedScene = load(scene_path)
+	if packed == null:
+		push_error("room_manager: failed to load scene '%s' for room '%s'" % [scene_path, room_name])
+		_room_loading = false
+		return
+	current_room = packed.instantiate()
 	_room_holder.add_child(current_room)
 	current_room.exit_triggered.connect(_on_exit_triggered)
 	current_room.locked_exit_attempted.connect(_main.dialog_manager.on_locked_exit_attempted)

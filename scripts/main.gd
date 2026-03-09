@@ -1,52 +1,68 @@
 extends Node2D
 
-# Each level groups its rooms, connections, starting room and starting position.
-const LEVELS: Dictionary = {
-	"level_1": {
-		"title": "A Perfectly Normal Catastrophe",
-		"next_level": "",
-		"start_room": "l1_bedroom",
-		"start_pos": Vector2(80.0, 240.0),
-		"rooms": {
-			"l1_bedroom": preload("res://scenes/l1_bedroom.tscn"),
-			"l1_dining_room": preload("res://scenes/l1_dining_room.tscn"),
-			"l1_upper_hall": preload("res://scenes/l1_upper_hall.tscn"),
-			"l1_hallway": preload("res://scenes/l1_hallway.tscn"),
-			"l1_front_hall": preload("res://scenes/l1_front_hall.tscn"),
-			"l1_garden": preload("res://scenes/l1_garden.tscn"),
-			"l1_street": preload("res://scenes/l1_street.tscn"),
-			"l1_vernon_room": preload("res://scenes/l1_vernon_room.tscn"),
-		},
-		"connections": {
-			"l1_bedroom": {
-				"east": {"room": "l1_upper_hall", "entry": Vector2(64.0, 160.0)},
-			},
-			"l1_upper_hall": {
-				"west": {"room": "l1_bedroom", "entry": Vector2(576.0, 160.0)},
-				"east": {"room": "l1_hallway", "entry": Vector2(64.0, 320.0)},
-				"north": {"room": "l1_vernon_room", "entry": Vector2(192.0, 416.0)},
-			},
-			"l1_vernon_room": {
-				"south": {"room": "l1_upper_hall", "entry": Vector2(192.0, 64.0)},
-			},
-			"l1_hallway": {
-				"west": {"room": "l1_upper_hall", "entry": Vector2(576.0, 320.0)},
-				"east": {"room": "l1_front_hall", "entry": Vector2(64.0, 160.0)},
-			},
-			"l1_front_hall": {
-				"west": {"room": "l1_hallway", "entry": Vector2(576.0, 160.0)},
-				"east": {"room": "l1_garden", "entry": Vector2(64.0, 320.0)},
-			},
-			"l1_garden": {
-				"west": {"room": "l1_front_hall", "entry": Vector2(576.0, 320.0)},
-				"east": {"room": "l1_street", "entry": Vector2(64.0, 160.0)},
-			},
-			"l1_street": {
-				"west": {"room": "l1_garden", "entry": Vector2(576.0, 160.0)},
-			},
-		},
-	},
-}
+## Level metadata loaded at runtime from data/*.json.
+## Each entry maps level_name -> { title, next_level, start_room, start_pos,
+##   rooms: {name -> "res://..." path}, connections: {name -> {dir -> {room, entry}}} }
+var LEVELS: Dictionary = {}
+
+
+func _init() -> void:
+	_load_all_levels()
+
+
+## Populate LEVELS by reading every data/*.json file.
+## Vector2 values are restored from [x, y] arrays stored in JSON.
+func _load_all_levels() -> void:
+	var dir := DirAccess.open("res://data")
+	if dir == null:
+		push_error("main.gd: could not open res://data/")
+		return
+	dir.list_dir_begin()
+	var fname := dir.get_next()
+	while fname != "":
+		if not dir.current_is_dir() and fname.ends_with(".json"):
+			_load_level_file("res://data/" + fname)
+		fname = dir.get_next()
+	dir.list_dir_end()
+
+
+func _load_level_file(path: String) -> void:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		push_error("main.gd: could not open level file: " + path)
+		return
+	var json_text := file.get_as_text()
+	file.close()
+	var parsed: Variant = JSON.parse_string(json_text)
+	if parsed == null or not parsed is Dictionary:
+		push_error("main.gd: failed to parse JSON from: " + path)
+		return
+	var data: Dictionary = parsed as Dictionary
+	# Derive the level key from the filename (e.g. "level_1.json" -> "level_1").
+	var level_name: String = path.get_file().get_basename()
+	# Convert start_pos [x, y] array to Vector2.
+	var sp: Variant = data.get("start_pos", [0.0, 0.0])
+	if sp is Array and (sp as Array).size() >= 2:
+		data["start_pos"] = Vector2(sp[0], sp[1])
+	else:
+		push_error("main.gd: invalid start_pos in: " + path)
+		return
+	# Convert each connection entry [x, y] array to Vector2.
+	for room_conns: Variant in data.get("connections", {}).values():
+		if not room_conns is Dictionary:
+			push_error("main.gd: invalid connections entry in: " + path)
+			return
+		for conn: Variant in (room_conns as Dictionary).values():
+			if not conn is Dictionary:
+				push_error("main.gd: invalid connection data in: " + path)
+				return
+			var e: Variant = (conn as Dictionary).get("entry", [0.0, 0.0])
+			if e is Array and (e as Array).size() >= 2:
+				(conn as Dictionary)["entry"] = Vector2(e[0], e[1])
+			else:
+				push_error("main.gd: invalid entry coords in: " + path)
+				return
+	LEVELS[level_name] = data
 
 var current_level_name: String = ""
 
