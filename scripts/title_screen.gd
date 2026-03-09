@@ -12,13 +12,14 @@ func _ready() -> void:
 	var bg := ColorRect.new()
 	bg.color = Color(0.05, 0.05, 0.15)
 	bg.position = Vector2.ZERO
-	bg.size = Vector2(640, 480)
+	var vp_size: Vector2 = get_viewport_rect().size
+	bg.size = vp_size
 	canvas.add_child(bg)
 
 	var title := Label.new()
 	title.text = "DUDDY QUEST"
 	title.position = Vector2(0, 110)
-	title.size = Vector2(640, 80)
+	title.size = Vector2(vp_size.x, 80)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.set(&"theme_override_font_sizes/font_size", 48)
 	canvas.add_child(title)
@@ -26,14 +27,15 @@ func _ready() -> void:
 	var subtitle := Label.new()
 	subtitle.text = "Dudley's journey to Hogwarts"
 	subtitle.position = Vector2(0, 210)
-	subtitle.size = Vector2(640, 40)
+	subtitle.size = Vector2(vp_size.x, 40)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.set(&"theme_override_font_sizes/font_size", 20)
 	canvas.add_child(subtitle)
 
 	var prompt_container := HBoxContainer.new()
-	prompt_container.position = Vector2(200, 340)
-	prompt_container.size = Vector2(240, 40)
+	# Centre the prompt container (240 px wide) in the viewport.
+	prompt_container.position = Vector2((vp_size.x - 240.0) / 2.0, 340)
+	prompt_container.size = Vector2(240.0, 40)
 	prompt_container.alignment = BoxContainer.ALIGNMENT_CENTER
 	prompt_container.set(&"theme_override_constants/separation", 8)
 	canvas.add_child(prompt_container)
@@ -51,8 +53,8 @@ func _ready() -> void:
 
 	var version_label := Label.new()
 	version_label.text = "v" + GameState.VERSION
-	version_label.position = Vector2(0, 458)
-	version_label.size = Vector2(630, 20)
+	version_label.position = Vector2(0, vp_size.y - 22)
+	version_label.size = Vector2(vp_size.x - 10, 20)
 	version_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	version_label.set(&"theme_override_font_sizes/font_size", 14)
 	canvas.add_child(version_label)

@@ -21,31 +21,34 @@ func _ready() -> void:
 	canvas.layer = 0
 	add_child(canvas)
 
+	var viewport_size: Vector2 = get_viewport_rect().size
+
 	var bg := ColorRect.new()
 	bg.color = Color(0.05, 0.05, 0.15)
 	bg.position = Vector2.ZERO
-	bg.size = Vector2(640, 480)
+	bg.size = viewport_size
 	canvas.add_child(bg)
 
 	var title := Label.new()
 	title.text = "SELECT LEVEL"
 	title.position = Vector2(0, 60)
-	title.size = Vector2(640, 60)
+	title.size = Vector2(viewport_size.x, 60)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.set(&"theme_override_font_sizes/font_size", 36)
 	canvas.add_child(title)
 
 	_list_label = Label.new()
-	_list_label.position = Vector2(200, 170)
-	_list_label.size = Vector2(240, 200)
+	# Centre the list in the viewport (240 px wide, start at (vp_width - 240) / 2).
+	_list_label.position = Vector2((viewport_size.x - 240.0) / 2.0, 170)
+	_list_label.size = Vector2(240.0, 200)
 	_list_label.set(&"theme_override_font_sizes/font_size", 24)
 	canvas.add_child(_list_label)
 	_update_list()
 
 	var hint := Label.new()
 	hint.text = "W / S to navigate     C to select"
-	hint.position = Vector2(0, 430)
-	hint.size = Vector2(640, 40)
+	hint.position = Vector2(0, viewport_size.y - 50)
+	hint.size = Vector2(viewport_size.x, 40)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.set(&"theme_override_font_sizes/font_size", 16)
 	canvas.add_child(hint)

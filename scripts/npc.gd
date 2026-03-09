@@ -127,10 +127,8 @@ const GRID_SIZE: int = GameConfig.GRID_SIZE
 const STUN_DURATION: float = 0.5
 ## Inner and outer bounds for KEEP_DISTANCE mode.
 const KEEP_DIST_MARGIN: float = 50.0
-## Clamp bounds keeping NPCs inside the room walls (640×480 room, 24 px walls,
-## 8 px half-body).  Prevents knockback from pushing enemies through exit gaps.
-const ROOM_BOUNDS_MIN: Vector2 = Vector2(32.0, 32.0)
-const ROOM_BOUNDS_MAX: Vector2 = Vector2(GameConfig.ROOM_WIDTH - 32.0, GameConfig.ROOM_HEIGHT - 32.0)
+## Margin (px) inset from the room rect edges used for wander/knockback clamping.
+const _BOUNDS_MARGIN: float = 32.0
 const FRIENDLY_COLOR: Color = Color(0.2, 0.4, 0.9)
 const HOSTILE_COLOR: Color = Color(0.8, 0.1, 0.1)
 ## Flash color used when any NPC takes damage.
@@ -155,6 +153,11 @@ var _patrol_was_chasing: bool = false
 var _detection_triggered: bool = false
 ## Current facing direction (normalised); used for cone detection and drawing.
 var _facing_dir: Vector2 = Vector2.RIGHT
+## Per-room clamp bounds set by set_room_bounds().  Defaults are permissive
+## so NPCs are not artificially clamped before room_manager calls
+## set_room_bounds(); room collision geometry prevents movement beyond walls.
+var _room_bounds_min: Vector2 = Vector2(_BOUNDS_MARGIN, _BOUNDS_MARGIN)
+var _room_bounds_max: Vector2 = Vector2(1e6 - _BOUNDS_MARGIN, 1e6 - _BOUNDS_MARGIN)
 ## A* pathfinder supplied by the room loader; null when not using A*.
 var _pathfinder = null
 ## Current state-machine state; drives which per-frame handler runs.
@@ -212,10 +215,8 @@ func _physics_process(delta: float) -> void:
 		# slides along walls instead of being pushed into them.
 		_knockback_velocity = velocity
 		if not invincible:
-			global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
+			global_position = global_position.clamp(_room_bounds_min, _room_bounds_max)
 		return
-
-	# Briefly frozen after knockback ends before resuming AI.
 	if _stun_timer > 0.0:
 		if _state != State.STUNNED:
 			transition_to(State.STUNNED)
@@ -246,12 +247,19 @@ func _physics_process(delta: float) -> void:
 	# Prevent knockback from pushing NPCs through exit gaps in the walls.
 	# Invincible NPCs (gate blockers) are exempt so they can sit in exit gaps.
 	if not invincible:
-		global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
+		global_position = global_position.clamp(_room_bounds_min, _room_bounds_max)
 
 
 ## Called by the game controller to give this NPC a reference to the player.
 func set_player_reference(player: Node) -> void:
 	_player_ref = player
+
+
+## Called by the game controller after a room is loaded to set wander/knockback
+## clamp bounds from the room's actual size.
+func set_room_bounds(room_rect: Rect2) -> void:
+	_room_bounds_min = room_rect.position + Vector2(_BOUNDS_MARGIN, _BOUNDS_MARGIN)
+	_room_bounds_max = room_rect.end - Vector2(_BOUNDS_MARGIN, _BOUNDS_MARGIN)
 
 
 ## Called by the game controller to supply an A* pathfinder built for the
