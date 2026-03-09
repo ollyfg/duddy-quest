@@ -1,0 +1,164 @@
+[gd_scene load_steps=9 format=3 uid="uid://l2leakycauldron"]
+
+[ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
+
+[sub_resource type="RectangleShape2D" id="Sh_hwall"]
+size = Vector2(640, 24)
+
+[sub_resource type="RectangleShape2D" id="Sh_fullvwall"]
+size = Vector2(24, 480)
+
+[sub_resource type="RectangleShape2D" id="Sh_vwall_top"]
+size = Vector2(24, 216)
+
+[sub_resource type="RectangleShape2D" id="Sh_vwall_bot"]
+size = Vector2(24, 216)
+
+[sub_resource type="RectangleShape2D" id="Sh_exit"]
+size = Vector2(12, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_bar"]
+size = Vector2(288, 32)
+
+[sub_resource type="RectangleShape2D" id="Sh_table"]
+size = Vector2(64, 64)
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+
+[node name="Floor" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.22, 0.18, 0.12, 1)
+mouse_filter = 2
+
+[node name="TopWall" type="StaticBody2D" parent="."]
+position = Vector2(320, 12)
+
+[node name="Sprite" type="ColorRect" parent="TopWall"]
+offset_left = -320.0
+offset_top = -12.0
+offset_right = 320.0
+offset_bottom = 12.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWall"]
+shape = SubResource("Sh_hwall")
+
+[node name="BottomWall" type="StaticBody2D" parent="."]
+position = Vector2(320, 468)
+
+[node name="Sprite" type="ColorRect" parent="BottomWall"]
+offset_left = -320.0
+offset_top = -12.0
+offset_right = 320.0
+offset_bottom = 12.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWall"]
+shape = SubResource("Sh_hwall")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(12, 240)
+
+[node name="Sprite" type="ColorRect" parent="LeftWall"]
+offset_left = -12.0
+offset_top = -240.0
+offset_right = 12.0
+offset_bottom = 240.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("Sh_fullvwall")
+
+[node name="RightWallTop" type="StaticBody2D" parent="."]
+position = Vector2(628, 108)
+
+[node name="Sprite" type="ColorRect" parent="RightWallTop"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallTop"]
+shape = SubResource("Sh_vwall_top")
+
+[node name="RightWallBottom" type="StaticBody2D" parent="."]
+position = Vector2(628, 372)
+
+[node name="Sprite" type="ColorRect" parent="RightWallBottom"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallBottom"]
+shape = SubResource("Sh_vwall_bot")
+
+[node name="ExitEast" type="Area2D" parent="."]
+position = Vector2(622, 240)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]
+shape = SubResource("Sh_exit")
+
+[node name="Bar" type="StaticBody2D" parent="."]
+position = Vector2(288, 192)
+
+[node name="Sprite" type="ColorRect" parent="Bar"]
+offset_left = -144.0
+offset_top = -16.0
+offset_right = 144.0
+offset_bottom = 16.0
+color = Color(0.35, 0.22, 0.1, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bar"]
+shape = SubResource("Sh_bar")
+
+[node name="Table1" type="StaticBody2D" parent="."]
+position = Vector2(448, 352)
+
+[node name="Sprite" type="ColorRect" parent="Table1"]
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+color = Color(0.3, 0.2, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Table1"]
+shape = SubResource("Sh_table")
+
+[node name="Table2" type="StaticBody2D" parent="."]
+position = Vector2(448, 160)
+
+[node name="Sprite" type="ColorRect" parent="Table2"]
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+color = Color(0.3, 0.2, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Table2"]
+shape = SubResource("Sh_table")
+
+[node name="NPCs" type="Node2D" parent="."]
+
+[node name="Tom" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(288.0, 144.0)
+movement_mode = 1
+npc_name = "Tom"
+dialog_lines = ["Welcome to the Leaky Cauldron, lad!", "Through that wall is Diagon Alley. Best place for school supplies.", "You'll want Gringotts for your money, then the shops."]
+custom_sprite_color = Color(0.85, 0.7, 0.55, 1)

@@ -145,6 +145,8 @@ func load_room(room_name: String, player_pos: Vector2) -> void:
 		_main._play_hallway_intro()
 	elif room_name == "l1_street" and not GameState.has_flag("l1_street_intro_shown"):
 		_main._play_street_intro()
+	elif room_name == "l2_leaky_cauldron" and not GameState.has_flag("l2_leaky_cauldron_intro_shown"):
+		_main._play_leaky_cauldron_intro()
 
 
 ## Snapshot the current room's NPC, item, and switch states before

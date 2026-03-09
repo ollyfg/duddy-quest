@@ -1,0 +1,48 @@
+{
+	"title": "Diagon Alley",
+	"next_level": "",
+	"start_room": "l2_leaky_cauldron",
+	"start_pos": [80.0, 240.0],
+	"rooms": {
+		"l2_leaky_cauldron": "res://scenes/l2_leaky_cauldron.tscn",
+		"l2_diagon_alley_south": "res://scenes/l2_diagon_alley_south.tscn",
+		"l2_diagon_alley_north": "res://scenes/l2_diagon_alley_north.tscn",
+		"l2_gringotts": "res://scenes/l2_gringotts.tscn",
+		"l2_madam_malkins": "res://scenes/l2_madam_malkins.tscn",
+		"l2_ollivanders": "res://scenes/l2_ollivanders.tscn",
+		"l2_menagerie": "res://scenes/l2_menagerie.tscn",
+		"l2_alley_end": "res://scenes/l2_alley_end.tscn"
+	},
+	"connections": {
+		"l2_leaky_cauldron": {
+			"east": {"room": "l2_diagon_alley_south", "entry": [64.0, 240.0]}
+		},
+		"l2_diagon_alley_south": {
+			"west": {"room": "l2_leaky_cauldron", "entry": [576.0, 240.0]},
+			"east": {"room": "l2_gringotts", "entry": [64.0, 240.0]},
+			"north": {"room": "l2_diagon_alley_north", "entry": [320.0, 416.0]},
+			"south": {"room": "l2_menagerie", "entry": [320.0, 64.0]}
+		},
+		"l2_diagon_alley_north": {
+			"south": {"room": "l2_diagon_alley_south", "entry": [320.0, 64.0]},
+			"west": {"room": "l2_madam_malkins", "entry": [576.0, 240.0]},
+			"east": {"room": "l2_ollivanders", "entry": [64.0, 240.0]},
+			"north": {"room": "l2_alley_end", "entry": [320.0, 416.0]}
+		},
+		"l2_gringotts": {
+			"west": {"room": "l2_diagon_alley_south", "entry": [576.0, 240.0]}
+		},
+		"l2_madam_malkins": {
+			"east": {"room": "l2_diagon_alley_north", "entry": [64.0, 240.0]}
+		},
+		"l2_ollivanders": {
+			"west": {"room": "l2_diagon_alley_north", "entry": [576.0, 240.0]}
+		},
+		"l2_menagerie": {
+			"north": {"room": "l2_diagon_alley_south", "entry": [320.0, 416.0]}
+		},
+		"l2_alley_end": {
+			"south": {"room": "l2_diagon_alley_north", "entry": [320.0, 64.0]}
+		}
+	}
+}
