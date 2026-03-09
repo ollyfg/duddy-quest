@@ -1,6 +1,7 @@
 extends GutTest
 
 const MainScript = preload("res://scripts/main.gd")
+const RoomManagerScript = preload("res://scripts/room_manager.gd")
 const LevelEndTriggerScene = preload("res://scenes/level_end_trigger.tscn")
 const MagicDoorScene = preload("res://scenes/magic_door.tscn")
 
@@ -40,19 +41,19 @@ func test_level_end_trigger_detects_player_layer() -> void:
 
 
 func test_magic_door_open_state_is_restored_with_room_state() -> void:
-	var main := MainScript.new()
-	main.current_room_name = "l1_bedroom"
+	var rm := RoomManagerScript.new()
+	rm.current_room_name = "l1_bedroom"
 	var first_room := _make_room_with_magic_door(true)
-	main.current_room = first_room
-	main._save_room_state()
+	rm.current_room = first_room
+	rm._save_room_state()
 
 	var second_room := _make_room_with_magic_door(false)
-	main.current_room = second_room
-	var restored_door: Node2D = main.current_room.get_node("MagicDoor")
+	rm.current_room = second_room
+	var restored_door: Node2D = rm.current_room.get_node("MagicDoor")
 	assert_true(restored_door.visible, "fresh room instance should start with a visible magic door")
 
-	main._restore_room_state("l1_bedroom")
+	rm._restore_room_state("l1_bedroom")
 	assert_false(restored_door.visible, "restored room should preserve opened/destroyed magic door state")
 	first_room.free()
 	second_room.free()
-	main.free()
+	rm.free()
