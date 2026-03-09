@@ -28,6 +28,11 @@ func _ready() -> void:
 		_room_width = vp_size.x
 		_room_height = vp_size.y
 
+
+## Initialise velocity and begin flying.  Call this when the letter should
+## first become active (e.g. when it is made visible by the container).
+## Until this is called the letter stays motionless at its spawn position.
+func start_flying() -> void:
 	var angle: float
 	if spawn_velocity_angle >= 0.0:
 		# Normal to the spawn wall plus a small random variation (±0.25 rad ≈ ±14.3°).
