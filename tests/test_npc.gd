@@ -191,3 +191,95 @@ func test_set_pathfinder_accepts_null() -> void:
 	assert_eq(_npc._pathfinder, null,
 		"set_pathfinder(null) should clear the stored pathfinder reference")
 
+
+# ---------------------------------------------------------------------------
+# State machine — initial state
+# ---------------------------------------------------------------------------
+
+func test_hostile_default_initial_state_is_chase() -> void:
+	var npc := _make_npc(true)
+	assert_eq(npc._state, npc.State.CHASE,
+		"Hostile NPC with DEFAULT movement mode should start in CHASE state")
+
+
+func test_friendly_default_initial_state_is_wander() -> void:
+	var npc := _make_npc(false)
+	assert_eq(npc._state, npc.State.WANDER,
+		"Friendly NPC with DEFAULT movement mode should start in WANDER state")
+
+
+func test_patrol_movement_mode_initial_state_is_patrol() -> void:
+	var npc: CharacterBody2D = NpcScene.instantiate()
+	npc.movement_mode = npc.MovementMode.PATROL
+	add_child_autoqfree(npc)
+	assert_eq(npc._state, npc.State.PATROL,
+		"NPC with PATROL movement mode should start in PATROL state")
+
+
+func test_stationary_movement_mode_initial_state_is_idle() -> void:
+	var npc: CharacterBody2D = NpcScene.instantiate()
+	npc.movement_mode = npc.MovementMode.STATIONARY
+	add_child_autoqfree(npc)
+	assert_eq(npc._state, npc.State.IDLE,
+		"NPC with STATIONARY movement mode should start in IDLE state")
+
+
+# ---------------------------------------------------------------------------
+# State machine — transition_to
+# ---------------------------------------------------------------------------
+
+func test_transition_to_changes_state() -> void:
+	_npc.transition_to(_npc.State.WANDER)
+	assert_eq(_npc._state, _npc.State.WANDER,
+		"transition_to(WANDER) should set _state to WANDER")
+
+
+func test_transition_to_stunned_sets_stunned_state() -> void:
+	_npc.transition_to(_npc.State.STUNNED)
+	assert_eq(_npc._state, _npc.State.STUNNED,
+		"transition_to(STUNNED) should set _state to STUNNED")
+
+
+func test_stun_enter_state_via_physics_process() -> void:
+	# After apply_knockback + draining the velocity, a single physics tick
+	# while _stun_timer > 0 should transition the NPC to STUNNED state.
+	_npc.apply_knockback(Vector2.RIGHT)
+	_npc._knockback_velocity = Vector2.ZERO  # drain knockback, keep stun
+	_npc._physics_process(0.016)
+	assert_eq(_npc._state, _npc.State.STUNNED,
+		"NPC should be in STUNNED state while _stun_timer > 0 after knockback")
+
+
+func test_reset_patrol_sets_patrol_state() -> void:
+	_npc.movement_mode = _npc.MovementMode.PATROL
+	_npc._state = _npc.State.CHASE
+	_npc.reset_patrol()
+	assert_eq(_npc._state, _npc.State.PATROL,
+		"reset_patrol should set _state to PATROL")
+
+
+# ---------------------------------------------------------------------------
+# State machine — enter/exit hooks (_patrol_was_chasing)
+# ---------------------------------------------------------------------------
+
+func test_enter_chase_from_patrol_sets_was_chasing() -> void:
+	var npc: CharacterBody2D = NpcScene.instantiate()
+	npc.movement_mode = npc.MovementMode.PATROL
+	npc.is_hostile = true
+	add_child_autoqfree(npc)
+	npc._patrol_was_chasing = false
+	npc._enter_state(npc.State.CHASE, npc.State.PATROL)
+	assert_true(npc._patrol_was_chasing,
+		"_enter_state(CHASE) from PATROL should set _patrol_was_chasing")
+
+
+func test_enter_patrol_from_chase_clears_was_chasing() -> void:
+	var npc: CharacterBody2D = NpcScene.instantiate()
+	npc.movement_mode = npc.MovementMode.PATROL
+	add_child_autoqfree(npc)
+	npc._patrol_was_chasing = true
+	npc._enter_state(npc.State.PATROL, npc.State.CHASE)
+	assert_false(npc._patrol_was_chasing,
+		"_enter_state(PATROL) from CHASE should clear _patrol_was_chasing")
+
+
