@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://l2alleyend"]
+[gd_scene load_steps=7 format=3 uid="uid://l2alleyend"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall_half"]
 size = Vector2(296, 24)
@@ -103,3 +104,64 @@ collision_mask = 2
 shape = SubResource("Sh_exit_ns")
 
 [node name="NPCs" type="Node2D" parent="."]
+
+[node name="TutorialWizard" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(96.0, 240.0)
+movement_mode = 1
+npc_name = "Wizard"
+dialog_lines = ["Cornish Pixies! Use your wand — press V to fire!", "Aim at the blue ones. One shot should do it!", "Good luck!"]
+
+[node name="AlleyPixie1" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(256.0, 144.0)
+is_hostile = true
+movement_mode = 3
+move_speed = 120.0
+max_hp = 1
+custom_sprite_color = Color(0.4, 0.3, 0.8, 1)
+scale = Vector2(0.6, 0.6)
+chase_random_offset = 24.0
+npc_name = "Cornish Pixie"
+
+[node name="AlleyPixie2" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(400.0, 192.0)
+is_hostile = true
+movement_mode = 3
+move_speed = 120.0
+max_hp = 1
+custom_sprite_color = Color(0.4, 0.3, 0.8, 1)
+scale = Vector2(0.6, 0.6)
+chase_random_offset = 24.0
+npc_name = "Cornish Pixie"
+
+[node name="AlleyPixie3" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(320.0, 288.0)
+is_hostile = true
+movement_mode = 3
+move_speed = 120.0
+max_hp = 1
+custom_sprite_color = Color(0.4, 0.3, 0.8, 1)
+scale = Vector2(0.6, 0.6)
+chase_random_offset = 24.0
+npc_name = "Cornish Pixie"
+
+[node name="AlleyPixie4" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(480.0, 336.0)
+is_hostile = true
+movement_mode = 3
+move_speed = 120.0
+max_hp = 1
+custom_sprite_color = Color(0.4, 0.3, 0.8, 1)
+scale = Vector2(0.6, 0.6)
+chase_random_offset = 24.0
+npc_name = "Cornish Pixie"
+
+[node name="AlleyPixie5" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(368.0, 400.0)
+is_hostile = true
+movement_mode = 3
+move_speed = 120.0
+max_hp = 1
+custom_sprite_color = Color(0.4, 0.3, 0.8, 1)
+scale = Vector2(0.6, 0.6)
+chase_random_offset = 24.0
+npc_name = "Cornish Pixie"

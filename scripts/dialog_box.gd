@@ -3,6 +3,10 @@ extends CanvasLayer
 signal dialog_ended
 signal choice_made(outcome: String)
 signal choice_correct
+## Emitted when a dialog option requests setting a GameState flag.
+signal set_flag_requested(flag_name: String)
+## Emitted when a dialog option requests removing a key from player inventory.
+signal remove_key_requested(key_id: String)
 
 const MAX_DIALOG_OPTIONS: int = 4
 
@@ -118,6 +122,17 @@ func _on_option_selected(index: int) -> void:
 	choice_made.emit(outcome)
 	if chosen.get("correct", false):
 		choice_correct.emit()
+	# Emit flag-setting requests embedded in the option dict.
+	var single_flag: String = chosen.get("flag", "")
+	if single_flag != "":
+		set_flag_requested.emit(single_flag)
+	for f: Variant in (chosen.get("flags", []) as Array):
+		if f is String and (f as String) != "":
+			set_flag_requested.emit(f as String)
+	# Emit a key-removal request if the option carries a "remove_key" field.
+	var remove_key: String = chosen.get("remove_key", "")
+	if remove_key != "":
+		remove_key_requested.emit(remove_key)
 	_showing_options = false
 	_clear_options()
 	options_container.visible = false

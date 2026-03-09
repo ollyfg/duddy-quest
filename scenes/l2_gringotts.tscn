@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://l2gringotts"]
+[gd_scene load_steps=8 format=3 uid="uid://l2gringotts"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall"]
 size = Vector2(640, 24)
@@ -16,6 +17,12 @@ size = Vector2(24, 216)
 
 [sub_resource type="RectangleShape2D" id="Sh_exit"]
 size = Vector2(12, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_counter"]
+size = Vector2(368, 16)
+
+[sub_resource type="RectangleShape2D" id="Sh_column"]
+size = Vector2(32, 32)
 
 [node name="Room" type="Node2D"]
 script = ExtResource("1_room")
@@ -106,3 +113,54 @@ collision_mask = 2
 shape = SubResource("Sh_exit")
 
 [node name="NPCs" type="Node2D" parent="."]
+
+[node name="Counter" type="StaticBody2D" parent="."]
+position = Vector2(368, 192)
+
+[node name="Sprite" type="ColorRect" parent="Counter"]
+offset_left = -184.0
+offset_top = -8.0
+offset_right = 184.0
+offset_bottom = 8.0
+color = Color(0.45, 0.35, 0.2, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Counter"]
+shape = SubResource("Sh_counter")
+
+[node name="Column1" type="StaticBody2D" parent="."]
+position = Vector2(208, 272)
+
+[node name="Sprite" type="ColorRect" parent="Column1"]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.8, 0.78, 0.7, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Column1"]
+shape = SubResource("Sh_column")
+
+[node name="Column2" type="StaticBody2D" parent="."]
+position = Vector2(432, 272)
+
+[node name="Sprite" type="ColorRect" parent="Column2"]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.8, 0.78, 0.7, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Column2"]
+shape = SubResource("Sh_column")
+
+[node name="GoblinClerk" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(368.0, 144.0)
+movement_mode = 1
+npc_name = "Goblin Clerk"
+custom_sprite_color = Color(0.4, 0.65, 0.3, 1)
+requires_flag = "l2_has_wizard_money"
+pre_flag_dialog = ["Exchange? Certainly. The rate is 3 Galleons per pound.", {"text": "How many pounds would you like to exchange?", "options": [{"label": "That seems fair.", "next": ["Excellent choice. I will process that immediately.", "That will be... all of it. Here is your one Galleon.", "(The Goblin takes all your Muggle money.)", "Come back if you change your mind. The rate is always 3 Galleons per pound."]}, {"label": "That can't be right.", "flag": "l2_goblin_challenged", "next": ["The rate board? It is... being cleaned.", "Fine. The ACTUAL rate is 17 pounds to the Galleon.", "Processing fee of... let me find the schedule...", {"text": "I seem to have misplaced the fee schedule...", "options": [{"label": "I can see it right there.", "flags": ["l2_goblin_caught", "l2_has_wizard_money"], "next": ["...Very well. Standard rate. No extras.", "Here is your wizard money. Good day."]}, {"label": "Take your time.", "next": ["How very kind. The fee comes to... most of it.", "(The Goblin pockets a large portion of your money.)", "Come back if you would like to try again."]}]}]}]}]
+dialog_lines = ["Is there anything else?"]
