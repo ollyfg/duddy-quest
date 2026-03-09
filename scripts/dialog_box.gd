@@ -126,9 +126,10 @@ func _on_option_selected(index: int) -> void:
 	var single_flag: String = chosen.get("flag", "")
 	if single_flag != "":
 		set_flag_requested.emit(single_flag)
-	for f: Variant in (chosen.get("flags", []) as Array):
-		if f is String and (f as String) != "":
-			set_flag_requested.emit(f as String)
+	for f in chosen.get("flags", []):
+		var flag_str: String = str(f)
+		if not flag_str.is_empty():
+			set_flag_requested.emit(flag_str)
 	# Emit a key-removal request if the option carries a "remove_key" field.
 	var remove_key: String = chosen.get("remove_key", "")
 	if remove_key != "":
