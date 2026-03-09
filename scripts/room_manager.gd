@@ -22,6 +22,15 @@ var _main: Node
 
 const _PATHFINDER_SCRIPT: Script = preload("res://scripts/pathfinder.gd")
 
+## Duration (seconds) of each slide phase (out and in) during a room transition.
+const TRANSITION_DURATION: float = 0.4
+## Slide distance for east/west exits: half the standard room width (512 px) at
+## the default 2× zoom gives exactly one viewport-width of travel (256 world
+## units → 512 screen pixels at zoom=2).  Adjust if room sizes change.
+const TRANSITION_SLIDE_H: float = 256.0
+## Slide distance for north/south exits: half the standard room height (384 px).
+const TRANSITION_SLIDE_V: float = 192.0
+
 
 func setup(player, room_holder: Node2D, main: Node) -> void:
 	_player = player
@@ -237,7 +246,85 @@ func _on_exit_triggered(direction: String) -> void:
 	if direction not in connections:
 		return
 	var next: Dictionary = connections[direction]
-	load_room(next["room"], next["entry"])
+	_start_room_transition(direction, next["room"], next["entry"])
+
+
+## Camera slide transition: freeze everything, slide the camera toward the exit,
+## load the new room, then slide the camera in from the opposite direction.
+func _start_room_transition(direction: String, room_name: String, player_pos: Vector2) -> void:
+	_room_loading = true
+	_player.cinematic_mode = true
+	_player.cancel_movement()
+
+	# Pause all NPCs in the outgoing room during the slide so they do not
+	# wander while the camera is animating.  They will be freed when the old
+	# room is queue_free()'d inside load_room(), so no explicit unpause is
+	# needed.
+	if current_room != null:
+		for npc in current_room.get_npcs():
+			if not npc.is_queued_for_deletion():
+				npc.is_paused = true
+
+	var cam: Camera2D = _player.get_node_or_null("Camera2D") as Camera2D
+	var slide_vec: Vector2 = _get_transition_vector(direction)
+
+	# Phase 1 — slide the camera toward the exit.
+	if cam != null:
+		cam.position_smoothing_enabled = false
+		cam.limit_left = -GameConfig.UNLIMITED_CAMERA_LIMIT
+		cam.limit_top = -GameConfig.UNLIMITED_CAMERA_LIMIT
+		cam.limit_right = GameConfig.UNLIMITED_CAMERA_LIMIT
+		cam.limit_bottom = GameConfig.UNLIMITED_CAMERA_LIMIT
+		var tween_out: Tween = cam.create_tween()
+		tween_out.tween_property(cam, "offset", slide_vec, TRANSITION_DURATION) \
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		await tween_out.finished
+
+	# Load the new room (saves old state, frees old room, teleports player,
+	# instantiates new room).  load_room sets _room_loading = false at its end.
+	await load_room(room_name, player_pos)
+
+	# Re-acquire the transition lock for the slide-in phase.  load_room()
+	# releases it at its end; we grab it again to prevent the player from
+	# triggering a second exit before the camera has finished settling.
+	_room_loading = true
+
+	# If a first-visit intro cinematic started during load_room it will manage
+	# the camera (pan_camera / reset_camera) and cinematic_mode itself; exit
+	# early and let it take over.
+	if _main.is_cinematic_playing():
+		_room_loading = false
+		return
+
+	# Phase 3 — slide the camera in from the opposite direction.
+	if cam != null:
+		cam.position_smoothing_enabled = false
+		cam.limit_left = -GameConfig.UNLIMITED_CAMERA_LIMIT
+		cam.limit_top = -GameConfig.UNLIMITED_CAMERA_LIMIT
+		cam.limit_right = GameConfig.UNLIMITED_CAMERA_LIMIT
+		cam.limit_bottom = GameConfig.UNLIMITED_CAMERA_LIMIT
+		cam.offset = -slide_vec
+		var tween_in: Tween = cam.create_tween()
+		tween_in.tween_property(cam, "offset", Vector2.ZERO, TRANSITION_DURATION) \
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		await tween_in.finished
+		cam.position_smoothing_enabled = true
+		_player.set_camera_limits(current_room.get_room_rect())
+
+	_room_loading = false
+	_player.cinematic_mode = false
+
+
+## Returns the camera offset vector used for the slide-out and slide-in phases.
+## Slides by one viewport-width (H) or viewport-height (V) in world units so the
+## old room fully leaves the screen before the new one arrives.
+func _get_transition_vector(direction: String) -> Vector2:
+	match direction:
+		"east":  return Vector2(TRANSITION_SLIDE_H, 0.0)
+		"west":  return Vector2(-TRANSITION_SLIDE_H, 0.0)
+		"south": return Vector2(0.0, TRANSITION_SLIDE_V)
+		"north": return Vector2(0.0, -TRANSITION_SLIDE_V)
+	return Vector2.ZERO
 
 
 ## Builds an A* pathfinder for the current room if any NPC in it has
