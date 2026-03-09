@@ -108,10 +108,10 @@ signal player_detected(dialog: String)
 ## Emitted each time this hostile NPC's HitArea contacts the player.
 signal player_hit
 
-const KNOCKBACK_SPEED: float = 400.0
+const KNOCKBACK_SPEED: float = GameConfig.NPC_KNOCKBACK_SPEED
 const KNOCKBACK_THRESHOLD: float = 5.0
-const KNOCKBACK_DECAY_MULTIPLIER: float = 6.0
-const GRID_SIZE: int = 16
+const KNOCKBACK_DECAY_MULTIPLIER: float = GameConfig.KNOCKBACK_DECAY_MULTIPLIER
+const GRID_SIZE: int = GameConfig.GRID_SIZE
 ## How long the enemy freezes after being knocked back before resuming AI.
 const STUN_DURATION: float = 0.5
 ## Inner and outer bounds for KEEP_DISTANCE mode.
@@ -119,7 +119,7 @@ const KEEP_DIST_MARGIN: float = 50.0
 ## Clamp bounds keeping NPCs inside the room walls (640×480 room, 24 px walls,
 ## 8 px half-body).  Prevents knockback from pushing enemies through exit gaps.
 const ROOM_BOUNDS_MIN: Vector2 = Vector2(32.0, 32.0)
-const ROOM_BOUNDS_MAX: Vector2 = Vector2(608.0, 448.0)
+const ROOM_BOUNDS_MAX: Vector2 = Vector2(GameConfig.ROOM_WIDTH - 32.0, GameConfig.ROOM_HEIGHT - 32.0)
 const FRIENDLY_COLOR: Color = Color(0.2, 0.4, 0.9)
 const HOSTILE_COLOR: Color = Color(0.8, 0.1, 0.1)
 ## Flash color used when any NPC takes damage.
@@ -127,7 +127,7 @@ const DAMAGE_FLASH_COLOR: Color = Color(1.0, 0.3, 0.3)
 ## Fill colour for the visible detection cone overlay.
 const CONE_COLOR: Color = Color(1.0, 1.0, 0.0, 0.25)
 ## Proximity threshold (px) for considering a patrol waypoint reached.
-const PATROL_ARRIVAL_THRESHOLD: float = 8.0
+const PATROL_ARRIVAL_THRESHOLD: float = GameConfig.PATROL_ARRIVAL_THRESHOLD
 var hp: int
 var is_paused: bool = false
 var _wander_timer: float = 0.0
@@ -321,13 +321,13 @@ func _wander(delta: float) -> void:
 	_wander_timer -= delta
 	if _wander_timer <= 0.0:
 		_wander_timer = randf_range(1.5, 3.5)
-		if randf() < 0.6:
+		if randf() < GameConfig.WANDER_PROBABILITY:
 			# Only move in one cardinal direction at a time (no diagonal wander).
 			var dirs: Array[Vector2] = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
 			_wander_dir = dirs[randi() % dirs.size()]
 		else:
 			_wander_dir = Vector2.ZERO
-	velocity = _wander_dir * (move_speed * 0.5)
+	velocity = _wander_dir * (move_speed * GameConfig.WANDER_SPEED_FACTOR)
 
 
 ## Tries to stay at roughly keep_distance_preferred pixels from the player

@@ -4,7 +4,7 @@ signal sequence_finished
 
 const NavigationUtils = preload("res://scripts/navigation_utils.gd")
 ## Large limit value used to allow free camera movement during pan steps.
-const UNLIMITED_CAMERA_LIMIT: int = 100000
+const UNLIMITED_CAMERA_LIMIT: int = GameConfig.UNLIMITED_CAMERA_LIMIT
 
 var _room: Node = null
 var _player: Node = null
