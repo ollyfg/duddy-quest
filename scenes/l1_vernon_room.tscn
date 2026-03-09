@@ -12,11 +12,11 @@ size = Vector2(168, 24)
 [sub_resource type="RectangleShape2D" id="Sh_hwall_right"]
 size = Vector2(424, 24)
 
-[sub_resource type="RectangleShape2D" id="Sh_fullvwall"]
-size = Vector2(24, 480)
-
 [sub_resource type="RectangleShape2D" id="Sh_exit_ns"]
 size = Vector2(48, 12)
+
+[sub_resource type="RectangleShape2D" id="Sh_fullvwall"]
+size = Vector2(24, 448)
 
 [sub_resource type="RectangleShape2D" id="Sh_bed"]
 size = Vector2(192, 96)
@@ -29,12 +29,13 @@ size = Vector2(80, 32)
 
 [node name="Room" type="Node2D"]
 script = ExtResource("1_room")
+room_size = Vector2(640, 448)
 
 [node name="Floor" type="ColorRect" parent="."]
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 640.0
-offset_bottom = 480.0
+offset_bottom = 448.0
 color = Color(0.88, 0.82, 0.72, 1)
 mouse_filter = 2
 
@@ -53,7 +54,7 @@ mouse_filter = 2
 shape = SubResource("Sh_hwall_full")
 
 [node name="BottomWallLeft" type="StaticBody2D" parent="."]
-position = Vector2(84, 468)
+position = Vector2(84, 436)
 
 [node name="Sprite" type="ColorRect" parent="BottomWallLeft"]
 offset_left = -84.0
@@ -67,7 +68,7 @@ mouse_filter = 2
 shape = SubResource("Sh_hwall_left")
 
 [node name="BottomWallRight" type="StaticBody2D" parent="."]
-position = Vector2(428, 468)
+position = Vector2(428, 436)
 
 [node name="Sprite" type="ColorRect" parent="BottomWallRight"]
 offset_left = -212.0
@@ -81,20 +82,20 @@ mouse_filter = 2
 shape = SubResource("Sh_hwall_right")
 
 [node name="ExitSouth" type="Area2D" parent="."]
-position = Vector2(192, 474)
+position = Vector2(192, 442)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitSouth"]
 shape = SubResource("Sh_exit_ns")
 
 [node name="LeftWall" type="StaticBody2D" parent="."]
-position = Vector2(12, 240)
+position = Vector2(12, 224)
 
 [node name="Sprite" type="ColorRect" parent="LeftWall"]
 offset_left = -12.0
-offset_top = -240.0
+offset_top = -224.0
 offset_right = 12.0
-offset_bottom = 240.0
+offset_bottom = 224.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -102,13 +103,13 @@ mouse_filter = 2
 shape = SubResource("Sh_fullvwall")
 
 [node name="RightWall" type="StaticBody2D" parent="."]
-position = Vector2(628, 240)
+position = Vector2(628, 224)
 
 [node name="Sprite" type="ColorRect" parent="RightWall"]
 offset_left = -12.0
-offset_top = -240.0
+offset_top = -224.0
 offset_right = 12.0
-offset_bottom = 240.0
+offset_bottom = 224.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -160,7 +161,7 @@ shape = SubResource("Sh_dresser")
 [node name="NPCs" type="Node2D" parent="."]
 
 [node name="VernonNote" parent="NPCs" instance=ExtResource("2_npc")]
-position = Vector2(320.0, 320.0)
+position = Vector2(320.0, 288.0)
 movement_mode = 1
 dialog_lines = ["This is Mum and Dad's room. Best not linger.", "Nothing useful here — I should get moving."]
 npc_name = "Dudley's Thoughts"

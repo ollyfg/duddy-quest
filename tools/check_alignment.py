@@ -67,7 +67,7 @@ EXEMPT_TYPES = {"CollisionShape2D", "ColorRect"}
 
 # A shape whose width *or* height equals the full room dimension is a wall
 # shape and is exempt from size checks.
-ROOM_DIMENSIONS = {640, 480}
+ROOM_DIMENSIONS = {208, 272, 368, 384, 432, 448, 480, 512, 640, 960}
 
 # ---------------------------------------------------------------------------
 # Parsing helpers

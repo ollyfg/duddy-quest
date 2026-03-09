@@ -2,7 +2,10 @@
 	"title": "A Perfectly Normal Catastrophe",
 	"next_level": "",
 	"start_room": "l1_bedroom",
-	"start_pos": [80.0, 240.0],
+	"start_pos": [
+		80.0,
+		192.0
+	],
 	"rooms": {
 		"l1_bedroom": "res://scenes/l1_bedroom.tscn",
 		"l1_dining_room": "res://scenes/l1_dining_room.tscn",
@@ -15,30 +18,102 @@
 	},
 	"connections": {
 		"l1_bedroom": {
-			"east": {"room": "l1_upper_hall", "entry": [64.0, 160.0]}
+			"east": {
+				"room": "l1_upper_hall",
+				"entry": [
+					64.0,
+					136.0
+				]
+			}
 		},
 		"l1_upper_hall": {
-			"west": {"room": "l1_bedroom", "entry": [576.0, 160.0]},
-			"east": {"room": "l1_hallway", "entry": [64.0, 320.0]},
-			"north": {"room": "l1_vernon_room", "entry": [192.0, 416.0]}
+			"west": {
+				"room": "l1_bedroom",
+				"entry": [
+					448.0,
+					192.0
+				]
+			},
+			"east": {
+				"room": "l1_hallway",
+				"entry": [
+					64.0,
+					104.0
+				]
+			},
+			"north": {
+				"room": "l1_vernon_room",
+				"entry": [
+					192.0,
+					384.0
+				]
+			}
 		},
 		"l1_vernon_room": {
-			"south": {"room": "l1_upper_hall", "entry": [192.0, 64.0]}
+			"south": {
+				"room": "l1_upper_hall",
+				"entry": [
+					192.0,
+					48.0
+				]
+			}
 		},
 		"l1_hallway": {
-			"west": {"room": "l1_upper_hall", "entry": [576.0, 320.0]},
-			"east": {"room": "l1_front_hall", "entry": [64.0, 160.0]}
+			"west": {
+				"room": "l1_upper_hall",
+				"entry": [
+					896.0,
+					136.0
+				]
+			},
+			"east": {
+				"room": "l1_front_hall",
+				"entry": [
+					64.0,
+					184.0
+				]
+			}
 		},
 		"l1_front_hall": {
-			"west": {"room": "l1_hallway", "entry": [576.0, 160.0]},
-			"east": {"room": "l1_garden", "entry": [64.0, 320.0]}
+			"west": {
+				"room": "l1_hallway",
+				"entry": [
+					896.0,
+					104.0
+				]
+			},
+			"east": {
+				"room": "l1_garden",
+				"entry": [
+					64.0,
+					320.0
+				]
+			}
 		},
 		"l1_garden": {
-			"west": {"room": "l1_front_hall", "entry": [576.0, 320.0]},
-			"east": {"room": "l1_street", "entry": [64.0, 160.0]}
+			"west": {
+				"room": "l1_front_hall",
+				"entry": [
+					448.0,
+					184.0
+				]
+			},
+			"east": {
+				"room": "l1_street",
+				"entry": [
+					64.0,
+					216.0
+				]
+			}
 		},
 		"l1_street": {
-			"west": {"room": "l1_garden", "entry": [576.0, 160.0]}
+			"west": {
+				"room": "l1_garden",
+				"entry": [
+					896.0,
+					320.0
+				]
+			}
 		}
 	}
 }
