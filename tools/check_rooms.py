@@ -96,7 +96,13 @@ def parse_room_connections(data_dir):
 
 
 def parse_room_size(tscn_path):
-    """Parse the room_size export from the Room node in a .tscn file."""
+    """Parse the room_size export from the Room node in a .tscn file.
+
+    Returns a (width, height) tuple of floats.  If the file cannot be read or
+    does not contain a ``room_size = Vector2(w, h)`` line the function falls
+    back to (ROOM_WIDTH, ROOM_HEIGHT) so that existing rooms without an
+    explicit export are treated as the legacy 640×480 default.
+    """
     try:
         with open(tscn_path) as f:
             content = f.read()
