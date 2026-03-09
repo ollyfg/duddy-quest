@@ -80,6 +80,11 @@ enum State { IDLE, WANDER, PATROL, CHASE, KEEP_DISTANCE, STUNNED }
 ## to the room bounds (allows gate NPCs to sit in exit gaps).
 @export var invincible: bool = false
 
+## Optional colour override for the NPC sprite.  When alpha > 0 this colour
+## replaces the default friendly (blue) or hostile (red) sprite colour.
+## Useful for giving special NPCs like readable items a distinct appearance.
+@export var custom_sprite_color: Color = Color(0, 0, 0, 0)
+
 ## If non-empty, give this key id to the player after dialog and then
 ## remove the NPC.  Only activates once gives_key_flag (if set) is true.
 @export var gives_key_id: String = ""
@@ -178,6 +183,8 @@ func _ready() -> void:
 	else:
 		add_to_group("npc")
 		sprite.color = Color(0.2, 0.4, 0.9)
+	if custom_sprite_color.a > 0.0:
+		sprite.color = custom_sprite_color
 	if cinematic_kick_back:
 		add_to_group("cinematic_kick_back")
 	$HitArea.body_entered.connect(_on_hit_area_body_entered)

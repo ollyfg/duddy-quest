@@ -51,6 +51,12 @@ func _start_level_1_intro() -> void:
 			"'D. DURSLEY (THE LARGER ONE).'",
 			"That's ME. Hogwarts wants ME.",
 		]},
+		{"type": "dialog", "speaker": "", "lines": [
+			"*you hurridly stuff the letter into your pocket*",
+		]},
+		{"type": "dialog", "speaker": "Vernon", "lines": [
+			"That's IT! Harry, cupboard, NOW. Dudley, go to your room.",
+		]},
 		{"type": "wait", "duration": 0.5},
 	], func():
 		_main.room_manager.load_room(_main.LEVELS["level_1"]["start_room"], _main.LEVELS["level_1"]["start_pos"])
