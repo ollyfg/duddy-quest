@@ -151,7 +151,7 @@ func play_cutscene(slides: Array, on_finish: Callable) -> void:
 
 ## First-time intro for the hallway.
 func play_hallway_intro() -> void:
-	GameState.l1_hallway_intro_shown = true
+	GameState.set_flag("l1_hallway_intro_shown")
 	_set_dialog_active.call(true)
 	play_cinematic([
 		{"type": "pan_camera", "to": Vector2(320.0, 240.0), "duration": 1.2},
@@ -166,7 +166,7 @@ func play_hallway_intro() -> void:
 
 ## First-time intro for the street.
 func play_street_intro() -> void:
-	GameState.l1_street_intro_shown = true
+	GameState.set_flag("l1_street_intro_shown")
 	_set_dialog_active.call(true)
 	play_cinematic([
 		{"type": "pan_camera", "to": Vector2(416.0, 256.0), "duration": 1.2},

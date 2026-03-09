@@ -96,6 +96,50 @@ func test_apply_knockback_sets_stun_timer() -> void:
 		"A knocked-back NPC should be stunned for a short period")
 
 
+func test_apply_knockback_sets_knockback_active_flag() -> void:
+	_npc.apply_knockback(Vector2.RIGHT)
+	assert_true(_npc._knockback_active,
+		"apply_knockback should set _knockback_active to true")
+
+
+func test_npc_snaps_to_grid_after_knockback() -> void:
+	# Position the NPC off-grid (e.g. 7 px offset inside a cell).
+	_npc.global_position = Vector2(39.0, 55.0)
+	_npc.apply_knockback(Vector2.RIGHT)
+	# Drain the knockback velocity to zero so the snap fires.
+	_npc._knockback_velocity = Vector2.ZERO
+	# A single physics tick should trigger the end-of-knockback snap.
+	_npc._physics_process(0.016)
+	var gp: Vector2 = _npc.global_position
+	assert_eq(fmod(gp.x, 16.0), 0.0,
+		"NPC x position should be snapped to 16-px grid after knockback")
+	assert_eq(fmod(gp.y, 16.0), 0.0,
+		"NPC y position should be snapped to 16-px grid after knockback")
+
+
+func test_npc_snaps_to_grid_even_when_stationary() -> void:
+	# STATIONARY NPCs never move, so they must snap immediately after knockback.
+	_npc.movement_mode = _npc.MovementMode.STATIONARY
+	_npc.global_position = Vector2(25.0, 41.0)
+	_npc.apply_knockback(Vector2.DOWN)
+	_npc._knockback_velocity = Vector2.ZERO
+	_npc._physics_process(0.016)
+	var gp: Vector2 = _npc.global_position
+	assert_eq(fmod(gp.x, 16.0), 0.0,
+		"Stationary NPC x should be on-grid after knockback")
+	assert_eq(fmod(gp.y, 16.0), 0.0,
+		"Stationary NPC y should be on-grid after knockback")
+
+
+func test_invincible_npc_not_snapped_after_zero_velocity() -> void:
+	# Invincible NPCs bypass apply_knockback entirely, so _knockback_active
+	# should never be set for them — ensuring no grid snap is ever attempted.
+	_npc.invincible = true
+	_npc.apply_knockback(Vector2.RIGHT)
+	assert_false(_npc._knockback_active,
+		"Invincible NPC should not have _knockback_active set after apply_knockback")
+
+
 # ---------------------------------------------------------------------------
 # Player reference (set_player_reference)
 # ---------------------------------------------------------------------------

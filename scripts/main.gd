@@ -200,9 +200,9 @@ func _on_room_post_load(room_name: String) -> void:
 	hud_manager.update_hp_display(player.hp)
 	hud_manager.update_wand_display()
 	# Trigger first-visit intro cinematics.
-	if room_name == "l1_hallway" and not GameState.l1_hallway_intro_shown:
+	if room_name == "l1_hallway" and not GameState.has_flag("l1_hallway_intro_shown"):
 		level_manager.play_hallway_intro()
-	elif room_name == "l1_street" and not GameState.l1_street_intro_shown:
+	elif room_name == "l1_street" and not GameState.has_flag("l1_street_intro_shown"):
 		level_manager.play_street_intro()
 
 

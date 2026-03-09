@@ -84,9 +84,9 @@ func on_npc_player_detected(dialog: String) -> void:
 
 
 func on_bedroom_door_approached() -> void:
-	if GameState.l1_bedroom_door_hint_shown or _dialog_box.is_active():
+	if GameState.has_flag("l1_bedroom_door_hint_shown") or _dialog_box.is_active():
 		return
-	GameState.l1_bedroom_door_hint_shown = true
+	GameState.set_flag("l1_bedroom_door_hint_shown")
 	set_dialog_active(true)
 	_dialog_box.set_speaker("")
 	_dialog_box.start_dialog([
