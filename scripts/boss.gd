@@ -17,6 +17,9 @@ var _deflect_shot_timer: float = 0.0
 func _ready() -> void:
 	super._ready()
 	add_to_group("boss")
+	if OS.is_debug_build():
+		for phase: Dictionary in phases:
+			_validate_phase(phase)
 	if phases.size() > 0:
 		_apply_phase(phases[0])
 
@@ -28,6 +31,15 @@ func _physics_process(delta: float) -> void:
 		if _deflect_shot_timer <= 0.0:
 			_deflect_shot_timer = _deflect_shot_interval
 			_fire_deflectable_projectile()
+
+
+## Validate a phase dictionary in debug builds.
+## Returns true if the phase is well-formed, false and emits push_error otherwise.
+static func _validate_phase(phase: Dictionary) -> bool:
+	if not phase.has("hp_threshold"):
+		push_error("Boss phase is missing required key 'hp_threshold'")
+		return false
+	return true
 
 
 func _apply_phase(phase: Dictionary) -> void:
