@@ -97,7 +97,7 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * GameConfig.KNOCKBACK_DECAY_MULTIPLIER)
+	_knockback_velocity = CombatUtils.decay_knockback(_knockback_velocity, KNOCKBACK_SPEED, delta, GameConfig.KNOCKBACK_DECAY_MULTIPLIER)
 
 	if is_in_dialog:
 		velocity = Vector2.ZERO
@@ -243,10 +243,7 @@ func take_damage(amount: int) -> void:
 		return
 	_invincible_timer = 1.0
 	hp -= amount
-	sprite.color = DAMAGE_FLASH_COLOR
-	var tween := create_tween()
-	tween.tween_interval(0.2)
-	tween.tween_property(sprite, "color", PLAYER_COLOR, 0.0)
+	CombatUtils.flash_damage(sprite, DAMAGE_FLASH_COLOR, PLAYER_COLOR)
 	if hp <= 0:
 		died.emit()
 		queue_free()
