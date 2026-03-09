@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-check_rooms.py – Validate that room exits and level connections in main.gd are
-consistent with one another.
+check_rooms.py – Validate that room exits and level connections are consistent.
+
+Level metadata is loaded from data/*.json (one file per level).
 
 Run from the project root:
     python3 tools/check_rooms.py
@@ -23,11 +24,9 @@ What it checks:
      standing in A's exit zone would overlap B's exit zone when B is loaded.
      This is the class of bug that caused the "Petunia skip" where going east from
      l1_upper_hall (after being sent back west) skipped l1_hallway entirely.
-
-Supports both the legacy flat ROOM_CONNECTIONS dict and the new LEVELS dict
-introduced by the level-system refactor.
 """
 
+import json
 import os
 import re
 import sys
@@ -36,7 +35,7 @@ import sys
 # Configuration
 # ---------------------------------------------------------------------------
 SCENES_DIR = os.path.join(os.path.dirname(__file__), "..", "scenes")
-MAIN_GD    = os.path.join(os.path.dirname(__file__), "..", "scripts", "main.gd")
+DATA_DIR   = os.path.join(os.path.dirname(__file__), "..", "data")
 
 ROOM_WIDTH  = 640
 ROOM_HEIGHT = 480
@@ -65,93 +64,35 @@ REVERSE = {"east": "west", "west": "east", "north": "south", "south": "north"}
 # Parsing helpers
 # ---------------------------------------------------------------------------
 
-def _extract_balanced(text, start):
-    """Return the substring inside the braces opening at/after `start`."""
-    i = text.index('{', start)
-    depth = 0
-    begin = i + 1
-    while i < len(text):
-        if text[i] == '{':
-            depth += 1
-        elif text[i] == '}':
-            depth -= 1
-            if depth == 0:
-                return text[begin:i]
-        i += 1
-    raise ValueError("Unmatched brace")
-
-
-def _parse_connections_block(block):
+def parse_room_connections(data_dir):
     """
-    Parse a connections dict block (the inner part of a connections: {...}).
-    Returns {room_name: {direction: {"room": str, "entry": (x, y)}}}
-    """
-    connections = {}
-
-    # Match any key that contains an underscore – this covers both the
-    # room scenes (l1_bedroom, l2_*, ...)
-    # while excluding bare direction keys (east, west, north, south).
-    room_key_re = re.compile(r'"(\w+_\w+)"\s*:')
-    dir_re = re.compile(
-        r'"(east|west|north|south)"\s*:\s*\{[^}]*"room"\s*:\s*"(\w+)"[^}]*'
-        r'"entry"\s*:\s*Vector2\(\s*([\d.]+)\s*,\s*([\d.]+)\s*\)',
-        re.DOTALL,
-    )
-
-    pos = 0
-    while True:
-        m = room_key_re.search(block, pos)
-        if not m:
-            break
-        room_name = m.group(1)
-        inner = _extract_balanced(block, m.end())
-        connections[room_name] = {}
-        for dm in dir_re.finditer(inner):
-            direction, dest_room, ex, ey = dm.groups()
-            connections[room_name][direction] = {
-                "room":  dest_room,
-                "entry": (float(ex), float(ey)),
-            }
-        pos = m.end()
-
-    return connections
-
-
-def parse_room_connections(path):
-    """
-    Extract room connections from main.gd.
-    Supports both the legacy flat ROOM_CONNECTIONS dict and the new LEVELS
-    dict.  All connections from all levels are merged and returned as:
+    Load room connections from all data/*.json level files.
+    Returns all connections merged across levels as:
       {room_name: {direction: {"room": str, "entry": (x, y)}}}
     """
-    with open(path) as f:
-        src = f.read()
-
-    # ---- New LEVELS structure -----------------------------------------------
-    levels_start = src.find('const LEVELS')
-    if levels_start != -1:
-        connections = {}
-        outer_block = _extract_balanced(src, levels_start)
-
-        # Each top-level entry is a level name; find every "connections": {...}
-        # sub-block inside the outer LEVELS block.
-        conn_key_re = re.compile(r'"connections"\s*:')
-        for cm in conn_key_re.finditer(outer_block):
-            conn_block = _extract_balanced(outer_block, cm.end())
-            level_conns = _parse_connections_block(conn_block)
-            # Merge; last write wins if the same room appears in multiple levels.
-            connections.update(level_conns)
-        return connections
-
-    # ---- Legacy ROOM_CONNECTIONS structure ----------------------------------
-    block_start = src.find('const ROOM_CONNECTIONS')
-    if block_start == -1:
+    if not os.path.isdir(data_dir):
         raise ValueError(
-            "Could not find LEVELS or ROOM_CONNECTIONS in main.gd"
+            "data/ directory not found at: {}".format(data_dir)
         )
 
-    outer_block = _extract_balanced(src, block_start)
-    return _parse_connections_block(outer_block)
+    connections = {}
+    for fname in sorted(os.listdir(data_dir)):
+        if not fname.endswith(".json"):
+            continue
+        fpath = os.path.join(data_dir, fname)
+        try:
+            with open(fpath) as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError) as exc:
+            raise ValueError("Failed to parse level file {}: {}".format(fpath, exc)) from exc
+        for room_name, dirs in data.get("connections", {}).items():
+            connections[room_name] = {}
+            for direction, info in dirs.items():
+                connections[room_name][direction] = {
+                    "room":  info["room"],
+                    "entry": (float(info["entry"][0]), float(info["entry"][1])),
+                }
+    return connections
 
 
 def find_exit_nodes(tscn_path):
@@ -185,7 +126,7 @@ def check_rooms():
     """Return a list of issue strings; empty means all OK."""
     issues = []
 
-    connections = parse_room_connections(MAIN_GD)
+    connections = parse_room_connections(DATA_DIR)
 
     # Pre-load exit info for every room listed in connections
     room_exits = {}
