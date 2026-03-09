@@ -111,6 +111,7 @@ signal player_hit
 const KNOCKBACK_SPEED: float = 400.0
 const KNOCKBACK_THRESHOLD: float = 5.0
 const KNOCKBACK_DECAY_MULTIPLIER: float = 6.0
+const GRID_SIZE: int = 16
 ## How long the enemy freezes after being knocked back before resuming AI.
 const STUN_DURATION: float = 0.5
 ## Inner and outer bounds for KEEP_DISTANCE mode.
@@ -133,6 +134,7 @@ var _wander_timer: float = 0.0
 var _wander_dir: Vector2 = Vector2.ZERO
 var _player_ref: Node = null
 var _knockback_velocity: Vector2 = Vector2.ZERO
+var _knockback_active: bool = false
 var _stun_timer: float = 0.0
 var _shoot_timer: float = 0.0
 var _patrol_index: int = 0
@@ -171,6 +173,12 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * KNOCKBACK_DECAY_MULTIPLIER)
 	_stun_timer = maxf(0.0, _stun_timer - delta)
+
+	# Detect knockback end: snap back to the nearest 16-px grid cell so the
+	# NPC stays aligned even if it ends up stationary after the knockback.
+	if _knockback_active and _knockback_velocity.length() <= KNOCKBACK_THRESHOLD:
+		_knockback_active = false
+		global_position = global_position.snapped(Vector2.ONE * GRID_SIZE)
 
 	if is_paused:
 		velocity = Vector2.ZERO
@@ -424,6 +432,7 @@ func apply_knockback(direction: Vector2) -> void:
 		return
 	_knockback_velocity = direction.normalized() * KNOCKBACK_SPEED
 	_stun_timer = STUN_DURATION
+	_knockback_active = true
 
 
 ## Returns true when the player is inside the forward-facing detection cone
