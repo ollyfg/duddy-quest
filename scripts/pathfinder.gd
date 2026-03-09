@@ -76,12 +76,20 @@ func get_next_direction(from_world: Vector2, to_world: Vector2) -> Vector2:
 			return Vector2.ZERO
 		return fallback.normalized()
 
-	# path[0] is the centre of the current cell; path[1] is the next waypoint.
+	# path[0] is the top-left of the current cell; path[1] is the next waypoint.
 	# Both are in world space because _astar.offset = _room_origin.
-	var dir: Vector2 = path[1] - from_world
-	if dir.length_squared() < 1.0:
+	# Skip waypoints that are already within 1 px of the current position to
+	# avoid a near-zero direction vector that stalls movement near cell boundaries
+	# (e.g. when travelling south and from_world is very close to path[1]).
+	for i: int in range(1, path.size()):
+		var dir: Vector2 = path[i] - from_world
+		if dir.length_squared() >= 1.0:
+			return dir.normalized()
+	# All remaining waypoints are within 1 px; fall back to direct direction.
+	var fallback: Vector2 = to_world - from_world
+	if fallback.length_squared() < 1.0:
 		return Vector2.ZERO
-	return dir.normalized()
+	return fallback.normalized()
 
 
 func _world_to_cell(world_pos: Vector2) -> Vector2i:
