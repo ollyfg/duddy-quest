@@ -6,6 +6,20 @@ const NavigationUtils = preload("res://scripts/navigation_utils.gd")
 ## Large limit value used to allow free camera movement during pan steps.
 const UNLIMITED_CAMERA_LIMIT: int = GameConfig.UNLIMITED_CAMERA_LIMIT
 
+## All recognised cinematic step type strings.
+const KNOWN_STEP_TYPES: Array[String] = [
+	"move_npc", "move_player", "dialog", "set_visible",
+	"wait", "play_cutscene", "pan_camera", "reset_camera",
+]
+
+## Keys that must be present for each step type.
+const STEP_REQUIRED_KEYS: Dictionary = {
+	"move_npc": ["npc", "to"],
+	"move_player": ["to"],
+	"set_visible": ["node"],
+	"pan_camera": ["to"],
+}
+
 var _room: Node = null
 var _player: Node = null
 var _dialog_box: Node = null
@@ -23,11 +37,30 @@ func play(sequence: Array, room: Node, player: Node, dialog_box: Node = null) ->
 	_player = player
 	_dialog_box = dialog_box
 	_is_playing = true
+	if OS.is_debug_build():
+		for step: Dictionary in sequence:
+			_validate_step(step)
 	player.cinematic_mode = true
 	await _run_sequence(sequence)
 	player.cinematic_mode = false
 	_is_playing = false
 	sequence_finished.emit()
+
+
+## Validate a cinematic step dictionary in debug builds.
+## Returns true if the step is well-formed, false and logs a warning/error otherwise.
+static func _validate_step(step: Dictionary) -> bool:
+	var type: String = step.get("type", "")
+	if not type in KNOWN_STEP_TYPES:
+		push_warning("Unknown cinematic step type: '%s'" % type)
+		return false
+	var required: Array = STEP_REQUIRED_KEYS.get(type, [])
+	var ok: bool = true
+	for key: String in required:
+		if not step.has(key):
+			push_error("Cinematic step '%s' is missing required key '%s'" % [type, key])
+			ok = false
+	return ok
 
 
 func _run_sequence(steps: Array) -> void:

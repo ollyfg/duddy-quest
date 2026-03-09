@@ -48,11 +48,23 @@ func is_active() -> bool:
 
 
 func _start_sequence(lines: Array) -> void:
+	if OS.is_debug_build():
+		for item in lines:
+			_validate_dialog_item(item)
 	_lines = lines
 	_current_line = 0
 	_active = true
 	panel.visible = true
 	_show_current_line()
+
+
+## Validate a single dialog item in debug builds.
+## Returns true if the item is well-formed, false and emits push_error otherwise.
+static func _validate_dialog_item(item: Variant) -> bool:
+	if item is Dictionary and not item.has("text"):
+		push_error("Dialog item is a Dictionary but is missing the required 'text' key: %s" % str(item))
+		return false
+	return true
 
 
 func _show_current_line() -> void:
