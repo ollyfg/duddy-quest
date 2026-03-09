@@ -196,3 +196,16 @@ func _play_street_intro() -> void:
 func _finish_room_intro() -> void:
 	dialog_manager.set_dialog_active(false)
 	player.set_camera_limits(room_manager.current_room.get_room_rect())
+
+
+## First-time intro for the Leaky Cauldron: Tom greets Dudley and explains Diagon Alley.
+func _play_leaky_cauldron_intro() -> void:
+	GameState.set_flag("l2_leaky_cauldron_intro_shown")
+	dialog_manager.set_dialog_active(true)
+	play_cinematic([
+		{"type": "dialog", "speaker": "Tom", "lines": [
+			"Welcome to the Leaky Cauldron, lad!",
+			"Through that wall is Diagon Alley. Best place for school supplies.",
+			"You'll want Gringotts for your money, then the shops.",
+		]},
+	], func() -> void: _finish_room_intro())

@@ -180,8 +180,9 @@ func set_dialog_active(active: bool) -> void:
 			npc.is_paused = should_pause
 
 
-func on_locked_exit_attempted(_direction: String, _key_id: String) -> void:
+func on_locked_exit_attempted(_direction: String, message: String) -> void:
 	if not _dialog_box.is_active():
 		set_dialog_active(true)
 		_dialog_box.set_speaker("")
-		_dialog_box.start_dialog(["It's locked."])
+		var text: String = message if message != "" else "It's locked."
+		_dialog_box.start_dialog([text])

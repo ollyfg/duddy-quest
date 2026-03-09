@@ -26,6 +26,20 @@ const _EXIT_NODE_NAMES: Dictionary = {
 @export var key_north: String = ""
 @export var key_south: String = ""
 
+## Optional GameState flag required to use each exit direction.
+## When non-empty, the exit is blocked until the flag is present in GameState.
+@export var flag_east: String = ""
+@export var flag_west: String = ""
+@export var flag_north: String = ""
+@export var flag_south: String = ""
+
+## Message shown when the corresponding flag-locked exit is attempted without
+## the required flag.  Falls back to "It's locked." if empty.
+@export var flag_east_message: String = ""
+@export var flag_west_message: String = ""
+@export var flag_north_message: String = ""
+@export var flag_south_message: String = ""
+
 ## Maps exit direction → true when that exit is currently locked by a switch.
 var _locked_exits: Dictionary = {}
 ## Maps exit direction → key_id required to use that exit.
@@ -80,7 +94,9 @@ func _get_exit_node(direction: String) -> Area2D:
 
 func _get_children_safe(node_name: String) -> Array[Node]:
 	var node: Node = get_node_or_null(node_name)
-	return node.get_children() if node != null else []
+	if node != null:
+		return node.get_children()
+	return [] as Array[Node]
 
 
 func _on_exit_body_entered(body: Node, direction: String) -> void:
@@ -94,6 +110,19 @@ func _on_exit_body_entered(body: Node, direction: String) -> void:
 				return
 			else:
 				body.remove_key(req_key)
+		# Check GameState flag requirement for this exit.
+		var flag_map: Dictionary = {
+			"east": flag_east, "west": flag_west,
+			"north": flag_north, "south": flag_south,
+		}
+		var msg_map: Dictionary = {
+			"east": flag_east_message, "west": flag_west_message,
+			"north": flag_north_message, "south": flag_south_message,
+		}
+		var req_flag: String = flag_map.get(direction, "")
+		if req_flag != "" and not GameState.has_flag(req_flag):
+			locked_exit_attempted.emit(direction, msg_map.get(direction, ""))
+			return
 		exit_triggered.emit(direction)
 
 

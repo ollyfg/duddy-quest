@@ -1,0 +1,246 @@
+[gd_scene load_steps=9 format=3 uid="uid://l2diagonsouth"]
+
+[ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
+
+[sub_resource type="RectangleShape2D" id="Sh_hwall_half"]
+size = Vector2(296, 24)
+
+[sub_resource type="RectangleShape2D" id="Sh_vwall_half"]
+size = Vector2(24, 216)
+
+[sub_resource type="RectangleShape2D" id="Sh_exit"]
+size = Vector2(12, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_exit_ns"]
+size = Vector2(48, 12)
+
+[sub_resource type="RectangleShape2D" id="Sh_stall"]
+size = Vector2(80, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_sign"]
+size = Vector2(64, 16)
+
+[sub_resource type="RectangleShape2D" id="Sh_barrel"]
+size = Vector2(32, 32)
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+
+[node name="Floor" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.45, 0.4, 0.32, 1)
+mouse_filter = 2
+
+[node name="TopWallLeft" type="StaticBody2D" parent="."]
+position = Vector2(148, 12)
+
+[node name="Sprite" type="ColorRect" parent="TopWallLeft"]
+offset_left = -148.0
+offset_top = -12.0
+offset_right = 148.0
+offset_bottom = 12.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWallLeft"]
+shape = SubResource("Sh_hwall_half")
+
+[node name="TopWallRight" type="StaticBody2D" parent="."]
+position = Vector2(492, 12)
+
+[node name="Sprite" type="ColorRect" parent="TopWallRight"]
+offset_left = -148.0
+offset_top = -12.0
+offset_right = 148.0
+offset_bottom = 12.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TopWallRight"]
+shape = SubResource("Sh_hwall_half")
+
+[node name="BottomWallLeft" type="StaticBody2D" parent="."]
+position = Vector2(148, 468)
+
+[node name="Sprite" type="ColorRect" parent="BottomWallLeft"]
+offset_left = -148.0
+offset_top = -12.0
+offset_right = 148.0
+offset_bottom = 12.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWallLeft"]
+shape = SubResource("Sh_hwall_half")
+
+[node name="BottomWallRight" type="StaticBody2D" parent="."]
+position = Vector2(492, 468)
+
+[node name="Sprite" type="ColorRect" parent="BottomWallRight"]
+offset_left = -148.0
+offset_top = -12.0
+offset_right = 148.0
+offset_bottom = 12.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BottomWallRight"]
+shape = SubResource("Sh_hwall_half")
+
+[node name="LeftWallTop" type="StaticBody2D" parent="."]
+position = Vector2(12, 108)
+
+[node name="Sprite" type="ColorRect" parent="LeftWallTop"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWallTop"]
+shape = SubResource("Sh_vwall_half")
+
+[node name="LeftWallBottom" type="StaticBody2D" parent="."]
+position = Vector2(12, 372)
+
+[node name="Sprite" type="ColorRect" parent="LeftWallBottom"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWallBottom"]
+shape = SubResource("Sh_vwall_half")
+
+[node name="RightWallTop" type="StaticBody2D" parent="."]
+position = Vector2(628, 108)
+
+[node name="Sprite" type="ColorRect" parent="RightWallTop"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallTop"]
+shape = SubResource("Sh_vwall_half")
+
+[node name="RightWallBottom" type="StaticBody2D" parent="."]
+position = Vector2(628, 372)
+
+[node name="Sprite" type="ColorRect" parent="RightWallBottom"]
+offset_left = -12.0
+offset_top = -108.0
+offset_right = 12.0
+offset_bottom = 108.0
+color = Color(0.2, 0.14, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWallBottom"]
+shape = SubResource("Sh_vwall_half")
+
+[node name="ExitWest" type="Area2D" parent="."]
+position = Vector2(18, 240)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitWest"]
+shape = SubResource("Sh_exit")
+
+[node name="ExitEast" type="Area2D" parent="."]
+position = Vector2(622, 240)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]
+shape = SubResource("Sh_exit")
+
+[node name="ExitNorth" type="Area2D" parent="."]
+position = Vector2(320, 6)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitNorth"]
+shape = SubResource("Sh_exit_ns")
+
+[node name="ExitSouth" type="Area2D" parent="."]
+position = Vector2(320, 474)
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitSouth"]
+shape = SubResource("Sh_exit_ns")
+
+[node name="Stall1" type="StaticBody2D" parent="."]
+position = Vector2(160, 128)
+
+[node name="Sprite" type="ColorRect" parent="Stall1"]
+offset_left = -40.0
+offset_top = -24.0
+offset_right = 40.0
+offset_bottom = 24.0
+color = Color(0.5, 0.35, 0.12, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Stall1"]
+shape = SubResource("Sh_stall")
+
+[node name="Stall2" type="StaticBody2D" parent="."]
+position = Vector2(480, 352)
+
+[node name="Sprite" type="ColorRect" parent="Stall2"]
+offset_left = -40.0
+offset_top = -24.0
+offset_right = 40.0
+offset_bottom = 24.0
+color = Color(0.5, 0.35, 0.12, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Stall2"]
+shape = SubResource("Sh_stall")
+
+[node name="Sign1" type="StaticBody2D" parent="."]
+position = Vector2(320, 96)
+
+[node name="Sprite" type="ColorRect" parent="Sign1"]
+offset_left = -32.0
+offset_top = -8.0
+offset_right = 32.0
+offset_bottom = 8.0
+color = Color(0.7, 0.5, 0.1, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sign1"]
+shape = SubResource("Sh_sign")
+
+[node name="Barrel1" type="StaticBody2D" parent="."]
+position = Vector2(96, 368)
+
+[node name="Sprite" type="ColorRect" parent="Barrel1"]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Barrel1"]
+shape = SubResource("Sh_barrel")
+
+[node name="NPCs" type="Node2D" parent="."]
+
+[node name="Wizard1" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(160.0, 256.0)
+movement_mode = 2
+npc_name = "Wizard"
+dialog_pools = [["Mind the pixies, they've been dreadful this week."], ["Gringotts is east. Don't let the goblins short-change you!"], ["New student, are you? Good luck at Hogwarts."]]
+
+[node name="Wizard2" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(480.0, 224.0)
+movement_mode = 2
+npc_name = "Witch"
+dialog_pools = [["Lovely day for a stroll down the Alley, isn't it?"], ["Mind the pixies, they've been dreadful this week."], ["Ollivander's is further north — keep going!"]]
