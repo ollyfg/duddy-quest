@@ -11,8 +11,10 @@ var _room_states: Dictionary = {}
 var _room_loading: bool = false
 ## A* pathfinder for the current room; rebuilt each time a room loads.
 ## Null in rooms where no NPC has use_astar enabled.
+## Untyped because the pathfinder script has no class_name registered.
 var _current_pathfinder = null
 
+## Untyped to allow accessing player.gd custom signals and properties.
 var _player
 var _room_holder: Node2D
 ## Reference to main.gd for LEVELS, current_level_name, and sibling managers.
@@ -30,6 +32,16 @@ func setup(player, room_holder: Node2D, main: Node) -> void:
 ## Returns the current room's A* pathfinder (may be null).
 func get_pathfinder():
 	return _current_pathfinder
+
+
+## Returns true while a room transition is in progress.
+func is_loading() -> bool:
+	return _room_loading
+
+
+## Clears all saved room-state snapshots (called at level start).
+func clear_room_states() -> void:
+	_room_states.clear()
 
 
 ## Programmatically trigger an exit in the given direction; used by

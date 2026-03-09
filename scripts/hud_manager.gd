@@ -5,10 +5,12 @@ extends Node
 const _HEART_FULL: Texture2D = preload("res://assets/icons/heart_full.svg")
 const _HEART_EMPTY: Texture2D = preload("res://assets/icons/heart_empty.svg")
 
+## Untyped to allow accessing player.gd custom signals and properties.
 var _player
 var _hp_bar: HBoxContainer
 var _key_label: Label
 var _rage_bar: ProgressBar
+## Untyped to allow calling mobile_controls.gd custom methods.
 var _mobile_controls
 
 

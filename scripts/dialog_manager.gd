@@ -4,11 +4,14 @@ extends Node
 
 enum PostDialogAction { NONE, GO_WEST, PETUNIA_KICK }
 
+## Untyped to allow accessing player.gd custom signals and properties.
 var _player
+## Untyped to allow calling dialog_box.gd methods (is_active, start_dialog).
 var _dialog_box
 ## Reference to main.gd for play_cinematic and cross-manager access.
 var _main: Node
 
+## Untyped to allow accessing npc.gd properties after validity check.
 var _interacting_npc = null
 var _post_dialog_action: int = PostDialogAction.NONE
 
@@ -85,7 +88,7 @@ func on_bedroom_door_approached() -> void:
 ## Shows her catch line then triggers the kick-back cinematic.
 func on_petunia_hit_player() -> void:
 	var room_manager: Node = _main.room_manager
-	if room_manager._room_loading or _player.cinematic_mode or _dialog_box.is_active() or _post_dialog_action != PostDialogAction.NONE:
+	if room_manager.is_loading() or _player.cinematic_mode or _dialog_box.is_active() or _post_dialog_action != PostDialogAction.NONE:
 		return
 	_post_dialog_action = PostDialogAction.PETUNIA_KICK
 	set_dialog_active(true)

@@ -12,7 +12,7 @@ func setup(main: Node) -> void:
 
 func load_level(level_name: String) -> void:
 	_main.current_level_name = level_name
-	_main.room_manager._room_states.clear()
+	_main.room_manager.clear_room_states()
 	if level_name == "level_1":
 		_start_level_1_intro()
 	else:
