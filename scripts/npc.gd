@@ -28,6 +28,11 @@ const NavigationUtils = preload("res://scripts/navigation_utils.gd")
 enum MovementMode { DEFAULT, STATIONARY, WANDER, CHASE, KEEP_DISTANCE, PATROL }
 @export var movement_mode: MovementMode = MovementMode.DEFAULT
 
+## Internal state machine.  Each value maps to a per-frame handler called from
+## _physics_process().  Transitions are made via transition_to() which logs
+## every change in debug builds.
+enum State { IDLE, WANDER, PATROL, CHASE, KEEP_DISTANCE, STUNNED }
+
 ## Movement mode used when the player is outside detection_range.
 ## Only applied to hostile NPCs; friendly NPCs always use their movement_mode.
 @export var idle_movement_mode: MovementMode = MovementMode.WANDER
@@ -146,6 +151,12 @@ var _detection_triggered: bool = false
 var _facing_dir: Vector2 = Vector2.RIGHT
 ## A* pathfinder supplied by the room loader; null when not using A*.
 var _pathfinder = null
+## Current state-machine state; drives which per-frame handler runs.
+var _state: State = State.IDLE
+## Cached by _update_state(); true when the player is inside detection_range
+## (or the forward cone when use_cone_detection is on).  Read by the ranged-
+## attack gate after the per-state dispatch.
+var _in_range: bool = false
 
 @onready var sprite: ColorRect = $Sprite
 
@@ -168,6 +179,8 @@ func _ready() -> void:
 		var offset: Vector2 = patrol_points[0] - global_position
 		if offset.length_squared() > 0.0:
 			_facing_dir = offset.normalized()
+	# Initialise state directly (no transition hooks / logging during setup).
+	_state = _initial_state()
 
 
 func _physics_process(delta: float) -> void:
@@ -196,85 +209,31 @@ func _physics_process(delta: float) -> void:
 			global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
 		return
 
-	# Briefly frozen after knockback ends before resuming chase.
+	# Briefly frozen after knockback ends before resuming AI.
 	if _stun_timer > 0.0:
+		if _state != State.STUNNED:
+			transition_to(State.STUNNED)
 		velocity = Vector2.ZERO
 		move_and_slide()
 		return
 
-	var mode: MovementMode = movement_mode
-	if mode == MovementMode.DEFAULT:
-		mode = MovementMode.CHASE if is_hostile else MovementMode.WANDER
+	# Determine the correct state for this frame and transition if needed.
+	_update_state()
 
-	# Determine whether the player is within detection range.
-	var in_range: bool = true
-	if is_hostile and _player_ref and detection_range > 0.0:
-		if use_cone_detection:
-			in_range = _is_player_in_cone()
-		else:
-			in_range = global_position.distance_to(_player_ref.global_position) <= detection_range
+	match _state:
+		State.IDLE:          _process_idle()
+		State.WANDER:        _process_wander(delta)
+		State.PATROL:        _process_patrol(delta)
+		State.CHASE:         _process_chase()
+		State.KEEP_DISTANCE: _process_keep_distance()
+		State.STUNNED:       _process_idle()  # frozen during stun; _update_state handles recovery
 
-	# PATROL is handled separately: it is the base mode and CHASE is the
-	# activated state when a hostile NPC detects the player.
-	if mode == MovementMode.PATROL:
-		if is_hostile and _player_ref and detection_range > 0.0 and in_range:
-			if not _patrol_was_chasing:
-				_patrol_was_chasing = true
-				if detection_dialog != "" and not _detection_triggered:
-					_detection_triggered = true
-					player_detected.emit(detection_dialog)
-			_chase_player()
-			if can_shoot:
-				_shoot_timer -= delta
-				if _shoot_timer <= 0.0:
-					_shoot_timer = shoot_cooldown
-					_fire_projectile()
-		else:
-			if _patrol_was_chasing:
-				_patrol_was_chasing = false
-				_resume_patrol_from_nearest()
-			_patrol_move(delta)
-		_update_facing_and_redraw(velocity)
-		move_and_slide()
-		if not invincible:
-			global_position = global_position.clamp(ROOM_BOUNDS_MIN, ROOM_BOUNDS_MAX)
-		return
-
-	if not in_range:
-		# Use idle behaviour while player is far away.
-		var idle: MovementMode = idle_movement_mode
-		if idle == MovementMode.DEFAULT:
-			idle = MovementMode.WANDER
-		match idle:
-			MovementMode.STATIONARY:
-				velocity = Vector2.ZERO
-			MovementMode.WANDER:
-				_wander(delta)
-			_:
-				velocity = Vector2.ZERO
-	else:
-		match mode:
-			MovementMode.STATIONARY:
-				velocity = Vector2.ZERO
-			MovementMode.WANDER:
-				_wander(delta)
-			MovementMode.CHASE:
-				if _player_ref:
-					_chase_player()
-				else:
-					velocity = Vector2.ZERO
-			MovementMode.KEEP_DISTANCE:
-				if _player_ref:
-					_keep_distance()
-				else:
-					velocity = Vector2.ZERO
-
-		# Ranged attack when in range and able to shoot.
-		if can_shoot and _player_ref:
-			_shoot_timer -= delta
-			if _shoot_timer <= 0.0:
-				_shoot_timer = shoot_cooldown
-				_fire_projectile()
+	# Ranged attack fired from any active state where the player is in range.
+	if can_shoot and _player_ref and _in_range:
+		_shoot_timer -= delta
+		if _shoot_timer <= 0.0:
+			_shoot_timer = shoot_cooldown
+			_fire_projectile()
 
 	_update_facing_and_redraw(velocity)
 	move_and_slide()
@@ -293,6 +252,150 @@ func set_player_reference(player: Node) -> void:
 ## current room.  Pass null to revert to raycasting navigation.
 func set_pathfinder(pf) -> void:
 	_pathfinder = pf
+
+
+# ---------------------------------------------------------------------------
+# State machine
+# ---------------------------------------------------------------------------
+
+## Derive the starting State from movement_mode so _ready() can set _state
+## directly (without triggering transition hooks or debug logging).
+func _initial_state() -> State:
+	var mode: MovementMode = movement_mode
+	if mode == MovementMode.DEFAULT:
+		mode = MovementMode.CHASE if is_hostile else MovementMode.WANDER
+	match mode:
+		MovementMode.PATROL:        return State.PATROL
+		MovementMode.WANDER:        return State.WANDER
+		MovementMode.CHASE:         return State.CHASE
+		MovementMode.KEEP_DISTANCE: return State.KEEP_DISTANCE
+		_:                          return State.IDLE
+
+
+## Evaluate movement conditions and trigger the appropriate transition.
+## Called once per physics frame after early-exit guards have been checked.
+func _update_state() -> void:
+	var mode: MovementMode = movement_mode
+	if mode == MovementMode.DEFAULT:
+		mode = MovementMode.CHASE if is_hostile else MovementMode.WANDER
+
+	_in_range = _compute_in_range()
+
+	if mode == MovementMode.PATROL:
+		# PATROL: patrol normally; switch to CHASE when hostile and player detected.
+		if is_hostile and _player_ref and detection_range > 0.0 and _in_range:
+			if _state != State.CHASE:
+				transition_to(State.CHASE)
+		else:
+			if _state != State.PATROL:
+				transition_to(State.PATROL)
+	elif not _in_range:
+		var desired: State = _idle_mode_to_state()
+		if _state != desired:
+			transition_to(desired)
+	else:
+		var desired: State = _active_mode_to_state(mode)
+		if _state != desired:
+			transition_to(desired)
+
+
+## True when the player is within detection_range (or the forward cone).
+## Returns true when there is no player reference or detection is disabled.
+func _compute_in_range() -> bool:
+	if not (is_hostile and _player_ref and detection_range > 0.0):
+		return true
+	if use_cone_detection:
+		return _is_player_in_cone()
+	return global_position.distance_to(_player_ref.global_position) <= detection_range
+
+
+## Map idle_movement_mode to the corresponding State.
+func _idle_mode_to_state() -> State:
+	var idle: MovementMode = idle_movement_mode
+	if idle == MovementMode.DEFAULT:
+		idle = MovementMode.WANDER
+	match idle:
+		MovementMode.WANDER: return State.WANDER
+		_:                   return State.IDLE
+
+
+## Map an active MovementMode to the corresponding State.
+func _active_mode_to_state(mode: MovementMode) -> State:
+	match mode:
+		MovementMode.WANDER:        return State.WANDER
+		MovementMode.CHASE:         return State.CHASE
+		MovementMode.KEEP_DISTANCE: return State.KEEP_DISTANCE
+		_:                          return State.IDLE
+
+
+## Transition to new_state, calling exit/enter hooks and logging in debug builds.
+func transition_to(new_state: State) -> void:
+	var old_state: State = _state
+	_exit_state(old_state)
+	_state = new_state
+	_enter_state(new_state, old_state)
+	if OS.is_debug_build():
+		# State.keys() returns names in definition order; relies on the enum
+		# values being sequential (0, 1, 2, …) which GDScript guarantees by default.
+		print("[NPC %s] %s → %s" % [name, State.keys()[old_state], State.keys()[new_state]])
+
+
+## Returns the current state-machine state.  Useful for external queries and tests.
+func get_current_state() -> State:
+	return _state
+
+
+## Called when leaving a state.  Override for per-state teardown if needed.
+func _exit_state(_s: State) -> void:
+	pass
+
+
+## Called when entering a state.  Handles side-effects for PATROL↔CHASE.
+func _enter_state(new_state: State, from_state: State) -> void:
+	match new_state:
+		State.PATROL:
+			# Returning from chase back to patrol: resume from the nearest waypoint.
+			if from_state == State.CHASE:
+				_patrol_was_chasing = false
+				_resume_patrol_from_nearest()
+		State.CHASE:
+			# Engaging chase from patrol mode: set flag and optionally emit detection.
+			if movement_mode == MovementMode.PATROL and not _patrol_was_chasing:
+				_patrol_was_chasing = true
+				if detection_dialog != "" and not _detection_triggered:
+					_detection_triggered = true
+					player_detected.emit(detection_dialog)
+
+
+# ---------------------------------------------------------------------------
+# Per-state handlers — each sets velocity; move_and_slide() is called once
+# after the dispatch in _physics_process().
+# ---------------------------------------------------------------------------
+
+func _process_idle() -> void:
+	velocity = Vector2.ZERO
+
+
+func _process_wander(delta: float) -> void:
+	_wander(delta)
+
+
+func _process_patrol(delta: float) -> void:
+	_patrol_move(delta)
+
+
+func _process_chase() -> void:
+	if _player_ref:
+		_chase_player()
+	else:
+		velocity = Vector2.ZERO
+
+
+func _process_keep_distance() -> void:
+	if _player_ref:
+		_keep_distance()
+	else:
+		velocity = Vector2.ZERO
 
 
 func _chase_player() -> void:
@@ -398,6 +501,10 @@ func _patrol_move(delta: float) -> void:
 func reset_patrol() -> void:
 	_patrol_was_chasing = false
 	_player_ref = null
+	# Assign state directly to skip _exit_state/_enter_state side-effects (e.g.
+	# _resume_patrol_from_nearest is called explicitly below, so we must not let
+	# _enter_state(PATROL, CHASE) call it a second time).
+	_state = State.PATROL
 	_resume_patrol_from_nearest()
 
 
