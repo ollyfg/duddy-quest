@@ -253,9 +253,9 @@ func _load_room(room_name: String, player_pos: Vector2) -> void:
 	_rebuild_pathfinder()
 
 	# Trigger first-visit intro cinematics.
-	if room_name == "l1_hallway" and not GameState.l1_hallway_intro_shown:
+	if room_name == "l1_hallway" and not GameState.has_flag("l1_hallway_intro_shown"):
 		_play_hallway_intro()
-	elif room_name == "l1_street" and not GameState.l1_street_intro_shown:
+	elif room_name == "l1_street" and not GameState.has_flag("l1_street_intro_shown"):
 		_play_street_intro()
 
 ## Snapshot the current room's NPC, item, and switch states before transitioning away.
@@ -408,9 +408,9 @@ func _on_npc_player_detected(dialog: String) -> void:
 
 
 func _on_bedroom_door_approached() -> void:
-	if GameState.l1_bedroom_door_hint_shown or dialog_box.is_active():
+	if GameState.has_flag("l1_bedroom_door_hint_shown") or dialog_box.is_active():
 		return
-	GameState.l1_bedroom_door_hint_shown = true
+	GameState.set_flag("l1_bedroom_door_hint_shown")
 	_set_dialog_active(true)
 	dialog_box.set_speaker("")
 	dialog_box.start_dialog([
@@ -668,7 +668,7 @@ func _rebuild_pathfinder() -> void:
 
 ## First-time intro for the hallway: Petunia paces while muttering to herself.
 func _play_hallway_intro() -> void:
-	GameState.l1_hallway_intro_shown = true
+	GameState.set_flag("l1_hallway_intro_shown")
 	_set_dialog_active(true)
 	play_cinematic([
 		{"type": "pan_camera", "to": Vector2(320.0, 240.0), "duration": 1.2},
@@ -683,7 +683,7 @@ func _play_hallway_intro() -> void:
 
 ## First-time intro for the street: Piers and his gang scheme against Dudley.
 func _play_street_intro() -> void:
-	GameState.l1_street_intro_shown = true
+	GameState.set_flag("l1_street_intro_shown")
 	_set_dialog_active(true)
 	play_cinematic([
 		{"type": "pan_camera", "to": Vector2(416.0, 256.0), "duration": 1.2},
