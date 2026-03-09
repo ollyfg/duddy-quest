@@ -140,3 +140,50 @@ func test_wand_flag_persists_once_set() -> void:
 	_player.has_wand = true
 	assert_true(_player.has_wand,
 		"has_wand should remain true once set")
+
+
+# ---------------------------------------------------------------------------
+# collect_item interface
+# ---------------------------------------------------------------------------
+
+func test_collect_item_health_increases_hp() -> void:
+	_player.take_damage(2)
+	var hp_before: int = _player.hp
+	_player.collect_item("health", {"amount": 1})
+	assert_eq(_player.hp, hp_before + 1,
+		"collect_item health should restore the given amount of HP")
+
+
+func test_collect_item_health_emits_hp_changed() -> void:
+	_player.take_damage(2)
+	watch_signals(_player)
+	_player.collect_item("health", {"amount": 1})
+	assert_signal_emitted(_player, "hp_changed",
+		"collect_item health should emit hp_changed signal")
+
+
+func test_collect_item_wand_sets_has_wand() -> void:
+	assert_false(_player.has_wand, "player should not have wand before pickup")
+	_player.collect_item("wand", {})
+	assert_true(_player.has_wand,
+		"collect_item wand should set has_wand to true")
+
+
+func test_collect_item_wand_emits_wand_acquired() -> void:
+	watch_signals(_player)
+	_player.collect_item("wand", {})
+	assert_signal_emitted(_player, "wand_acquired",
+		"collect_item wand should emit wand_acquired signal")
+
+
+func test_collect_item_key_adds_to_inventory() -> void:
+	_player.collect_item("key", {"key_id": "golden_key"})
+	assert_true(_player.has_key("golden_key"),
+		"collect_item key should add the key_id to inventory")
+
+
+func test_collect_item_key_emits_keys_changed() -> void:
+	watch_signals(_player)
+	_player.collect_item("key", {"key_id": "silver_key"})
+	assert_signal_emitted(_player, "keys_changed",
+		"collect_item key should emit keys_changed signal")
