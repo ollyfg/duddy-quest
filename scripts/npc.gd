@@ -193,7 +193,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	_knockback_velocity = _knockback_velocity.move_toward(Vector2.ZERO, KNOCKBACK_SPEED * delta * KNOCKBACK_DECAY_MULTIPLIER)
+	_knockback_velocity = CombatUtils.decay_knockback(_knockback_velocity, KNOCKBACK_SPEED, delta, KNOCKBACK_DECAY_MULTIPLIER)
 	_stun_timer = maxf(0.0, _stun_timer - delta)
 
 	# Detect knockback end: snap back to the nearest 16-px grid cell so the
@@ -540,10 +540,7 @@ func take_damage(amount: int) -> void:
 		return
 	hp -= amount
 	var base_color: Color = HOSTILE_COLOR if is_hostile else FRIENDLY_COLOR
-	sprite.color = DAMAGE_FLASH_COLOR
-	var tween := create_tween()
-	tween.tween_interval(0.2)
-	tween.tween_property(sprite, "color", base_color, 0.0)
+	CombatUtils.flash_damage(sprite, DAMAGE_FLASH_COLOR, base_color)
 	if hp <= 0:
 		queue_free()
 
