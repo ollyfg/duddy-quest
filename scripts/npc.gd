@@ -106,6 +106,12 @@ enum State { IDLE, WANDER, PATROL, CHASE, KEEP_DISTANCE, STUNNED }
 ## Dialog shown when the player already holds after_key_id.
 @export var after_key_dialog: Array = []
 
+## Item ID that the player must carry to progress past this NPC's gate
+## (checked but NOT consumed). If empty, no item gate applies.
+@export var requires_item: String = ""
+## Dialog shown when requires_item is set but the player does not have it.
+@export var requires_item_dialog: Array = []
+
 signal interaction_requested
 ## Emitted once per room visit when a PATROL NPC first spots the player.
 ## Carries the detection_dialog string.

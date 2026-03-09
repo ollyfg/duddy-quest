@@ -44,6 +44,10 @@ func _pick_npc_dialog(npc: Node) -> Array:
 	if npc.after_key_id != "" and _player.has_key(npc.after_key_id):
 		return npc.after_key_dialog if not npc.after_key_dialog.is_empty() else npc.dialog_lines
 
+	# Item gate: player must carry requires_item (not consumed).
+	if npc.requires_item != "" and not _player.has_key(npc.requires_item):
+		return npc.requires_item_dialog if not npc.requires_item_dialog.is_empty() else ["..."]
+
 	# Work out whether any flag gate applies to this NPC.
 	var gate_flag: String = ""
 	if npc.gives_key_id != "":
