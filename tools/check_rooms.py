@@ -95,6 +95,19 @@ def parse_room_connections(data_dir):
     return connections
 
 
+def parse_room_size(tscn_path):
+    """Parse the room_size export from the Room node in a .tscn file."""
+    try:
+        with open(tscn_path) as f:
+            content = f.read()
+        m = re.search(r'\broom_size\s*=\s*Vector2\(\s*([\d.]+)\s*,\s*([\d.]+)\s*\)', content)
+        if m:
+            return float(m.group(1)), float(m.group(2))
+    except OSError:
+        pass
+    return float(ROOM_WIDTH), float(ROOM_HEIGHT)
+
+
 def find_exit_nodes(tscn_path):
     """
     Return {direction: (x, y)} for every Exit<Dir> Area2D node in the .tscn.
@@ -192,10 +205,12 @@ def check_rooms():
                 continue
 
             # 3. Entry position is inside the playable area
+            dest_tscn = os.path.join(SCENES_DIR, "{}.tscn".format(dest_room))
+            dest_w, dest_h = parse_room_size(dest_tscn)
             x_min = WALL_THICK - X_MARGIN
-            x_max = ROOM_WIDTH  - WALL_THICK + X_MARGIN
+            x_max = dest_w - WALL_THICK + X_MARGIN
             y_min = WALL_THICK - X_MARGIN
-            y_max = ROOM_HEIGHT - WALL_THICK + X_MARGIN
+            y_max = dest_h - WALL_THICK + X_MARGIN
             if not (x_min <= entry_x <= x_max and y_min <= entry_y <= y_max):
                 issues.append(
                     "[OUT-OF-BOUNDS ENTRY] {} -> {}: entry ({}, {}) is outside "
