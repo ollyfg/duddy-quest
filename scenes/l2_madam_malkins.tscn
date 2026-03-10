@@ -169,6 +169,40 @@ after_key_id = "discount_ledger"
 after_key_dialog = ["Oh, the staff discount ledger! Fine — 12 Galleons.", {"text": "Shall I measure you up?", "options": [{"label": "Yes please! I'll take them.", "flags": ["l2_has_robes"], "remove_key": "discount_ledger", "next": ["Wonderful! Here you are.", "Now off you go, dear. Hogwarts awaits!"]}, {"label": "Maybe later.", "next": ["Very well. Come back when you are ready."]}]}]
 dialog_lines = ["Looking sharp, dear. Off you go."]
 
+[node name="Broom1" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(480.0, 352.0)
+is_hostile = true
+movement_mode = 5
+move_speed = 90.0
+max_hp = 2
+custom_sprite_color = Color(0.6, 0.4, 0.2, 1)
+detection_range = 0.0
+knockback_direction_override = Vector2(1, 0)
+npc_name = "Enchanted Broom"
+
+[node name="PatrolPoint1" type="Marker2D" parent="NPCs/Broom1"]
+position = Vector2(-96.0, 0.0)
+
+[node name="PatrolPoint2" type="Marker2D" parent="NPCs/Broom1"]
+position = Vector2(96.0, 0.0)
+
+[node name="Broom2" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(480.0, 432.0)
+is_hostile = true
+movement_mode = 5
+move_speed = 90.0
+max_hp = 2
+custom_sprite_color = Color(0.6, 0.4, 0.2, 1)
+detection_range = 0.0
+knockback_direction_override = Vector2(1, 0)
+npc_name = "Enchanted Broom"
+
+[node name="PatrolPoint1" type="Marker2D" parent="NPCs/Broom2"]
+position = Vector2(-96.0, 0.0)
+
+[node name="PatrolPoint2" type="Marker2D" parent="NPCs/Broom2"]
+position = Vector2(96.0, 0.0)
+
 [node name="Neville" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(464.0, 208.0)
 movement_mode = 1

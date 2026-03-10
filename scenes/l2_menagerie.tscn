@@ -122,6 +122,23 @@ mouse_filter = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BrokenCage"]
 shape = SubResource("Sh_cage")
 
+[node name="Broom1" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(384.0, 144.0)
+is_hostile = true
+movement_mode = 5
+move_speed = 90.0
+max_hp = 2
+custom_sprite_color = Color(0.6, 0.4, 0.2, 1)
+detection_range = 0.0
+knockback_direction_override = Vector2(0, -1)
+npc_name = "Enchanted Broom"
+
+[node name="PatrolPoint1" type="Marker2D" parent="NPCs/Broom1"]
+position = Vector2(-128.0, 0.0)
+
+[node name="PatrolPoint2" type="Marker2D" parent="NPCs/Broom1"]
+position = Vector2(128.0, 0.0)
+
 [node name="Shopkeeper" parent="NPCs" instance=ExtResource("2_npc")]
 position = Vector2(96.0, 144.0)
 movement_mode = 1
