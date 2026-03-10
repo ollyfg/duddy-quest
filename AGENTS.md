@@ -136,6 +136,7 @@ Available input actions (defined in `project.godot`):
 | `move_right` | D | Move right |
 | `melee_attack` | C | Swing Smeltings Stick |
 | `ranged_attack` | V | Fire projectile |
+| `interact` | E | Open locked doors, advance cutscenes |
 
 ### 5 – Query game state
 
@@ -147,8 +148,13 @@ Returns JSON like:
 
 ```json
 {
-  "player": { "x": 100.0, "y": 240.0, "hp": 5 },
-  "room": "l1_bedroom"
+  "player": { "x": 100.0, "y": 240.0, "hp": 5, "has_wand": false },
+  "room": "l1_bedroom",
+  "level": "level_1",
+  "dialog_active": false,
+  "npcs": [
+    { "x": 200.0, "y": 150.0, "hostile": false }
+  ]
 }
 ```
 
@@ -159,6 +165,34 @@ bash tools/stop.sh
 ```
 
 Kills both the Godot process and the Xvfb display, and removes stale IPC files.
+
+### 7 – Teleport the player (spawn)
+
+```bash
+# Teleport to a specific room and position
+python3 tools/playtest.py spawn --room l1_hallway --x 100 --y 200
+
+# Teleport within the current room
+python3 tools/playtest.py spawn --x 320 --y 240
+
+# Load a different room (player spawns at default position)
+python3 tools/playtest.py spawn --room l2_leaky_cauldron
+```
+
+### 8 – Toggle mobile viewport
+
+```bash
+python3 tools/playtest.py mobile-viewport on    # enable mobile viewport (640×770)
+python3 tools/playtest.py mobile-viewport off   # disable mobile viewport (640×480)
+```
+
+### 9 – Running unit tests
+
+The project uses the **GUT** (Godot Unit Test) framework. Test files live in `tests/`.
+
+```bash
+bash tools/run_tests.sh    # runs all GUT tests (requires tools/godot4)
+```
 
 ---
 
@@ -208,4 +242,10 @@ Supported command types:
 
 // Query game state
 { "type": "state" }
+
+// Teleport the player to a room and/or position
+{ "type": "spawn", "room": "l1_hallway", "x": 100.0, "y": 200.0 }
+
+// Toggle mobile viewport simulation
+{ "type": "set_mobile_viewport", "enabled": true }
 ```
