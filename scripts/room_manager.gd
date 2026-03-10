@@ -367,7 +367,7 @@ func _start_room_transition(direction: String, room_name: String, player_pos: Ve
 		# override it on its first step anyway.
 		if cam != null:
 			cam.offset = Vector2.ZERO
-			cam.position_smoothing_enabled = true
+			cam.position_smoothing_enabled = false
 			_player.set_camera_limits(current_room.get_room_rect())
 		if old_room != null and is_instance_valid(old_room):
 			old_room.queue_free()
