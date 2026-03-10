@@ -22,14 +22,8 @@ var _main: Node
 
 const _PATHFINDER_SCRIPT: Script = preload("res://scripts/pathfinder.gd")
 
-## Duration (seconds) of each slide phase (out and in) during a room transition.
+## Duration (seconds) of the camera slide during a room transition.
 const TRANSITION_DURATION: float = 0.4
-## Slide distance for east/west exits: half the standard room width (512 px) at
-## the default 2× zoom gives exactly one viewport-width of travel (256 world
-## units → 512 screen pixels at zoom=2).  Adjust if room sizes change.
-const TRANSITION_SLIDE_H: float = 256.0
-## Slide distance for north/south exits: half the standard room height (384 px).
-const TRANSITION_SLIDE_V: float = 192.0
 
 
 func setup(player, room_holder: Node2D, main: Node) -> void:
@@ -169,7 +163,7 @@ func _save_room_state() -> void:
 		if npc.is_queued_for_deletion():
 			continue
 		npc_states[npc.name] = {
-			"position": npc.global_position,
+			"position": npc.global_position - current_room.global_position,
 			"hp": npc.hp,
 		}
 	# Items: record the names of items that are still present.
@@ -207,7 +201,7 @@ func _restore_room_state(room_name: String) -> void:
 				npc.queue_free()
 			else:
 				var npc_data: Dictionary = npc_states[npc.name]
-				npc.global_position = npc_data["position"]
+				npc.global_position = current_room.global_position + npc_data["position"]
 				npc.hp = npc_data["hp"]
 	# Restore items: remove any item that was already collected.
 	if "items" in state:
@@ -249,82 +243,190 @@ func _on_exit_triggered(direction: String) -> void:
 	_start_room_transition(direction, next["room"], next["entry"])
 
 
-## Camera slide transition: freeze everything, slide the camera toward the exit,
-## load the new room, then slide the camera in from the opposite direction.
+## Seamless camera-scroll transition: loads the new room adjacent to the old
+## room so both are simultaneously visible during the slide.  This eliminates
+## the dark gap that occurred with the old two-phase approach.
+##
+## Flow:
+##   1. Instantiate new room at a world offset adjacent to the old room.
+##   2. Teleport the player to the entry position in the new room.
+##   3. Compensate the camera offset so the viewport appears to stay still.
+##   4. Wire signals / NPCs for the new room.
+##   5. Tween camera offset from the compensated value back to zero — the
+##      camera glides smoothly from the old exit to the new entry while both
+##      rooms are rendered.
+##   6. After the tween, free the old room and restore camera limits.
 func _start_room_transition(direction: String, room_name: String, player_pos: Vector2) -> void:
 	_room_loading = true
 	_player.cinematic_mode = true
 	_player.cancel_movement()
 
-	# Pause all NPCs in the outgoing room during the slide so they do not
-	# wander while the camera is animating.  They will be freed when the old
-	# room is queue_free()'d inside load_room(), so no explicit unpause is
-	# needed.
+	# Pause all NPCs in the outgoing room so they do not wander during the
+	# slide.  The old room is freed after the tween, so no explicit unpause is
+	# needed for those NPCs.
 	if current_room != null:
 		for npc in current_room.get_npcs():
 			if not npc.is_queued_for_deletion():
 				npc.is_paused = true
 
 	var cam: Camera2D = _player.get_node_or_null("Camera2D") as Camera2D
-	var slide_vec: Vector2 = _get_transition_vector(direction)
+	var old_room = current_room
 
-	# Phase 1 — slide the camera toward the exit.
-	if cam != null:
-		cam.position_smoothing_enabled = false
-		cam.limit_left = -GameConfig.UNLIMITED_CAMERA_LIMIT
-		cam.limit_top = -GameConfig.UNLIMITED_CAMERA_LIMIT
-		cam.limit_right = GameConfig.UNLIMITED_CAMERA_LIMIT
-		cam.limit_bottom = GameConfig.UNLIMITED_CAMERA_LIMIT
-		var tween_out: Tween = cam.create_tween()
-		tween_out.tween_property(cam, "offset", slide_vec, TRANSITION_DURATION) \
-				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		await tween_out.finished
-
-	# Load the new room (saves old state, frees old room, teleports player,
-	# instantiates new room).  load_room sets _room_loading = false at its end.
-	await load_room(room_name, player_pos)
-
-	# Re-acquire the transition lock for the slide-in phase.  load_room()
-	# releases it at its end; we grab it again to prevent the player from
-	# triggering a second exit before the camera has finished settling.
-	_room_loading = true
-
-	# If a first-visit intro cinematic started during load_room it will manage
-	# the camera (pan_camera / reset_camera) and cinematic_mode itself; exit
-	# early and let it take over.
-	if _main.is_cinematic_playing():
+	# ── Load the new room adjacent to the old one ─────────────────────────────
+	var level_rooms: Dictionary = _main.LEVELS[_main.current_level_name]["rooms"]
+	var scene_path: String = level_rooms.get(room_name, "")
+	if scene_path == "":
+		push_error("room_manager: no scene path for room '%s' in level '%s'" % [room_name, _main.current_level_name])
 		_room_loading = false
 		return
+	var packed: PackedScene = load(scene_path)
+	if packed == null:
+		push_error("room_manager: failed to load scene '%s' for room '%s'" % [scene_path, room_name])
+		_room_loading = false
+		return
+	var new_room = packed.instantiate()
+	# Position the new room immediately adjacent to the old room so the camera
+	# can scroll seamlessly between them with no black gap.
+	var room_offset: Vector2 = _compute_adjacent_offset(direction, old_room, new_room.room_size)
+	new_room.position = room_offset
+	_room_holder.add_child(new_room)
 
-	# Phase 3 — slide the camera in from the opposite direction.
+	# ── Save state and disconnect signals from the old room ───────────────────
+	if old_room != null:
+		_save_room_state()
+		if old_room.exit_triggered.is_connected(_on_exit_triggered):
+			old_room.exit_triggered.disconnect(_on_exit_triggered)
+		if old_room.locked_exit_attempted.is_connected(_main.dialog_manager.on_locked_exit_attempted):
+			old_room.locked_exit_attempted.disconnect(_main.dialog_manager.on_locked_exit_attempted)
+
+	# ── Teleport player; compensate camera so viewport appears stationary ─────
+	var old_player_pos: Vector2 = _player.global_position
+	var new_player_world_pos: Vector2 = room_offset + player_pos
+	_player.global_position = new_player_world_pos
+	_player.cancel_movement()
 	if cam != null:
 		cam.position_smoothing_enabled = false
 		cam.limit_left = -GameConfig.UNLIMITED_CAMERA_LIMIT
 		cam.limit_top = -GameConfig.UNLIMITED_CAMERA_LIMIT
 		cam.limit_right = GameConfig.UNLIMITED_CAMERA_LIMIT
 		cam.limit_bottom = GameConfig.UNLIMITED_CAMERA_LIMIT
-		cam.offset = -slide_vec
-		var tween_in: Tween = cam.create_tween()
-		tween_in.tween_property(cam, "offset", Vector2.ZERO, TRANSITION_DURATION) \
+		# With the player now at new_player_world_pos, this offset keeps the
+		# camera centered exactly where it was before the teleport.
+		cam.offset = old_player_pos - new_player_world_pos
+
+	# One physics frame so the new room's collision bodies are registered
+	# before we wire exit signals to the new room.
+	await get_tree().physics_frame
+
+	# ── Wire up the new room ───────────────────────────────────────────────────
+	current_room_name = room_name
+	current_room = new_room
+	current_room.exit_triggered.connect(_on_exit_triggered)
+	current_room.locked_exit_attempted.connect(_main.dialog_manager.on_locked_exit_attempted)
+
+	for trigger in get_tree().get_nodes_in_group("level_end"):
+		if trigger.has_signal("level_end_reached") and not trigger.has_meta("_duddy_level_end_connected"):
+			trigger.level_end_reached.connect(_main.level_manager._on_level_end_reached.bind(trigger))
+			trigger.set_meta("_duddy_level_end_connected", true)
+
+	_restore_room_state(room_name)
+
+	for npc in current_room.get_npcs():
+		if npc.is_queued_for_deletion():
+			continue
+		npc.is_paused = true  # Stay paused until the camera slide finishes.
+		if npc.has_method("set_player_reference"):
+			npc.set_player_reference(_player)
+		if npc.has_method("set_room_bounds"):
+			npc.set_room_bounds(current_room.get_room_rect())
+		if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
+			npc.boss_defeated.connect(_main.level_manager._on_boss_defeated)
+			npc.interaction_requested.connect(_main.dialog_manager.on_npc_interaction_requested.bind(npc))
+		elif not npc.is_hostile:
+			npc.interaction_requested.connect(_main.dialog_manager.on_npc_interaction_requested.bind(npc))
+		if npc.detection_dialog != "":
+			npc.player_detected.connect(_main.dialog_manager.on_npc_player_detected)
+		if npc.cinematic_kick_back:
+			npc.add_collision_exception_with(_player)
+			_player.add_collision_exception_with(npc)
+			npc.player_hit.connect(_main.dialog_manager.on_petunia_hit_player)
+
+	_main.hud_manager.update_hp_display(_player.hp)
+	_main.hud_manager.update_wand_display()
+
+	if room_name == "l1_bedroom":
+		var door: Node = current_room.get_node_or_null("MagicDoor")
+		if door != null and door.has_signal("door_approached"):
+			door.door_approached.connect(_main.dialog_manager.on_bedroom_door_approached)
+
+	# Second physics frame: ensure all signal connections and NPC setup from
+	# this frame are fully committed before clearing the loading guard.
+	await get_tree().physics_frame
+	_room_loading = false
+	_rebuild_pathfinder()
+
+	# ── Check for first-visit intro cinematics ────────────────────────────────
+	# Trigger any intro that applies; the cinematic manages the camera itself
+	# (pan_camera / reset_camera), so we skip the slide and hand off control.
+	_room_loading = true
+	if room_name == "l1_hallway" and not GameState.has_flag("l1_hallway_intro_shown"):
+		_main._play_hallway_intro()
+	elif room_name == "l1_street" and not GameState.has_flag("l1_street_intro_shown"):
+		_main._play_street_intro()
+	elif room_name == "l2_leaky_cauldron" and not GameState.has_flag("l2_leaky_cauldron_intro_shown"):
+		_main._play_leaky_cauldron_intro()
+
+	if _main.is_cinematic_playing():
+		# Snap camera to the new room immediately; the cinematic will
+		# override it on its first step anyway.
+		if cam != null:
+			cam.offset = Vector2.ZERO
+			cam.position_smoothing_enabled = true
+			_player.set_camera_limits(current_room.get_room_rect())
+		if old_room != null and is_instance_valid(old_room):
+			old_room.queue_free()
+		for npc in current_room.get_npcs():
+			if not npc.is_queued_for_deletion():
+				npc.is_paused = false
+		_room_loading = false
+		# cinematic_player.gd resets cinematic_mode when the sequence ends.
+		return
+
+	# ── Camera slide: glide from the compensated offset to zero ──────────────
+	# Both rooms are still in the scene; the viewport shows a smooth scroll
+	# from the old exit to the new entry with no black frames.
+	if cam != null:
+		var tween: Tween = cam.create_tween()
+		tween.tween_property(cam, "offset", Vector2.ZERO, TRANSITION_DURATION) \
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		await tween_in.finished
+		await tween.finished
+
+	# ── Finalise: free old room, restore camera limits, unpause NPCs ──────────
+	if old_room != null and is_instance_valid(old_room):
+		old_room.queue_free()
+	if cam != null:
 		cam.position_smoothing_enabled = true
 		_player.set_camera_limits(current_room.get_room_rect())
-
+	for npc in current_room.get_npcs():
+		if not npc.is_queued_for_deletion():
+			npc.is_paused = false
 	_room_loading = false
 	_player.cinematic_mode = false
 
 
-## Returns the camera offset vector used for the slide-out and slide-in phases.
-## Slides by one viewport-width (H) or viewport-height (V) in world units so the
-## old room fully leaves the screen before the new one arrives.
-func _get_transition_vector(direction: String) -> Vector2:
+## Returns the world-space position at which the new room should be placed so
+## it sits flush against the corresponding edge of the old room.
+func _compute_adjacent_offset(direction: String, old_room: Node2D, new_room_size: Vector2) -> Vector2:
+	if old_room == null:
+		return Vector2.ZERO
+	var old_pos: Vector2 = old_room.global_position
+	var old_size: Vector2 = old_room.room_size
 	match direction:
-		"east":  return Vector2(TRANSITION_SLIDE_H, 0.0)
-		"west":  return Vector2(-TRANSITION_SLIDE_H, 0.0)
-		"south": return Vector2(0.0, TRANSITION_SLIDE_V)
-		"north": return Vector2(0.0, -TRANSITION_SLIDE_V)
-	return Vector2.ZERO
+		"east":  return old_pos + Vector2(old_size.x, 0.0)
+		"west":  return old_pos + Vector2(-new_room_size.x, 0.0)
+		"south": return old_pos + Vector2(0.0, old_size.y)
+		"north": return old_pos + Vector2(0.0, -new_room_size.y)
+	return old_pos
 
 
 ## Builds an A* pathfinder for the current room if any NPC in it has
