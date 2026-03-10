@@ -178,6 +178,8 @@ var _facing_dir: Vector2 = Vector2.RIGHT
 ## set_room_bounds(); room collision geometry prevents movement beyond walls.
 var _room_bounds_min: Vector2 = Vector2(_BOUNDS_MARGIN, _BOUNDS_MARGIN)
 var _room_bounds_max: Vector2 = Vector2(1e6 - _BOUNDS_MARGIN, 1e6 - _BOUNDS_MARGIN)
+## True once exported patrol points have been shifted to world-space coordinates.
+var _patrol_points_adjusted: bool = false
 ## A* pathfinder supplied by the room loader; null when not using A*.
 var _pathfinder = null
 ## Current state-machine state; drives which per-frame handler runs.
@@ -282,6 +284,14 @@ func set_player_reference(player: Node) -> void:
 func set_room_bounds(room_rect: Rect2) -> void:
 	_room_bounds_min = room_rect.position + Vector2(_BOUNDS_MARGIN, _BOUNDS_MARGIN)
 	_room_bounds_max = room_rect.end - Vector2(_BOUNDS_MARGIN, _BOUNDS_MARGIN)
+	# Exported patrol points are in room-local coordinates.  When the room is
+	# placed at a non-zero world position (e.g. after a room transition) the
+	# points must be shifted to world space once.
+	if not _patrol_points_adjusted and not patrol_points.is_empty():
+		var offset: Vector2 = room_rect.position
+		for i in range(patrol_points.size()):
+			patrol_points[i] += offset
+		_patrol_points_adjusted = true
 
 
 ## Called by the game controller to supply an A* pathfinder built for the

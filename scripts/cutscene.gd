@@ -2,6 +2,9 @@ extends CanvasLayer
 
 signal cutscene_finished
 
+## Anchor fraction for the top of the text panel when an image is shown.
+const _TEXT_PANEL_TOP_WITH_IMAGE: float = 0.6
+
 var _slides: Array = []
 var _current: int = 0
 
@@ -29,8 +32,14 @@ func _show_slide() -> void:
 	if img != null:
 		image_rect.texture = img
 		image_rect.visible = true
+		# Image present: text panel occupies the bottom portion.
+		text_panel.anchor_top = _TEXT_PANEL_TOP_WITH_IMAGE
+		text_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	else:
 		image_rect.visible = false
+		# No image: text panel fills the entire screen.
+		text_panel.anchor_top = 0.0
+		text_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	text_label.text = slide.get("text", "")
 
 

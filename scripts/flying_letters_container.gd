@@ -4,7 +4,8 @@ extends Node2D
 ##
 ## When this node transitions from invisible to visible, it hides all child
 ## CanvasItems and then reveals them one by one over _SPAWN_DURATION seconds,
-## creating a "letters flowing in from the walls" effect.
+## creating a "letters flowing in from the walls" effect.  The spawn order is
+## randomised so letters don't appear in a predictable sequence.
 
 const _SPAWN_DURATION: float = 1.0
 
@@ -22,6 +23,8 @@ func _notification(what: int) -> void:
 
 func _start_spawn() -> void:
 	_pending = get_children()
+	# Shuffle so letters appear in a random order, not left-to-right.
+	_pending.shuffle()
 	# Hide every child so they can be revealed one at a time.
 	for child: Node in _pending:
 		if child is CanvasItem:
@@ -43,6 +46,8 @@ func _process(delta: float) -> void:
 			(child as CanvasItem).visible = true
 		if child.has_method("start_flying"):
 			child.start_flying()
-		_next_spawn_time += _spawn_interval
+		# Add a small random offset to the interval so letters don't arrive
+		# at perfectly even spacing.
+		_next_spawn_time += _spawn_interval + randf_range(-0.02, 0.02)
 	if _pending.is_empty():
 		_active = false

@@ -166,7 +166,7 @@ shape = SubResource("Sh_flowerbed")
 [node name="NPCs" type="Node2D" parent="."]
 
 [node name="MrsFigg" parent="NPCs" instance=ExtResource("2_npc")]
-position = Vector2(864.0, 320.0)
+position = Vector2(900.0, 320.0)
 movement_mode = 1
 invincible = true
 requires_interact = true

@@ -135,10 +135,15 @@ func _on_dialog_ended() -> void:
 		for npc: Node in get_tree().get_nodes_in_group("cinematic_kick_back"):
 			if npc.has_method("reset_patrol"):
 				npc.reset_patrol()
+		# Walk the player to the west exit of the current room.
+		var room: Node = _main.room_manager.current_room
+		var exit_node: Area2D = room.get_node_or_null("ExitWest") as Area2D
+		var exit_y: float = exit_node.position.y if exit_node != null else 184.0
 		var kick_origin: Vector2 = _player.global_position
+		var room_pos: Vector2 = room.global_position
 		_main.play_cinematic([
-			{"type": "move_player", "to": Vector2(kick_origin.x, 320.0), "speed": 100.0},
-			{"type": "move_player", "to": Vector2(64.0, 320.0), "speed": 100.0},
+			{"type": "move_player", "to": room_pos + Vector2(kick_origin.x - room_pos.x, exit_y), "speed": 100.0},
+			{"type": "move_player", "to": room_pos + Vector2(64.0, exit_y), "speed": 100.0},
 		], func():
 			_main.room_manager.trigger_exit("west")
 		)
