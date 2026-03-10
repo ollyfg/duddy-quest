@@ -65,16 +65,22 @@ func _on_wand_acquired() -> void:
 
 
 func _on_rage_attack() -> void:
+	play_flash(Color(1.0, 0.4, 0.0, 0.7), 0.3)
+
+
+## Play a coloured screen-flash overlay.  Used by rage attack and the wand
+## acquisition golden flash.
+func play_flash(flash_color: Color, duration: float) -> void:
 	var flash_layer := CanvasLayer.new()
 	flash_layer.layer = 15
 	get_parent().add_child(flash_layer)
 	var flash_rect := ColorRect.new()
-	flash_rect.color = Color(1.0, 0.4, 0.0, 0.7)
+	flash_rect.color = flash_color
 	flash_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	flash_layer.add_child(flash_rect)
 	var tween := get_parent().create_tween()
 	tween.tween_interval(0.1)
-	tween.tween_property(flash_rect, "color:a", 0.0, 0.3)
+	tween.tween_property(flash_rect, "color:a", 0.0, duration)
 	tween.tween_callback(flash_layer.queue_free)
 
 

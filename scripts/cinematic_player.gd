@@ -9,7 +9,7 @@ const UNLIMITED_CAMERA_LIMIT: int = GameConfig.UNLIMITED_CAMERA_LIMIT
 ## All recognised cinematic step type strings.
 const KNOWN_STEP_TYPES: Array[String] = [
 	"move_npc", "move_player", "dialog", "set_visible",
-	"wait", "play_cutscene", "pan_camera", "reset_camera",
+	"wait", "play_cutscene", "pan_camera", "reset_camera", "flash",
 ]
 
 ## Keys that must be present for each step type.
@@ -143,6 +143,13 @@ func _run_step(step: Dictionary) -> void:
 				tween.tween_property(cam, "offset", Vector2.ZERO, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 				await tween.finished
 				cam.position_smoothing_enabled = true
+		"flash":
+			var flash_color: Color = step.get("color", Color(1.0, 0.85, 0.0, 0.7))
+			var flash_duration: float = step.get("duration", 0.3)
+			var main_node = _player.get_parent()
+			if main_node != null and main_node.has_method("_do_cinematic_flash"):
+				main_node._do_cinematic_flash(flash_color, flash_duration)
+			await get_tree().create_timer(flash_duration + 0.1).timeout
 
 
 func _move_node(node: Node2D, target: Vector2, speed: float) -> void:

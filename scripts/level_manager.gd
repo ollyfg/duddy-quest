@@ -15,6 +15,8 @@ func load_level(level_name: String) -> void:
 	_main.room_manager.clear_room_states()
 	if level_name == "level_1":
 		_start_level_1_intro()
+	elif level_name == "level_2":
+		_start_level_2_intro()
 	else:
 		var level: Dictionary = _main.LEVELS[level_name]
 		_main.room_manager.load_room(level["start_room"], level["start_pos"])
@@ -73,6 +75,13 @@ func _on_level_end_reached(trigger: Node) -> void:
 			{"image": null, "text": "Dudley boards the number 9 bus.\nIt takes him in completely the wrong direction.", "background_color": Color(0.1, 0.1, 0.1)},
 			{"image": null, "text": "The bus deposits him — confusingly — in central London,\noutside a rather grubby pub he could have sworn\nwasn't there yesterday.", "background_color": Color(0.1, 0.1, 0.1)},
 		]
+	elif slides.is_empty() and _main.current_level_name == "level_2":
+		slides = [
+			{"image": null, "text": "Wand in his pocket and robes under his arm, Dudley left Diagon Alley behind.", "background_color": Color(0.1, 0.1, 0.23)},
+			{"image": null, "text": "He still wasn't sure how a wand had chosen HIM, of all people.", "background_color": Color(0.1, 0.1, 0.23)},
+			{"image": null, "text": "But the maple wand felt warm in his hand. Like it belonged there.", "background_color": Color(0.23, 0.16, 0.04)},
+			{"image": null, "text": "Next stop: King's Cross Station. Platform Nine and Three-Quarters.", "background_color": Color(0.0, 0.0, 0.0)},
+		]
 	var _do_complete := func(): _show_level_complete(trigger)
 	if slides.size() > 0:
 		_main.play_cutscene(slides, _do_complete)
@@ -81,7 +90,24 @@ func _on_level_end_reached(trigger: Node) -> void:
 
 
 func _on_boss_defeated() -> void:
-	_show_level_complete()
+	if _main.current_level_name == "level_2":
+		_main._play_draco_defeat_cinematic()
+	else:
+		_show_level_complete()
+
+
+## Plays the level-2 intro cutscene then loads the Leaky Cauldron.
+func _start_level_2_intro() -> void:
+	var slides: Array = [
+		{"image": null, "text": "After escaping Privet Drive, Dudley found himself on a London street he didn't recognise.", "background_color": Color(0.16, 0.16, 0.16)},
+		{"image": null, "text": "A grubby pub sign read 'The Leaky Cauldron'. Nobody else seemed to notice it.", "background_color": Color(0.16, 0.16, 0.16)},
+		{"image": null, "text": "Dudley barged inside, looking for a toilet.", "background_color": Color(0.23, 0.16, 0.1)},
+		{"image": null, "text": "Instead, he found something far stranger.", "background_color": Color(0.0, 0.0, 0.0)},
+	]
+	_main.play_cutscene(slides, func():
+		var level: Dictionary = _main.LEVELS["level_2"]
+		_main.room_manager.load_room(level["start_room"], level["start_pos"])
+	)
 
 
 func _show_level_complete(trigger: Node = null) -> void:

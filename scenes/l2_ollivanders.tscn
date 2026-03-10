@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://l2ollivanders"]
+[gd_scene load_steps=11 format=3 uid="uid://l2ollivanders"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall"]
 size = Vector2(640, 24)
@@ -16,6 +17,12 @@ size = Vector2(24, 216)
 
 [sub_resource type="RectangleShape2D" id="Sh_exit"]
 size = Vector2(12, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_shelf_v"]
+size = Vector2(48, 96)
+
+[sub_resource type="RectangleShape2D" id="Sh_shelf_h"]
+size = Vector2(48, 64)
 
 [node name="Room" type="Node2D"]
 script = ExtResource("1_room")
@@ -106,3 +113,94 @@ collision_mask = 2
 shape = SubResource("Sh_exit")
 
 [node name="NPCs" type="Node2D" parent="."]
+
+[node name="Ollivander" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(480.0, 240.0)
+movement_mode = 1
+npc_name = "Mr Ollivander"
+custom_sprite_color = Color(0.5, 0.4, 0.2, 1)
+dialog_lines = ["Take care of that wand, boy. It chose you."]
+
+[node name="ShelfLeft1" type="StaticBody2D" parent="."]
+position = Vector2(60, 120)
+
+[node name="Sprite" type="ColorRect" parent="ShelfLeft1"]
+offset_left = -24.0
+offset_top = -48.0
+offset_right = 24.0
+offset_bottom = 48.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShelfLeft1"]
+shape = SubResource("Sh_shelf_v")
+
+[node name="ShelfLeft2" type="StaticBody2D" parent="."]
+position = Vector2(60, 280)
+
+[node name="Sprite" type="ColorRect" parent="ShelfLeft2"]
+offset_left = -24.0
+offset_top = -48.0
+offset_right = 24.0
+offset_bottom = 48.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShelfLeft2"]
+shape = SubResource("Sh_shelf_v")
+
+[node name="ShelfLeft3" type="StaticBody2D" parent="."]
+position = Vector2(60, 440)
+
+[node name="Sprite" type="ColorRect" parent="ShelfLeft3"]
+offset_left = -24.0
+offset_top = -32.0
+offset_right = 24.0
+offset_bottom = 32.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShelfLeft3"]
+shape = SubResource("Sh_shelf_h")
+
+[node name="ShelfRight1" type="StaticBody2D" parent="."]
+position = Vector2(580, 120)
+
+[node name="Sprite" type="ColorRect" parent="ShelfRight1"]
+offset_left = -24.0
+offset_top = -48.0
+offset_right = 24.0
+offset_bottom = 48.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShelfRight1"]
+shape = SubResource("Sh_shelf_v")
+
+[node name="ShelfRight2" type="StaticBody2D" parent="."]
+position = Vector2(580, 280)
+
+[node name="Sprite" type="ColorRect" parent="ShelfRight2"]
+offset_left = -24.0
+offset_top = -48.0
+offset_right = 24.0
+offset_bottom = 48.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShelfRight2"]
+shape = SubResource("Sh_shelf_v")
+
+[node name="ShelfRight3" type="StaticBody2D" parent="."]
+position = Vector2(580, 440)
+
+[node name="Sprite" type="ColorRect" parent="ShelfRight3"]
+offset_left = -24.0
+offset_top = -32.0
+offset_right = 24.0
+offset_bottom = 32.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShelfRight3"]
+shape = SubResource("Sh_shelf_h")
