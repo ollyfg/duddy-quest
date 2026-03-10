@@ -90,6 +90,14 @@ enum State { IDLE, WANDER, PATROL, CHASE, KEEP_DISTANCE, STUNNED }
 ## rather than stacking on top of each other.
 @export var chase_random_offset: float = 0.0
 
+## When non-zero, overrides the knockback direction applied to the player on
+## contact.  Normally the direction is derived from the collision angle
+## (player_position − npc_position).  Set this to a fixed world-space
+## direction (e.g. Vector2(1, 0) to always push east) so that enemies like
+## enchanted brooms always sweep the player toward the exit regardless of the
+## contact angle.
+@export var knockback_direction_override: Vector2 = Vector2.ZERO
+
 ## If non-empty, give this key id to the player after dialog and then
 ## remove the NPC.  Only activates once gives_key_flag (if set) is true.
 @export var gives_key_id: String = ""
@@ -620,6 +628,8 @@ func _draw() -> void:
 func _on_hit_area_body_entered(body: Node) -> void:
 	if is_hostile and body.is_in_group("player"):
 		var direction: Vector2 = ((body as Node2D).global_position - global_position).normalized()
+		if knockback_direction_override != Vector2.ZERO:
+			direction = knockback_direction_override.normalized()
 		player_hit.emit()
 		# Cinematic NPCs handle player movement themselves; skip direct damage/knockback.
 		if not cinematic_kick_back:
