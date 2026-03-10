@@ -42,6 +42,10 @@ const _BTN_ICONS: Dictionary = {
 	"BtnRanged":   preload("res://assets/icons/lightning.svg"),
 }
 
+## Logical viewport dimensions (must match project.godot viewport_width/height).
+const VIEWPORT_WIDTH: float = 640.0
+const VIEWPORT_HEIGHT: float = 770.0
+
 
 func _ready() -> void:
 	_is_dev_tools = "--dev-tools" in OS.get_cmdline_user_args()
@@ -65,6 +69,49 @@ func _ready() -> void:
 	# In dev-tools mode show it unconditionally so it can be screenshotted.
 	if not _is_dev_tools:
 		_btn_ranged.visible = false
+	# Shift controls up so they clear the system navigation bar / home
+	# indicator on devices where the viewport fills the full screen height.
+	_apply_safe_area_margins()
+
+
+## Compensates for the system safe-area bottom inset (navigation bar / home
+## indicator) so that mobile controls are not hidden behind system UI.
+## Only adjusts when the game's rendered bottom edge actually overlaps the
+## unsafe zone; on tall portrait phones with letterbox bars the game bottom
+## is already well above the navigation bar so no adjustment is needed.
+func _apply_safe_area_margins() -> void:
+	var screen_size := DisplayServer.screen_get_size()
+	if screen_size.y <= 0:
+		return
+	var safe_area := DisplayServer.get_display_safe_area()
+	var bottom_inset_px := screen_size.y - safe_area.end.y
+	if bottom_inset_px <= 0:
+		return
+	# With stretch/mode=canvas_items and stretch/aspect=keep the viewport is
+	# uniformly scaled to fit inside the screen (black bars on whichever axis
+	# has extra space).  The scale factor is the smaller of the two per-axis
+	# ratios and the game is centred on screen.
+	var scale := minf(float(screen_size.x) / VIEWPORT_WIDTH, float(screen_size.y) / VIEWPORT_HEIGHT)
+	if scale <= 0.0:
+		return
+	# Bottom edge of the rendered game in screen pixels (centred).
+	var game_bottom_px := (float(screen_size.y) + VIEWPORT_HEIGHT * scale) / 2.0
+	var safe_bottom_px := float(screen_size.y) - float(bottom_inset_px)
+	var overlap_px := game_bottom_px - safe_bottom_px
+	if overlap_px <= 0.0:
+		return
+	# Convert the overlap to logical viewport pixels and shift every
+	# bottom-anchored control node up by that amount.
+	var inset_vp := overlap_px / scale
+	var background: ColorRect = _overlay.get_node_or_null("ControlsBackground")
+	if background:
+		background.offset_top -= inset_vp
+		background.offset_bottom -= inset_vp
+	for btn_name: String in _BTN_ACTIONS:
+		var btn: Button = _overlay.get_node_or_null(btn_name)
+		if btn:
+			btn.offset_top -= inset_vp
+			btn.offset_bottom -= inset_vp
 
 
 func _input(event: InputEvent) -> void:
