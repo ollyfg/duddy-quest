@@ -228,8 +228,7 @@ func _cmd_set_mobile_viewport(cmd: Dictionary) -> void:
 			if enabled:
 				var cam: Camera2D = p.get_node_or_null("Camera2D") as Camera2D
 				var zoom_y: float = cam.zoom.y if cam != null else 2.0
-				# 290 = height of the on-screen controls in viewport-logical px.
-				p.set_mobile_camera_offset(290.0 / zoom_y)
+				p.set_mobile_camera_offset(GameConfig.MOBILE_CONTROLS_HEIGHT / zoom_y)
 			else:
 				p.set_mobile_camera_offset(0.0)
 		# Re-apply camera limits for the current room so the extended bottom

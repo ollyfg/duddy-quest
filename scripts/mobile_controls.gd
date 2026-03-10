@@ -175,7 +175,7 @@ func set_ranged_visible(show: bool) -> void:
 
 
 ## Height of the on-screen controls area in viewport-logical pixels.
-const CONTROLS_HEIGHT: float = 290.0
+const CONTROLS_HEIGHT: float = GameConfig.MOBILE_CONTROLS_HEIGHT
 
 
 ## Tells the player Camera2D to shift downward so the visible game area
