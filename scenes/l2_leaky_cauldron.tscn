@@ -160,5 +160,31 @@ shape = SubResource("Sh_table")
 position = Vector2(288.0, 144.0)
 movement_mode = 1
 npc_name = "Tom"
-dialog_lines = ["Welcome to the Leaky Cauldron, lad!", "Through that wall is Diagon Alley. Best place for school supplies.", "You'll want Gringotts for your money, then the shops."]
+dialog_lines = ["*sigh* Ruddy wizards. I just mopped these floors.", "Through that wall is Diagon Alley. Best place for school supplies.", "You'll want Gringotts for your money, then the shops."]
+requires_flag = "l2_bar_fight_triggered"
+pre_flag_dialog = ["Welcome to the Leaky Cauldron, lad!", "Through that wall is Diagon Alley. Best place for school supplies.", "You'll want Gringotts for your money, then the shops."]
 custom_sprite_color = Color(0.85, 0.7, 0.55, 1)
+
+[node name="Patron1" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(100.0, 350.0)
+movement_mode = 1
+npc_name = "Old Wizard"
+max_hp = 5
+dialog_lines = ["Hmph. Another tourist.", "In my day, the Leaky Cauldron had real mead. Now it's all butterbeer."]
+custom_sprite_color = Color(0.4, 0.35, 0.45, 1)
+
+[node name="Patron2" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(400.0, 370.0)
+movement_mode = 1
+npc_name = "Grizzled Wizard"
+max_hp = 5
+dialog_lines = ["What are you staring at, boy?", "I've seen things that would turn your hair white."]
+custom_sprite_color = Color(0.35, 0.3, 0.25, 1)
+
+[node name="Patron3" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(160.0, 260.0)
+movement_mode = 1
+npc_name = "Bearded Wizard"
+max_hp = 5
+dialog_lines = ["*mutters into his drink*", "Back in my day, we didn't need wands. Used our bare hands."]
+custom_sprite_color = Color(0.5, 0.4, 0.3, 1)

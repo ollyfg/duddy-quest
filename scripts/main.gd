@@ -304,3 +304,54 @@ func _play_draco_defeat_cinematic() -> void:
 ## Delegates a screen flash to the HUD manager (called by cinematic_player).
 func _do_cinematic_flash(flash_color: Color, duration: float) -> void:
 	hud_manager.play_flash(flash_color, duration)
+
+
+## Called when any wizard patron in the Leaky Cauldron takes damage.
+## Triggers the bar fight cinematic once.
+func _on_patron_damaged() -> void:
+	if GameState.has_flag("l2_bar_fight_triggered"):
+		return
+	if is_cinematic_playing() or dialog_box.is_active():
+		return
+	GameState.set_flag("l2_bar_fight_triggered")
+	# Make all patrons invincible so they survive the cinematic.
+	for npc in room_manager.current_room.get_npcs():
+		if npc.name.begins_with("Patron"):
+			npc.invincible = true
+	_play_bar_fight_cinematic()
+
+
+## Bar fight cinematic: the wizard patrons brawl while Tom tells Dudley to stay back.
+func _play_bar_fight_cinematic() -> void:
+	var room: Node = room_manager.current_room
+	var rp: Vector2 = room.global_position
+	dialog_manager.set_dialog_active(true)
+	play_cinematic([
+		{"type": "dialog", "speaker": "Tom", "lines": [
+			"Oi! Stay back, lad! Don't get in the middle of this!",
+		]},
+		{"type": "move_npc", "npc": "NPCs/Patron1", "to": rp + Vector2(250.0, 300.0), "speed": 120.0},
+		{"type": "move_npc", "npc": "NPCs/Patron2", "to": rp + Vector2(280.0, 320.0), "speed": 120.0},
+		{"type": "flash", "color": Color(1.0, 0.3, 0.3, 0.6), "duration": 0.2},
+		{"type": "move_npc", "npc": "NPCs/Patron3", "to": rp + Vector2(260.0, 280.0), "speed": 100.0},
+		{"type": "flash", "color": Color(1.0, 0.3, 0.3, 0.6), "duration": 0.2},
+		{"type": "wait", "duration": 0.3},
+		{"type": "move_npc", "npc": "NPCs/Patron1", "to": rp + Vector2(350.0, 350.0), "speed": 140.0},
+		{"type": "flash", "color": Color(1.0, 0.2, 0.2, 0.7), "duration": 0.2},
+		{"type": "move_npc", "npc": "NPCs/Patron2", "to": rp + Vector2(180.0, 300.0), "speed": 130.0},
+		{"type": "move_npc", "npc": "NPCs/Patron3", "to": rp + Vector2(320.0, 340.0), "speed": 110.0},
+		{"type": "flash", "color": Color(1.0, 0.2, 0.2, 0.7), "duration": 0.2},
+		{"type": "wait", "duration": 0.5},
+		{"type": "dialog", "speaker": "Tom", "lines": [
+			"*sigh* Every blessed time...",
+			"Right, you lot — OUT! I just mopped these floors!",
+		]},
+		{"type": "set_visible", "node": "NPCs/Patron1", "visible": false},
+		{"type": "set_visible", "node": "NPCs/Patron2", "visible": false},
+		{"type": "set_visible", "node": "NPCs/Patron3", "visible": false},
+	], func() -> void:
+		for npc in room.get_npcs():
+			if npc.name.begins_with("Patron") and is_instance_valid(npc):
+				npc.queue_free()
+		dialog_manager.set_dialog_active(false)
+	)
