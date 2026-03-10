@@ -22,9 +22,11 @@ func build(space: PhysicsDirectSpaceState2D, room_origin: Vector2 = Vector2.ZERO
 	_astar = AStarGrid2D.new()
 	_astar.region = Rect2i(0, 0, _cols, _rows)
 	_astar.cell_size = Vector2(CELL_SIZE, CELL_SIZE)
-	# Setting offset to room_origin makes get_point_path() return world-space
-	# positions directly, matching the NPC's global_position coordinate space.
-	_astar.offset = room_origin
+	# Setting offset to room_origin + half cell size makes get_point_path()
+	# return cell-centre world-space positions, matching the cell-centre points
+	# used during the obstacle scan and keeping waypoints safely away from wall
+	# faces at cell boundaries.
+	_astar.offset = room_origin + Vector2(CELL_SIZE * 0.5, CELL_SIZE * 0.5)
 	# Cardinal-only movement is simpler and avoids corner-cutting artefacts.
 	_astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
 	_astar.update()
@@ -45,6 +47,22 @@ func build(space: PhysicsDirectSpaceState2D, room_origin: Vector2 = Vector2.ZERO
 				if result["collider"] is StaticBody2D:
 					_astar.set_point_solid(Vector2i(col, row), true)
 					break
+
+	# Add a cost penalty to cells adjacent to solid obstacles so the A* prefers
+	# paths through open space rather than hugging wall faces.  This avoids the
+	# CharacterBody2D corner-catching bug in Godot's move_and_slide() where an
+	# NPC body-edge touching a wall corner cancels the perpendicular velocity.
+	for row in range(_rows):
+		for col in range(_cols):
+			var cell := Vector2i(col, row)
+			if _astar.is_point_solid(cell):
+				continue
+			for off in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				var nb: Vector2i = cell + off
+				if nb.x >= 0 and nb.x < _cols and nb.y >= 0 and nb.y < _rows:
+					if _astar.is_point_solid(nb):
+						_astar.set_point_weight_scale(cell, 4.0)
+						break
 
 
 ## Returns a normalised direction from `from_world` toward `to_world` using

@@ -520,7 +520,7 @@ func _patrol_move(delta: float) -> void:
 		_patrol_pause_timer = patrol_pause_duration
 		velocity = Vector2.ZERO
 	else:
-		velocity = (target - global_position).normalized() * move_speed
+		velocity = _navigate_toward(target) * move_speed
 
 
 ## Called externally (e.g. after a cinematic kick-back) to make this NPC

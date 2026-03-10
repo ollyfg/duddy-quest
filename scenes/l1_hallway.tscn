@@ -7,10 +7,13 @@
 size = Vector2(960, 24)
 
 [sub_resource type="RectangleShape2D" id="Sh_vwall_seg"]
-size = Vector2(24, 80)
+size = Vector2(24, 120)
 
 [sub_resource type="RectangleShape2D" id="Sh_exit"]
 size = Vector2(12, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_inner_hwall"]
+size = Vector2(168, 32)
 
 [sub_resource type="RectangleShape2D" id="Sh_coatrack"]
 size = Vector2(32, 64)
@@ -32,13 +35,13 @@ size = Vector2(32, 32)
 
 [node name="Room" type="Node2D"]
 script = ExtResource("1_room")
-room_size = Vector2(960, 208)
+room_size = Vector2(960, 368)
 
 [node name="Floor" type="ColorRect" parent="."]
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 960.0
-offset_bottom = 208.0
+offset_bottom = 368.0
 color = Color(0.85, 0.75, 0.65, 1)
 mouse_filter = 2
 
@@ -57,7 +60,7 @@ mouse_filter = 2
 shape = SubResource("Sh_hwall")
 
 [node name="BottomWall" type="StaticBody2D" parent="."]
-position = Vector2(480, 196)
+position = Vector2(480, 356)
 
 [node name="Sprite" type="ColorRect" parent="BottomWall"]
 offset_left = -480.0
@@ -71,13 +74,13 @@ mouse_filter = 2
 shape = SubResource("Sh_hwall")
 
 [node name="LeftWallTop" type="StaticBody2D" parent="."]
-position = Vector2(12, 40)
+position = Vector2(12, 84)
 
 [node name="Sprite" type="ColorRect" parent="LeftWallTop"]
 offset_left = -12.0
-offset_top = -40.0
+offset_top = -60.0
 offset_right = 12.0
-offset_bottom = 40.0
+offset_bottom = 60.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -85,13 +88,13 @@ mouse_filter = 2
 shape = SubResource("Sh_vwall_seg")
 
 [node name="LeftWallBottom" type="StaticBody2D" parent="."]
-position = Vector2(12, 168)
+position = Vector2(12, 284)
 
 [node name="Sprite" type="ColorRect" parent="LeftWallBottom"]
 offset_left = -12.0
-offset_top = -40.0
+offset_top = -60.0
 offset_right = 12.0
-offset_bottom = 40.0
+offset_bottom = 60.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -99,20 +102,20 @@ mouse_filter = 2
 shape = SubResource("Sh_vwall_seg")
 
 [node name="ExitWest" type="Area2D" parent="."]
-position = Vector2(18, 104)
+position = Vector2(18, 184)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitWest"]
 shape = SubResource("Sh_exit")
 
 [node name="RightWallTop" type="StaticBody2D" parent="."]
-position = Vector2(948, 40)
+position = Vector2(948, 84)
 
 [node name="Sprite" type="ColorRect" parent="RightWallTop"]
 offset_left = -12.0
-offset_top = -40.0
+offset_top = -60.0
 offset_right = 12.0
-offset_bottom = 40.0
+offset_bottom = 60.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -120,13 +123,13 @@ mouse_filter = 2
 shape = SubResource("Sh_vwall_seg")
 
 [node name="RightWallBottom" type="StaticBody2D" parent="."]
-position = Vector2(948, 168)
+position = Vector2(948, 284)
 
 [node name="Sprite" type="ColorRect" parent="RightWallBottom"]
 offset_left = -12.0
-offset_top = -40.0
+offset_top = -60.0
 offset_right = 12.0
-offset_bottom = 40.0
+offset_bottom = 60.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -134,14 +137,126 @@ mouse_filter = 2
 shape = SubResource("Sh_vwall_seg")
 
 [node name="ExitEast" type="Area2D" parent="."]
-position = Vector2(942, 104)
+position = Vector2(942, 184)
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitEast"]
 shape = SubResource("Sh_exit")
 
+[node name="NorthWallLeft" type="StaticBody2D" parent="."]
+position = Vector2(108, 128)
+
+[node name="Sprite" type="ColorRect" parent="NorthWallLeft"]
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NorthWallLeft"]
+shape = SubResource("Sh_inner_hwall")
+
+[node name="NorthWallMidLeft" type="StaticBody2D" parent="."]
+position = Vector2(388, 128)
+
+[node name="Sprite" type="ColorRect" parent="NorthWallMidLeft"]
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NorthWallMidLeft"]
+shape = SubResource("Sh_inner_hwall")
+
+[node name="NorthWallMidRight" type="StaticBody2D" parent="."]
+position = Vector2(572, 128)
+
+[node name="Sprite" type="ColorRect" parent="NorthWallMidRight"]
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NorthWallMidRight"]
+shape = SubResource("Sh_inner_hwall")
+
+[node name="NorthWallRight" type="StaticBody2D" parent="."]
+position = Vector2(852, 128)
+
+[node name="Sprite" type="ColorRect" parent="NorthWallRight"]
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NorthWallRight"]
+shape = SubResource("Sh_inner_hwall")
+
+[node name="SouthWallLeft" type="StaticBody2D" parent="."]
+position = Vector2(108, 240)
+
+[node name="Sprite" type="ColorRect" parent="SouthWallLeft"]
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SouthWallLeft"]
+shape = SubResource("Sh_inner_hwall")
+
+[node name="SouthWallMidLeft" type="StaticBody2D" parent="."]
+position = Vector2(388, 240)
+
+[node name="Sprite" type="ColorRect" parent="SouthWallMidLeft"]
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SouthWallMidLeft"]
+shape = SubResource("Sh_inner_hwall")
+
+[node name="SouthWallMidRight" type="StaticBody2D" parent="."]
+position = Vector2(572, 240)
+
+[node name="Sprite" type="ColorRect" parent="SouthWallMidRight"]
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SouthWallMidRight"]
+shape = SubResource("Sh_inner_hwall")
+
+[node name="SouthWallRight" type="StaticBody2D" parent="."]
+position = Vector2(852, 240)
+
+[node name="Sprite" type="ColorRect" parent="SouthWallRight"]
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
+color = Color(0.35, 0.22, 0.08, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SouthWallRight"]
+shape = SubResource("Sh_inner_hwall")
+
 [node name="CoatRack" type="StaticBody2D" parent="."]
-position = Vector2(224, 64)
+position = Vector2(144, 80)
 
 [node name="Sprite" type="ColorRect" parent="CoatRack"]
 offset_left = -16.0
@@ -154,22 +269,8 @@ mouse_filter = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CoatRack"]
 shape = SubResource("Sh_coatrack")
 
-[node name="LinenChest" type="StaticBody2D" parent="."]
-position = Vector2(416, 144)
-
-[node name="Sprite" type="ColorRect" parent="LinenChest"]
-offset_left = -40.0
-offset_top = -16.0
-offset_right = 40.0
-offset_bottom = 16.0
-color = Color(0.5, 0.35, 0.15, 1)
-mouse_filter = 2
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LinenChest"]
-shape = SubResource("Sh_linenchest")
-
 [node name="HallwayTable" type="StaticBody2D" parent="."]
-position = Vector2(304, 64)
+position = Vector2(352, 80)
 
 [node name="Sprite" type="ColorRect" parent="HallwayTable"]
 offset_left = -24.0
@@ -182,22 +283,8 @@ mouse_filter = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HallwayTable"]
 shape = SubResource("Sh_halltable")
 
-[node name="ShoeRack" type="StaticBody2D" parent="."]
-position = Vector2(160, 144)
-
-[node name="Sprite" type="ColorRect" parent="ShoeRack"]
-offset_left = -16.0
-offset_top = -16.0
-offset_right = 16.0
-offset_bottom = 16.0
-color = Color(0.3, 0.18, 0.06, 1)
-mouse_filter = 2
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ShoeRack"]
-shape = SubResource("Sh_shoerack")
-
 [node name="UmbrellaStand" type="StaticBody2D" parent="."]
-position = Vector2(480, 64)
+position = Vector2(528, 80)
 
 [node name="Sprite" type="ColorRect" parent="UmbrellaStand"]
 offset_left = -8.0
@@ -210,8 +297,36 @@ mouse_filter = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="UmbrellaStand"]
 shape = SubResource("Sh_umbrella")
 
+[node name="LinenChest" type="StaticBody2D" parent="."]
+position = Vector2(416, 288)
+
+[node name="Sprite" type="ColorRect" parent="LinenChest"]
+offset_left = -40.0
+offset_top = -16.0
+offset_right = 40.0
+offset_bottom = 16.0
+color = Color(0.5, 0.35, 0.15, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LinenChest"]
+shape = SubResource("Sh_linenchest")
+
+[node name="ShoeRack" type="StaticBody2D" parent="."]
+position = Vector2(160, 288)
+
+[node name="Sprite" type="ColorRect" parent="ShoeRack"]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.3, 0.18, 0.06, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ShoeRack"]
+shape = SubResource("Sh_shoerack")
+
 [node name="LargeVase" type="StaticBody2D" parent="."]
-position = Vector2(480, 144)
+position = Vector2(528, 288)
 
 [node name="Sprite" type="ColorRect" parent="LargeVase"]
 offset_left = -16.0
@@ -227,7 +342,7 @@ shape = SubResource("Sh_largevase")
 [node name="NPCs" type="Node2D" parent="."]
 
 [node name="PetuniaHoover" parent="NPCs" instance=ExtResource("2_npc")]
-position = Vector2(480.0, 96.0)
+position = Vector2(480.0, 192.0)
 cinematic_kick_back = true
 is_hostile = true
 movement_mode = 5
@@ -238,5 +353,5 @@ use_astar = true
 use_cone_detection = true
 detection_range = 140.0
 patrol_pause_duration = 1.5
-patrol_points = Array[Vector2]([Vector2(80.0, 96.0), Vector2(880.0, 96.0)])
+patrol_points = Array[Vector2]([Vector2(248.0, 80.0), Vector2(712.0, 80.0), Vector2(712.0, 288.0), Vector2(248.0, 288.0)])
 npc_name = "Petunia"
