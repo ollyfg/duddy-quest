@@ -133,14 +133,14 @@ func _build_state() -> Dictionary:
 		state["player"] = null
 
 	var main := get_tree().get_root().get_node_or_null("Main")
-	var rm = main.room_manager if main != null and "room_manager" in main else null
-	if rm != null and "current_room_name" in rm and rm.current_room_name != "":
-		state["room"] = rm.current_room_name
+	var room_manager = main.room_manager if main != null and "room_manager" in main else null
+	if room_manager != null:
+		state["room"] = room_manager.current_room_name
 		state["level"] = main.current_level_name if "current_level_name" in main else null
 		var db = main.get_node_or_null("HUD/DialogBox")
 		state["dialog_active"] = db != null and db.is_active()
-		if rm.current_room != null:
-			var npcs_node = rm.current_room.get_node_or_null("NPCs")
+		if room_manager.current_room != null:
+			var npcs_node = room_manager.current_room.get_node_or_null("NPCs")
 			if npcs_node:
 				var npc_positions = []
 				for npc in npcs_node.get_children():
@@ -158,6 +158,10 @@ func _cmd_spawn(cmd: Dictionary) -> void:
 	if main == null:
 		_write_result({"error": "Main node not found"})
 		return
+	var room_manager = main.room_manager if "room_manager" in main else null
+	if room_manager == null:
+		_write_result({"error": "room_manager not found"})
+		return
 
 	var room_name: String = cmd.get("room", "")
 	var has_x: bool = "x" in cmd
@@ -172,8 +176,7 @@ func _cmd_spawn(cmd: Dictionary) -> void:
 	var p := players[0]
 
 	if room_name != "":
-		var rm = main.room_manager if "room_manager" in main else null
-		if rm != null and rm.is_loading():
+		if room_manager.is_loading():
 			_write_result({"error": "Room transition already in progress"})
 			return
 		var level_rooms: Dictionary = main.LEVELS[main.current_level_name]["rooms"]
@@ -181,8 +184,7 @@ func _cmd_spawn(cmd: Dictionary) -> void:
 			_write_result({"error": "Room '%s' not found in level '%s'" % [room_name, main.current_level_name]})
 			return
 		var pos := Vector2(x, y) if (has_x and has_y) else Vector2(320.0, 240.0)
-		# load_room sets player.global_position and calls cancel_movement() internally.
-		await main.room_manager.load_room(room_name, pos)
+		await room_manager.load_room(room_name, pos)
 	elif has_x and has_y:
 		p.global_position = Vector2(x, y)
 		p.cancel_movement()
@@ -191,9 +193,7 @@ func _cmd_spawn(cmd: Dictionary) -> void:
 		return
 
 	var result: Dictionary = {"ok": true}
-	var rm2 = main.room_manager if "room_manager" in main else null
-	if rm2 != null and "current_room_name" in rm2:
-		result["room"] = rm2.current_room_name
+	result["room"] = room_manager.current_room_name
 	result["x"] = snappedf(p.global_position.x, 0.01)
 	result["y"] = snappedf(p.global_position.y, 0.01)
 	_write_result(result)

@@ -28,6 +28,11 @@ var _is_playing: bool = false
 var _pathfinder = null
 
 
+## Returns true while a cinematic sequence is actively playing.
+func is_playing() -> bool:
+	return _is_playing
+
+
 func set_pathfinder(pf) -> void:
 	_pathfinder = pf
 
@@ -122,7 +127,10 @@ func _run_step(step: Dictionary) -> void:
 				cam.limit_top = -UNLIMITED_CAMERA_LIMIT
 				cam.limit_right = UNLIMITED_CAMERA_LIMIT
 				cam.limit_bottom = UNLIMITED_CAMERA_LIMIT
-				var target_offset: Vector2 = step["to"] - _player.global_position
+				# Treat "to" as room-local coordinates so the pan target is
+				# correct regardless of where the room sits in world space.
+				var world_target: Vector2 = _room.global_position + step["to"] as Vector2
+				var target_offset: Vector2 = world_target - _player.global_position
 				var duration: float = step.get("duration", 1.0)
 				var tween: Tween = cam.create_tween()
 				tween.tween_property(cam, "offset", target_offset, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)

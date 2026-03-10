@@ -9,6 +9,10 @@ enum ItemType { HEALTH, WAND, KEY }
 ## Unique identifier used to match this key with locked exits/doors.
 @export var key_id: String = "key_default"
 
+## Optional GameState flag to set when this item is picked up.
+## Useful for KEY items that need to trigger story progression.
+@export var set_flag_on_pickup: String = ""
+
 @onready var sprite: ColorRect = $Sprite
 
 
@@ -31,4 +35,6 @@ func _on_body_entered(body: Node) -> void:
 			ItemType.WAND:   type_str = "wand"
 			ItemType.KEY:    type_str = "key"
 		body.collect_item(type_str, {"amount": heal_amount, "key_id": key_id})
+		if set_flag_on_pickup != "":
+			GameState.set_flag(set_flag_on_pickup)
 		queue_free()

@@ -1,6 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://l2madammalkins"]
+[gd_scene load_steps=12 format=3 uid="uid://l2madammalkins"]
 
 [ext_resource type="Script" path="res://scripts/room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/npc.tscn" id="2_npc"]
+[ext_resource type="PackedScene" path="res://scenes/item.tscn" id="3_item"]
+[ext_resource type="PackedScene" path="res://scenes/mannequin.tscn" id="4_mannequin"]
 
 [sub_resource type="RectangleShape2D" id="Sh_hwall"]
 size = Vector2(640, 24)
@@ -16,6 +19,12 @@ size = Vector2(24, 216)
 
 [sub_resource type="RectangleShape2D" id="Sh_exit"]
 size = Vector2(12, 48)
+
+[sub_resource type="RectangleShape2D" id="Sh_counter"]
+size = Vector2(192, 16)
+
+[sub_resource type="RectangleShape2D" id="Sh_stand"]
+size = Vector2(32, 32)
 
 [node name="Room" type="Node2D"]
 script = ExtResource("1_room")
@@ -106,3 +115,85 @@ collision_mask = 2
 shape = SubResource("Sh_exit")
 
 [node name="NPCs" type="Node2D" parent="."]
+
+[node name="Counter" type="StaticBody2D" parent="."]
+position = Vector2(128, 160)
+
+[node name="Sprite" type="ColorRect" parent="Counter"]
+offset_left = -96.0
+offset_top = -8.0
+offset_right = 96.0
+offset_bottom = 8.0
+color = Color(0.55, 0.42, 0.3, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Counter"]
+shape = SubResource("Sh_counter")
+
+[node name="FittingStand1" type="StaticBody2D" parent="."]
+position = Vector2(480, 96)
+
+[node name="Sprite" type="ColorRect" parent="FittingStand1"]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.6, 0.5, 0.7, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FittingStand1"]
+shape = SubResource("Sh_stand")
+
+[node name="FittingStand2" type="StaticBody2D" parent="."]
+position = Vector2(480, 176)
+
+[node name="Sprite" type="ColorRect" parent="FittingStand2"]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.6, 0.5, 0.7, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FittingStand2"]
+shape = SubResource("Sh_stand")
+
+[node name="MadamMalkin" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(96.0, 112.0)
+movement_mode = 1
+npc_name = "Madam Malkin"
+custom_sprite_color = Color(0.75, 0.3, 0.6, 1)
+requires_flag = "l2_has_robes"
+pre_flag_dialog = ["Hogwarts robes? That will be 40 Galleons."]
+after_key_id = "discount_ledger"
+after_key_dialog = ["Oh, the staff discount ledger! Fine — 12 Galleons.", {"text": "Shall I measure you up?", "options": [{"label": "Yes please! I'll take them.", "flags": ["l2_has_robes"], "remove_key": "discount_ledger", "next": ["Wonderful! Here you are.", "Now off you go, dear. Hogwarts awaits!"]}, {"label": "Maybe later.", "next": ["Very well. Come back when you are ready."]}]}]
+dialog_lines = ["Looking sharp, dear. Off you go."]
+
+[node name="Neville" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(464.0, 208.0)
+movement_mode = 1
+npc_name = "Neville"
+sets_game_flag = "l2_neville_spoke"
+requires_flag = "l2_has_discount_ledger"
+pre_flag_dialog = ["S-sorry! I knocked something behind those mannequins.", "You might be able to get through if you time it right."]
+dialog_lines = ["Oh good, you found it! I am so clumsy..."]
+
+[node name="Mannequin1" parent="." instance=ExtResource("4_mannequin")]
+position = Vector2(240.0, 256.0)
+start_offset = 0.0
+
+[node name="Mannequin2" parent="." instance=ExtResource("4_mannequin")]
+position = Vector2(368.0, 320.0)
+start_offset = 0.75
+
+[node name="Mannequin3" parent="." instance=ExtResource("4_mannequin")]
+position = Vector2(496.0, 256.0)
+start_offset = 1.5
+
+[node name="Items" type="Node2D" parent="."]
+
+[node name="DiscountLedger" parent="Items" instance=ExtResource("3_item")]
+position = Vector2(496.0, 400.0)
+item_type = 2
+key_id = "discount_ledger"
+set_flag_on_pickup = "l2_has_discount_ledger"

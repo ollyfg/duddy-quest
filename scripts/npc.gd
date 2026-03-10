@@ -85,6 +85,11 @@ enum State { IDLE, WANDER, PATROL, CHASE, KEEP_DISTANCE, STUNNED }
 ## Useful for giving special NPCs like readable items a distinct appearance.
 @export var custom_sprite_color: Color = Color(0, 0, 0, 0)
 
+## When > 0, hostile NPCs in CHASE mode add a random positional offset to
+## their target each frame.  Use this on groups of enemies so they spread out
+## rather than stacking on top of each other.
+@export var chase_random_offset: float = 0.0
+
 ## If non-empty, give this key id to the player after dialog and then
 ## remove the NPC.  Only activates once gives_key_flag (if set) is true.
 @export var gives_key_id: String = ""
@@ -420,7 +425,11 @@ func _process_keep_distance() -> void:
 
 
 func _chase_player() -> void:
-	velocity = _navigate_toward(_player_ref.global_position) * move_speed
+	var target: Vector2 = _player_ref.global_position
+	if chase_random_offset > 0.0:
+		target += Vector2(randf_range(-chase_random_offset, chase_random_offset),
+				randf_range(-chase_random_offset, chase_random_offset))
+	velocity = _navigate_toward(target) * move_speed
 
 
 ## Returns the best direction to move toward `target` while steering around

@@ -21,6 +21,10 @@ func setup(player, dialog_box, main: Node) -> void:
 	_dialog_box = dialog_box
 	_main = main
 	dialog_box.dialog_ended.connect(_on_dialog_ended)
+	dialog_box.set_flag_requested.connect(func(flag_name: String) -> void:
+		GameState.set_flag(flag_name))
+	dialog_box.remove_key_requested.connect(func(key_id: String) -> void:
+		_player.remove_key(key_id))
 
 
 func on_npc_interaction_requested(npc: Node) -> void:

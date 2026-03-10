@@ -3,7 +3,7 @@ extends Node
 ## Persists data that needs to survive scene changes (e.g. selected level).
 
 ## Current game version. Bump this on every new deploy.
-const VERSION: String = "0.26.0"
+const VERSION: String = "0.27.0"
 
 var selected_level: String = "level_1"
 var completed_levels: Array[String] = []
@@ -22,6 +22,7 @@ const KNOWN_FLAGS: Array[String] = [
 	"l2_neville_spoke",
 	"l2_has_discount_ledger",
 	"l2_has_robes",
+	"l2_has_wand",
 ]
 
 ## Generic boolean flags for one-off story events.

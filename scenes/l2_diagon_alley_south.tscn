@@ -244,3 +244,36 @@ position = Vector2(480.0, 224.0)
 movement_mode = 2
 npc_name = "Witch"
 dialog_pools = [["Lovely day for a stroll down the Alley, isn't it?"], ["Mind the pixies, they've been dreadful this week."], ["Ollivander's is further north — keep going!"]]
+
+[node name="StreetPixie1" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(384.0, 192.0)
+is_hostile = true
+movement_mode = 3
+move_speed = 120.0
+max_hp = 1
+custom_sprite_color = Color(0.4, 0.3, 0.8, 1)
+scale = Vector2(0.6, 0.6)
+chase_random_offset = 24.0
+npc_name = "Cornish Pixie"
+
+[node name="StreetPixie2" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(336.0, 288.0)
+is_hostile = true
+movement_mode = 3
+move_speed = 120.0
+max_hp = 1
+custom_sprite_color = Color(0.4, 0.3, 0.8, 1)
+scale = Vector2(0.6, 0.6)
+chase_random_offset = 24.0
+npc_name = "Cornish Pixie"
+
+[node name="StreetPixie3" parent="NPCs" instance=ExtResource("2_npc")]
+position = Vector2(432.0, 352.0)
+is_hostile = true
+movement_mode = 3
+move_speed = 120.0
+max_hp = 1
+custom_sprite_color = Color(0.4, 0.3, 0.8, 1)
+scale = Vector2(0.6, 0.6)
+chase_random_offset = 24.0
+npc_name = "Cornish Pixie"
