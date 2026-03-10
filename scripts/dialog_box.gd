@@ -10,22 +10,28 @@ signal remove_key_requested(key_id: String)
 
 const MAX_DIALOG_OPTIONS: int = 4
 
+## Speed of the typewriter effect in characters per second.
+const TYPEWRITER_CPS: float = 30.0
+
 var _lines: Array = []
 var _current_line: int = 0
 var _active: bool = false
 var _showing_options: bool = false
 var _selected_option: int = 0
 
+## Typewriter state
+var _typewriter_total: int = 0
+var _typewriter_shown: float = 0.0
+var _typewriter_done: bool = true
+
 @onready var panel: Panel = $Panel
 @onready var speaker_label: Label = $Panel/VBox/SpeakerLabel
 @onready var dialog_label: Label = $Panel/VBox/DialogLabel
-@onready var next_button: Button = $Panel/VBox/NextButton
 @onready var options_container: VBoxContainer = $Panel/VBox/OptionsContainer
 
 
 func _ready() -> void:
 	panel.visible = false
-	next_button.pressed.connect(_on_next_pressed)
 
 
 ## Begin displaying a sequence of dialog lines.
@@ -76,15 +82,29 @@ func _show_current_line() -> void:
 	if item is String:
 		_showing_options = false
 		dialog_label.text = item
-		next_button.text = "Close" if _current_line >= _lines.size() - 1 else "Next"
-		next_button.visible = true
+		_start_typewriter(item)
 		_clear_options()
 		options_container.visible = false
 	elif item is Dictionary:
 		_showing_options = true
-		dialog_label.text = item.get("text", "")
-		next_button.visible = false
+		var text: String = item.get("text", "")
+		dialog_label.text = text
+		_start_typewriter(text)
 		_build_option_buttons(item.get("options", []))
+
+
+## Begin typewriter animation for the given text.
+func _start_typewriter(text: String) -> void:
+	_typewriter_total = text.length()
+	_typewriter_shown = 0.0
+	_typewriter_done = _typewriter_total == 0
+	dialog_label.visible_characters = 0 if not _typewriter_done else -1
+
+
+## Instantly reveal remaining typewriter characters.
+func _finish_typewriter() -> void:
+	_typewriter_done = true
+	dialog_label.visible_characters = -1
 
 
 func _clear_options() -> void:
@@ -131,9 +151,9 @@ func _on_option_selected(index: int) -> void:
 		if not flag_str.is_empty():
 			set_flag_requested.emit(flag_str)
 	# Emit a key-removal request if the option carries a "remove_key" field.
-	var remove_key: String = chosen.get("remove_key", "")
-	if remove_key != "":
-		remove_key_requested.emit(remove_key)
+	var rk: String = chosen.get("remove_key", "")
+	if rk != "":
+		remove_key_requested.emit(rk)
 	_showing_options = false
 	_clear_options()
 	options_container.visible = false
@@ -149,10 +169,25 @@ func _on_option_selected(index: int) -> void:
 		_start_sequence(next_seq)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not _active:
 		return
+
+	# Advance typewriter animation
+	if not _typewriter_done:
+		_typewriter_shown += delta * TYPEWRITER_CPS
+		var chars: int = int(_typewriter_shown)
+		if chars >= _typewriter_total:
+			_finish_typewriter()
+		else:
+			dialog_label.visible_characters = chars
+
 	if _showing_options:
+		# Wait for typewriter to finish before allowing option navigation
+		if not _typewriter_done:
+			if Input.is_action_just_pressed("melee_attack") or Input.is_action_just_pressed("ranged_attack"):
+				_finish_typewriter()
+			return
 		var btn_count: int = options_container.get_child_count()
 		if btn_count == 0:
 			return
@@ -166,10 +201,13 @@ func _process(_delta: float) -> void:
 			_on_option_selected(_selected_option)
 	else:
 		if Input.is_action_just_pressed("melee_attack") or Input.is_action_just_pressed("ranged_attack"):
-			_on_next_pressed()
+			if not _typewriter_done:
+				_finish_typewriter()
+			else:
+				_advance_line()
 
 
-func _on_next_pressed() -> void:
+func _advance_line() -> void:
 	_current_line += 1
 	if _current_line >= _lines.size():
 		_active = false
