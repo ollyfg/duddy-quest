@@ -287,9 +287,8 @@ func set_room_bounds(room_rect: Rect2) -> void:
 	# points must be shifted to world space once.
 	if not _patrol_points_adjusted and not patrol_points.is_empty():
 		var offset: Vector2 = room_rect.position
-		if offset != Vector2.ZERO:
-			for i in range(patrol_points.size()):
-				patrol_points[i] += offset
+		for i in range(patrol_points.size()):
+			patrol_points[i] += offset
 		_patrol_points_adjusted = true
 
 
