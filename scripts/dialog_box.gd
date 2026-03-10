@@ -94,6 +94,7 @@ func _show_current_line() -> void:
 
 
 ## Begin typewriter animation for the given text.
+## Empty text is treated as immediately done (nothing to reveal).
 func _start_typewriter(text: String) -> void:
 	_typewriter_total = text.length()
 	_typewriter_shown = 0.0
@@ -105,6 +106,10 @@ func _start_typewriter(text: String) -> void:
 func _finish_typewriter() -> void:
 	_typewriter_done = true
 	dialog_label.visible_characters = -1
+
+
+func _is_advance_pressed() -> bool:
+	return Input.is_action_just_pressed("melee_attack") or Input.is_action_just_pressed("ranged_attack")
 
 
 func _clear_options() -> void:
@@ -151,9 +156,9 @@ func _on_option_selected(index: int) -> void:
 		if not flag_str.is_empty():
 			set_flag_requested.emit(flag_str)
 	# Emit a key-removal request if the option carries a "remove_key" field.
-	var rk: String = chosen.get("remove_key", "")
-	if rk != "":
-		remove_key_requested.emit(rk)
+	var remove_key_id: String = chosen.get("remove_key", "")
+	if remove_key_id != "":
+		remove_key_requested.emit(remove_key_id)
 	_showing_options = false
 	_clear_options()
 	options_container.visible = false
@@ -185,7 +190,7 @@ func _process(delta: float) -> void:
 	if _showing_options:
 		# Wait for typewriter to finish before allowing option navigation
 		if not _typewriter_done:
-			if Input.is_action_just_pressed("melee_attack") or Input.is_action_just_pressed("ranged_attack"):
+			if _is_advance_pressed():
 				_finish_typewriter()
 			return
 		var btn_count: int = options_container.get_child_count()
@@ -197,10 +202,10 @@ func _process(delta: float) -> void:
 		elif Input.is_action_just_pressed("move_down"):
 			_selected_option = (_selected_option + 1) % btn_count
 			options_container.get_child(_selected_option).grab_focus()
-		elif Input.is_action_just_pressed("melee_attack") or Input.is_action_just_pressed("ranged_attack"):
+		elif _is_advance_pressed():
 			_on_option_selected(_selected_option)
 	else:
-		if Input.is_action_just_pressed("melee_attack") or Input.is_action_just_pressed("ranged_attack"):
+		if _is_advance_pressed():
 			if not _typewriter_done:
 				_finish_typewriter()
 			else:
