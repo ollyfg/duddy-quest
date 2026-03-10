@@ -51,6 +51,11 @@ func remove_key(key_id: String) -> void:
 
 var facing: Vector2 = Vector2.DOWN
 
+## Vertical offset (game-coordinate pixels) applied to the camera to
+## compensate for mobile UI controls that obscure the bottom of the viewport.
+## Zero on desktop; set by MobileControls or DevTools.
+var _mobile_ui_margin: float = 0.0
+
 var is_in_dialog: bool = false:
 	set(value):
 		if is_in_dialog and not value:
@@ -281,7 +286,19 @@ func set_camera_limits(rect: Rect2) -> void:
 	camera.limit_left = int(rect.position.x)
 	camera.limit_top = int(rect.position.y)
 	camera.limit_right = int(rect.position.x + rect.size.x)
-	camera.limit_bottom = int(rect.position.y + rect.size.y)
+	# Extend the bottom limit by the mobile UI margin so the camera can scroll
+	# far enough to reveal room content hidden behind the on-screen controls.
+	camera.limit_bottom = int(rect.position.y + rect.size.y + _mobile_ui_margin)
+
+
+## Adjusts the camera to compensate for mobile UI controls covering the bottom
+## of the viewport.  *margin_game_px* is the total height of the obscured area
+## in game-coordinate pixels (viewport pixels / camera zoom).
+## The camera is shifted downward by half the margin so the visible game area
+## (above the controls) remains centred on the player.
+func set_mobile_camera_offset(margin_game_px: float) -> void:
+	_mobile_ui_margin = margin_game_px
+	camera.position.y = margin_game_px / 2.0
 
 
 func _on_melee_area_body_entered(body: Node) -> void:
