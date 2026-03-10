@@ -21,7 +21,7 @@
 			"east": {
 				"room": "l1_upper_hall",
 				"entry": [
-					48.0,
+					16.0,
 					128.0
 				]
 			}
@@ -30,22 +30,22 @@
 			"west": {
 				"room": "l1_bedroom",
 				"entry": [
-					464.0,
+					496.0,
 					192.0
 				]
 			},
 			"east": {
 				"room": "l1_hallway",
 				"entry": [
-					48.0,
+					16.0,
 					176.0
 				]
 			},
 			"north": {
 				"room": "l1_vernon_room",
 				"entry": [
-					128.0,
-					400.0
+					192.0,
+					432.0
 				]
 			}
 		},
@@ -54,7 +54,7 @@
 				"room": "l1_upper_hall",
 				"entry": [
 					128.0,
-					48.0
+					16.0
 				]
 			}
 		},
@@ -62,14 +62,14 @@
 			"west": {
 				"room": "l1_upper_hall",
 				"entry": [
-					592.0,
+					624.0,
 					128.0
 				]
 			},
 			"east": {
 				"room": "l1_front_hall",
 				"entry": [
-					48.0,
+					16.0,
 					176.0
 				]
 			}
@@ -78,14 +78,14 @@
 			"west": {
 				"room": "l1_hallway",
 				"entry": [
-					912.0,
+					944.0,
 					176.0
 				]
 			},
 			"east": {
 				"room": "l1_garden",
 				"entry": [
-					48.0,
+					16.0,
 					320.0
 				]
 			}
@@ -94,14 +94,14 @@
 			"west": {
 				"room": "l1_front_hall",
 				"entry": [
-					464.0,
+					496.0,
 					176.0
 				]
 			},
 			"east": {
 				"room": "l1_street",
 				"entry": [
-					48.0,
+					16.0,
 					208.0
 				]
 			}
@@ -110,7 +110,7 @@
 			"west": {
 				"room": "l1_garden",
 				"entry": [
-					912.0,
+					944.0,
 					320.0
 				]
 			}
