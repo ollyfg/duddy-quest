@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://mannequin"]
+
+[ext_resource type="Script" path="res://scripts/mannequin.gd" id="1_mannequin"]
+
+[sub_resource type="RectangleShape2D" id="Sh_arm"]
+size = Vector2(16, 48)
+
+[node name="Mannequin" type="StaticBody2D"]
+script = ExtResource("1_mannequin")
+
+[node name="Sprite" type="ColorRect" parent="."]
+offset_left = -8.0
+offset_top = -24.0
+offset_right = 8.0
+offset_bottom = 24.0
+color = Color(0.7, 0.6, 0.5, 1)
+mouse_filter = 2
+
+[node name="ArmShape" type="CollisionShape2D" parent="."]
+shape = SubResource("Sh_arm")
