@@ -215,3 +215,92 @@ func _play_leaky_cauldron_intro() -> void:
 			"You'll want Gringotts for your money, then the shops.",
 		]},
 	], func() -> void: _finish_room_intro())
+
+
+## Called when the player interacts with Mr Ollivander.
+## Plays the wand-choosing cinematic on first visit; shows repeat dialog after.
+func _on_ollivander_interaction_requested() -> void:
+	if dialog_box.is_active():
+		return
+	if not GameState.has_flag("l2_wand_acquired"):
+		dialog_manager.set_dialog_active(true)
+		_play_ollivander_wand_cinematic()
+	else:
+		dialog_manager.set_dialog_active(true)
+		dialog_box.set_speaker("Mr Ollivander")
+		dialog_box.start_dialog(["Take care of that wand, boy. It chose you."])
+
+
+## Wand-choosing cinematic for Ollivander's shop.
+func _play_ollivander_wand_cinematic() -> void:
+	var rp: Vector2 = room_manager.current_room.global_position
+	var shelf_pos: Vector2 = rp + Vector2(530.0, 160.0)
+	play_cinematic([
+		{"type": "dialog", "speaker": "Mr Ollivander", "lines": [
+			"Hmm... a Muggle-born, are you? Most unusual.",
+		]},
+		{"type": "move_npc", "npc": "NPCs/Ollivander", "to": shelf_pos, "speed": 50.0},
+		{"type": "wait", "duration": 0.5},
+		{"type": "dialog", "speaker": "Mr Ollivander", "lines": [
+			"Maple and unicorn tail-hair. Eight and three-quarter inches. Quite inflexible.",
+		]},
+		{"type": "dialog", "speaker": "Mr Ollivander", "lines": [
+			"Rather like its new owner, I suspect.",
+		]},
+		{"type": "flash", "color": Color(1.0, 0.85, 0.0, 0.7)},
+		{"type": "dialog", "speaker": "Mr Ollivander", "lines": [
+			"A promising start.",
+		]},
+	], func() -> void:
+		player.has_wand = true
+		GameState.set_flag("l2_has_wand")
+		GameState.set_flag("l2_wand_acquired")
+		dialog_manager.set_dialog_active(false)
+	)
+
+
+## Intro cinematic for the Draco fight in l2_alley_end.
+func _play_draco_intro_cinematic() -> void:
+	GameState.set_flag("l2_draco_fight_intro_shown")
+	dialog_manager.set_dialog_active(true)
+	play_cinematic([
+		{"type": "pan_camera", "to": Vector2(320.0, 280.0), "duration": 1.0},
+		{"type": "dialog", "speaker": "Draco", "lines": [
+			"Well, well. A Muggle at Hogwarts. How revolting.",
+		]},
+		{"type": "dialog", "speaker": "Draco", "lines": [
+			"Father's cane has a few tricks. Let me show you.",
+		]},
+		{"type": "reset_camera", "duration": 0.8},
+	], func() -> void: _finish_room_intro())
+
+
+## Defeat cinematic for Draco: he flees north, Lucius follows.
+func _play_draco_defeat_cinematic() -> void:
+	var room: Node = room_manager.current_room
+	var rp: Vector2 = room.global_position
+	var draco_node: Node = room.get_node_or_null("NPCs/Draco")
+	var lucius_node: Node = room.get_node_or_null("NPCs/Lucius")
+	dialog_manager.set_dialog_active(true)
+	play_cinematic([
+		{"type": "dialog", "speaker": "Draco", "lines": [
+			"My father will hear about this!",
+		]},
+		{"type": "move_npc", "npc": "NPCs/Draco", "to": rp + Vector2(320.0, 32.0), "speed": 80.0},
+		{"type": "set_visible", "node": "NPCs/Draco", "visible": false},
+		{"type": "wait", "duration": 0.3},
+		{"type": "move_npc", "npc": "NPCs/Lucius", "to": rp + Vector2(200.0, 32.0), "speed": 60.0},
+		{"type": "set_visible", "node": "NPCs/Lucius", "visible": false},
+	], func() -> void:
+		if draco_node != null and is_instance_valid(draco_node):
+			draco_node.queue_free()
+		if lucius_node != null and is_instance_valid(lucius_node):
+			lucius_node.queue_free()
+		GameState.set_flag("l2_draco_defeated")
+		dialog_manager.set_dialog_active(false)
+	)
+
+
+## Delegates a screen flash to the HUD manager (called by cinematic_player).
+func _do_cinematic_flash(flash_color: Color, duration: float) -> void:
+	hud_manager.play_flash(flash_color, duration)

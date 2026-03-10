@@ -111,19 +111,7 @@ func load_room(room_name: String, player_pos: Vector2) -> void:
 			npc.set_player_reference(_player)
 		if npc.has_method("set_room_bounds"):
 			npc.set_room_bounds(current_room.get_room_rect())
-		if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
-			npc.boss_defeated.connect(_main.level_manager._on_boss_defeated)
-			npc.interaction_requested.connect(_main.dialog_manager.on_npc_interaction_requested.bind(npc))
-		elif not npc.is_hostile:
-			npc.interaction_requested.connect(_main.dialog_manager.on_npc_interaction_requested.bind(npc))
-		if npc.detection_dialog != "":
-			npc.player_detected.connect(_main.dialog_manager.on_npc_player_detected)
-		# Any NPC with cinematic_kick_back set triggers the Petunia
-		# kick-back cinematic when it physically contacts the player.
-		if npc.cinematic_kick_back:
-			npc.add_collision_exception_with(_player)
-			_player.add_collision_exception_with(npc)
-			npc.player_hit.connect(_main.dialog_manager.on_petunia_hit_player)
+		_wire_npc_signals(npc, room_name)
 
 	_player.set_camera_limits(current_room.get_room_rect())
 	_main.hud_manager.update_hp_display(_player.hp)
@@ -339,17 +327,7 @@ func _start_room_transition(direction: String, room_name: String, player_pos: Ve
 			npc.set_player_reference(_player)
 		if npc.has_method("set_room_bounds"):
 			npc.set_room_bounds(current_room.get_room_rect())
-		if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
-			npc.boss_defeated.connect(_main.level_manager._on_boss_defeated)
-			npc.interaction_requested.connect(_main.dialog_manager.on_npc_interaction_requested.bind(npc))
-		elif not npc.is_hostile:
-			npc.interaction_requested.connect(_main.dialog_manager.on_npc_interaction_requested.bind(npc))
-		if npc.detection_dialog != "":
-			npc.player_detected.connect(_main.dialog_manager.on_npc_player_detected)
-		if npc.cinematic_kick_back:
-			npc.add_collision_exception_with(_player)
-			_player.add_collision_exception_with(npc)
-			npc.player_hit.connect(_main.dialog_manager.on_petunia_hit_player)
+		_wire_npc_signals(npc, room_name)
 
 	_main.hud_manager.update_hp_display(_player.hp)
 	_main.hud_manager.update_wand_display()
@@ -375,6 +353,11 @@ func _start_room_transition(direction: String, room_name: String, player_pos: Ve
 		_main._play_street_intro()
 	elif room_name == "l2_leaky_cauldron" and not GameState.has_flag("l2_leaky_cauldron_intro_shown"):
 		_main._play_leaky_cauldron_intro()
+	elif room_name == "l2_alley_end" \
+			and GameState.has_flag("l2_has_wand") \
+			and not GameState.has_flag("l2_draco_defeated") \
+			and not GameState.has_flag("l2_draco_fight_intro_shown"):
+		_main._play_draco_intro_cinematic()
 
 	if _main.is_cinematic_playing():
 		# Snap camera to the new room immediately; the cinematic will
@@ -448,3 +431,22 @@ func _rebuild_pathfinder() -> void:
 	for npc: Node in current_room.get_npcs():
 		if npc.get("use_astar") and npc.has_method("set_pathfinder"):
 			npc.set_pathfinder(_current_pathfinder)
+
+
+## Connect all interaction signals for a single NPC.  Called from both
+## load_room() and _start_room_transition() to avoid duplicating the logic.
+func _wire_npc_signals(npc: Node, room_name: String) -> void:
+	if npc.is_in_group("boss") and npc.has_signal("boss_defeated"):
+		npc.boss_defeated.connect(_main.level_manager._on_boss_defeated)
+		npc.interaction_requested.connect(_main.dialog_manager.on_npc_interaction_requested.bind(npc))
+	elif not npc.is_hostile:
+		if room_name == "l2_ollivanders" and npc.get("npc_name") == "Mr Ollivander":
+			npc.interaction_requested.connect(_main._on_ollivander_interaction_requested)
+		else:
+			npc.interaction_requested.connect(_main.dialog_manager.on_npc_interaction_requested.bind(npc))
+	if npc.detection_dialog != "":
+		npc.player_detected.connect(_main.dialog_manager.on_npc_player_detected)
+	if npc.cinematic_kick_back:
+		npc.add_collision_exception_with(_player)
+		_player.add_collision_exception_with(npc)
+		npc.player_hit.connect(_main.dialog_manager.on_petunia_hit_player)
