@@ -29,7 +29,12 @@ A Godot 4 top-down roguelike, in the style of early Legend of Zelda games.  It f
 duddy-quest/
 ├── project.godot          # Godot project configuration
 ├── icon.svg               # Application icon
+├── export_presets.cfg     # Godot export presets (Web, Desktop)
 ├── PLOT.md                # Full game narrative and level design document
+├── AGENTS.md              # Playtesting tool documentation
+├── data/
+│   ├── level_1.json       # Level 1 room/connection definitions
+│   └── level_2.json       # Level 2 room/connection definitions
 ├── scenes/
 │   ├── main.tscn          # Root game scene (game controller, HUD)
 │   ├── player.tscn        # Player character
@@ -51,22 +56,39 @@ duddy-quest/
 │   ├── pushable_block.tscn# Pushable chess piece / block
 │   ├── push_puzzle_trigger.tscn # Detects when pushed blocks reach targets
 │   ├── level_end_trigger.tscn   # Area that ends the current level
+│   ├── mannequin.tscn     # Rotating mannequin obstacle
 │   ├── boss_quirrell.tscn # Professor Quirrell boss scene
+│   ├── boss_draco.tscn    # Draco Malfoy miniboss scene
+│   ├── flying_letter.tscn # Flying letter effect
 │   ├── l1_bedroom.tscn    # Level 1: Dudley's bedroom
+│   ├── l1_dining_room.tscn# Level 1: dining room
 │   ├── l1_upper_hall.tscn # Level 1: upper hallway
 │   ├── l1_hallway.tscn    # Level 1: main hallway (Petunia patrol)
 │   ├── l1_front_hall.tscn # Level 1: front hall
+│   ├── l1_vernon_room.tscn# Level 1: Vernon's room
 │   ├── l1_garden.tscn     # Level 1: garden (Mrs Figg / cats puzzle)
-│   └── l1_street.tscn     # Level 1: street / level exit
+│   ├── l1_street.tscn     # Level 1: street / level exit
+│   ├── l2_leaky_cauldron.tscn    # Level 2: Leaky Cauldron (start)
+│   ├── l2_diagon_alley_south.tscn# Level 2: Diagon Alley south
+│   ├── l2_diagon_alley_north.tscn# Level 2: Diagon Alley north
+│   ├── l2_gringotts.tscn  # Level 2: Gringotts bank
+│   ├── l2_madam_malkins.tscn # Level 2: Madam Malkin's
+│   ├── l2_ollivanders.tscn# Level 2: Ollivanders
+│   ├── l2_menagerie.tscn  # Level 2: Menagerie
+│   └── l2_alley_end.tscn  # Level 2: end of alley
 ├── scripts/
-│   ├── main.gd            # Game controller: room/level loading & transitions
+│   ├── main.gd            # Thin game coordinator; loads level data from JSON
+│   ├── room_manager.gd    # Room lifecycle, loading, transitions, A* pathfinding
+│   ├── dialog_manager.gd  # NPC conversations, post-dialog effects
+│   ├── hud_manager.gd     # HP hearts, key counter, rage bar, wand display
+│   ├── level_manager.gd   # Level loading, intro cinematics, level-end cutscenes
 │   ├── player.gd          # Player movement, melee, ranged attack, HP, rage
 │   ├── npc.gd             # NPC AI (wander/chase/patrol/keep-distance), dialog
 │   ├── projectile.gd      # Projectile movement, collision, deflection
 │   ├── room.gd            # Room exit detection, switch/key logic, NPC helpers
 │   ├── dialog_box.gd      # Multi-line NPC conversation display with choices
 │   ├── game_state.gd      # Autoload: persists level selection & completion flags
-│   ├── config.gd          # **Designer tuning hub**: all gameplay constants (speeds, ranges, timings)
+│   ├── config.gd          # **Designer tuning hub**: all gameplay constants
 │   ├── dev_tools.gd       # Autoload: file-IPC server for automated playtesting
 │   ├── mobile_controls.gd # Touch overlay: simulates keyboard input actions
 │   ├── title_screen.gd    # Title screen logic
@@ -84,18 +106,29 @@ duddy-quest/
 │   ├── pushable_block.gd  # Pushable block / chess piece logic
 │   ├── push_puzzle_trigger.gd # Block-on-target puzzle solver
 │   ├── level_end_trigger.gd   # Level end area logic
+│   ├── mannequin.gd       # Rotating mannequin obstacle logic
 │   ├── boss.gd            # Phase-based boss base class (extends npc.gd)
 │   ├── boss_quirrell.gd   # Quirrell boss configuration (3 phases)
+│   ├── boss_draco.gd      # Draco Malfoy miniboss configuration
+│   ├── combat_utils.gd    # Shared combat utilities
+│   ├── pathfinder.gd      # RoomPathfinder wrapping AStarGrid2D for 16px grid
+│   ├── navigation_utils.gd# Navigation utilities
+│   ├── flying_letter.gd   # Flying letter animation
+│   ├── flying_letters_container.gd # Flying letter container
 │   └── grid_overlay.gd    # Debug: transparent 16 px grid overlay
+├── tests/                 # GUT unit tests (9 test files)
+├── tools/                 # Playtesting and development utilities (see AGENTS.md)
+├── hooks/                 # Git hooks (pre-commit: VERSION bump + grid check + tests)
+├── addons/gut/            # GUT testing framework
 └── assets/                # Game assets (images, audio, fonts)
 ```
 
 ## Features
 
 - **Scene flow**: Title screen → level select → game.  On death or level complete the player returns to the level select.  `GameState` (autoload) stores the selected level and completion flags across scene changes.
-- **Levels**: Each level is defined in `scripts/main.gd` in the `LEVELS` dictionary, which groups rooms, connections, starting position, and display title.  Levels are unlocked sequentially from the level-select screen.
+- **Levels**: Each level is defined in a JSON file under `data/` (e.g. `data/level_1.json`), which defines rooms, connections, starting position, and display title.  `main.gd` loads these at init.  Levels are unlocked sequentially from the level-select screen.
 - **Movement**: WASD moves the player using Zelda-style 16 px grid steps.  Diagonal input is supported.  Knockback bypasses the grid for free movement.
-- **Multiple rooms**: Rooms are connected via directional exits defined in `LEVELS["connections"]`.  Walk into an exit Area2D to transition.  New rooms can be added by extending the `LEVELS` dict in `scripts/main.gd`.
+- **Multiple rooms**: Rooms are connected via directional exits defined in `data/*.json`.  Walk into an exit Area2D to transition.  New rooms can be added by extending the level JSON files.
 - **Melee combat**: Press **C** to swing the Smeltings Stick.  The Area2D hitbox activates briefly in the facing direction and damages anything it touches (1 HP).  Enemies and the player are knocked back on hit.  0.5 s cooldown.
 - **Ranged combat**: Press **V** to fire a wand projectile in the facing direction (requires the wand item to be collected first).  Projectiles despawn on hitting a wall or target, dealing 1 HP damage.  0.4 s cooldown.  Player projectiles can be deflected by melee-hitting enemy deflectable shots.
 - **Rage mechanic**: Each melee swing builds the rage meter by 0.2; it decays at 0.05/s.  When the meter fills it triggers a spinning AoE rage attack (radius 64 px) that deals 2 HP and breaks objects in the `"breakable"` group.
@@ -113,37 +146,49 @@ duddy-quest/
 The current implementation works well for a small game, but these areas are the
 main growth risks for larger content-heavy Zelda-style development:
 
-1. **`scripts/main.gd` is a monolith (~600 lines)**  
-   Room loading, persistence, UI, dialog logic, cutscenes, and level progression
-   all live in one controller.  Adding new systems (quests, inventory screens,
-   boss variants, save slots) will increasingly cause cross-feature coupling.
-
-2. **High dependence on hardcoded scene node paths**  
-   Logic in `main.gd` and `room.gd` repeatedly queries `"NPCs"`, `"Items"`,
+1. **High dependence on hardcoded scene node paths**  
+   Logic in `room_manager.gd` and `room.gd` repeatedly queries `"NPCs"`, `"Items"`,
    `"Switches"`, `"Doors/Door_*"`, `"ExitEast"` style names.  Scene hierarchy
    refactors become brittle because gameplay logic depends on exact node names.
 
-3. **Level/room data is code-defined instead of data-driven**  
-   `LEVELS` in `main.gd` hardcodes room scene preloads, connections, titles, and
-   spawn points.  This keeps iteration fast for a few rooms, but scales poorly
-   when level count grows and non-programmer content editing is needed.
-
-4. **NPC dialog gating is tightly encoded in one function**  
-   `_pick_npc_dialog()` in `main.gd` hardcodes priority/branching for keys and
+2. **NPC dialog gating is tightly encoded in one function**  
+   Dialog gating logic in `dialog_manager.gd` hardcodes priority/branching for keys and
    flags.  New gate types (quests, stats, time/stateful conditions) currently
    require editing central game logic instead of composing reusable conditions.
 
-5. **Some core gameplay constants are duplicated per-script**  
+3. **Some core gameplay constants are duplicated per-script**  
    Knockback and room-bound assumptions are embedded in multiple scripts (e.g.
-   `player.gd`/`npc.gd`).  A shared tuning/config source would reduce drift and
-   make balancing or resolution/room-size changes safer.
+   `player.gd`/`npc.gd`).  A shared tuning/config source (`config.gd`) exists
+   but not all values have been migrated.
+
+### Completed refactors
+
+- ✅ **Split `main.gd` into managers**: `main.gd` is now a thin coordinator (~300 lines).
+  Room transitions, dialog orchestration, HUD, and level progression each live in their
+  own manager script (`room_manager.gd`, `dialog_manager.gd`, `hud_manager.gd`,
+  `level_manager.gd`).
+- ✅ **Data-driven levels**: Level topology has been moved from code into `data/*.json` files.
+- ✅ **Centralised config**: `scripts/config.gd` (`GameConfig`) consolidates gameplay
+  constants (speeds, ranges, timings).
 
 ### Suggested next refactor order
 
-1. Split `main.gd` into smaller managers (room transitions, dialog orchestration,
-   and level progression).
-2. Introduce room/NPC helper APIs (or cached node references) to reduce direct
+1. Introduce room/NPC helper APIs (or cached node references) to reduce direct
    string-path lookups.
-3. Move level topology from code into resource/data files.
-4. Extract reusable dialog condition evaluators.
-5. Consolidate gameplay tuning constants into one shared config script.
+2. Extract reusable dialog condition evaluators.
+3. Migrate remaining hardcoded constants into `config.gd`.
+
+## Testing
+
+The project uses the **GUT** (Godot Unit Test) framework. Test files live in `tests/` and
+the addon lives in `addons/gut/`.
+
+```bash
+bash tools/install_godot.sh    # one-time: downloads Godot 4.6.1
+bash tools/run_tests.sh        # runs all GUT tests
+```
+
+## CI / CD
+
+- **GitHub Actions** (`.github/workflows/web-build.yml`): Builds the game for web and deploys to GitHub Pages on every push to `main`.
+- **Pre-commit hook** (`hooks/pre-commit`, installed via `bash tools/install-hooks.sh`): Enforces VERSION bump in `scripts/game_state.gd`, 16px grid alignment, and passing GUT tests before every commit.
