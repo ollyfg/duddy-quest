@@ -3,7 +3,7 @@ extends "res://scripts/boss.gd"
 func _ready() -> void:
 	max_hp = 6
 	is_hostile = true
-	detection_range = 300.0
+	detection_range = 500.0
 	# Phase 1 (HP 6–4): Draco keeps distance and fires single jinxes.
 	# Phase 2 (HP 3–0): Draco charges and fires burst of three jinxes.
 	phases = [
