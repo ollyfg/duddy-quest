@@ -1,40 +1,40 @@
-[gd_scene load_steps=2 format=3 uid="uid://dialog_box"]
+[gd_scene load_steps=3 format=3 uid="uid://dialog_box"]
 
 [ext_resource type="Script" path="res://scripts/dialog_box.gd" id="1_dlg"]
+[ext_resource type="FontFile" path="res://assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
 
 [node name="DialogBox" type="CanvasLayer"]
 layer = 10
 script = ExtResource("1_dlg")
 
 [node name="Panel" type="Panel" parent="."]
-offset_left = 80.0
-offset_top = 338.0
-offset_right = 560.0
-offset_bottom = 460.0
+offset_left = 16.0
+offset_top = 620.0
+offset_right = 624.0
+offset_bottom = 754.0
 
 [node name="VBox" type="VBoxContainer" parent="Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
+offset_left = 12.0
 offset_top = 8.0
-offset_right = -8.0
+offset_right = -12.0
 offset_bottom = -8.0
 
 [node name="SpeakerLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
 visible = false
-theme_override_font_sizes/font_size = 14
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
 text = ""
 
 [node name="DialogLabel" type="Label" parent="Panel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
 text = ""
 autowrap_mode = 3
-
-[node name="NextButton" type="Button" parent="Panel/VBox"]
-layout_mode = 2
-text = "Next"
 
 [node name="OptionsContainer" type="VBoxContainer" parent="Panel/VBox"]
 layout_mode = 2
