@@ -567,9 +567,10 @@ func take_damage(amount: int) -> void:
 	hp -= amount
 	var base_color: Color = HOSTILE_COLOR if is_hostile else FRIENDLY_COLOR
 	CombatUtils.flash_damage(sprite, DAMAGE_FLASH_COLOR, base_color)
-	damaged.emit()
 	if hp <= 0:
 		queue_free()
+	else:
+		damaged.emit()
 
 
 func apply_knockback(direction: Vector2) -> void:
