@@ -13,10 +13,10 @@ size = Vector2(24, 136)
 size = Vector2(12, 48)
 
 [sub_resource type="RectangleShape2D" id="Sh_inner_hwall"]
-size = Vector2(184, 16)
+size = Vector2(168, 32)
 
 [sub_resource type="RectangleShape2D" id="Sh_vert_div"]
-size = Vector2(16, 112)
+size = Vector2(16, 136)
 
 [sub_resource type="RectangleShape2D" id="Sh_coatrack"]
 size = Vector2(32, 64)
@@ -147,13 +147,13 @@ collision_mask = 2
 shape = SubResource("Sh_exit")
 
 [node name="NorthWallLeft" type="StaticBody2D" parent="."]
-position = Vector2(116, 144)
+position = Vector2(108, 144)
 
 [node name="Sprite" type="ColorRect" parent="NorthWallLeft"]
-offset_left = -92.0
-offset_top = -8.0
-offset_right = 92.0
-offset_bottom = 8.0
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -161,13 +161,13 @@ mouse_filter = 2
 shape = SubResource("Sh_inner_hwall")
 
 [node name="NorthWallMidLeft" type="StaticBody2D" parent="."]
-position = Vector2(380, 144)
+position = Vector2(388, 144)
 
 [node name="Sprite" type="ColorRect" parent="NorthWallMidLeft"]
-offset_left = -92.0
-offset_top = -8.0
-offset_right = 92.0
-offset_bottom = 8.0
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -175,13 +175,13 @@ mouse_filter = 2
 shape = SubResource("Sh_inner_hwall")
 
 [node name="NorthWallDiv" type="StaticBody2D" parent="."]
-position = Vector2(480, 80)
+position = Vector2(480, 92)
 
 [node name="Sprite" type="ColorRect" parent="NorthWallDiv"]
 offset_left = -8.0
-offset_top = -56.0
+offset_top = -68.0
 offset_right = 8.0
-offset_bottom = 56.0
+offset_bottom = 68.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -189,13 +189,13 @@ mouse_filter = 2
 shape = SubResource("Sh_vert_div")
 
 [node name="NorthWallMidRight" type="StaticBody2D" parent="."]
-position = Vector2(580, 144)
+position = Vector2(572, 144)
 
 [node name="Sprite" type="ColorRect" parent="NorthWallMidRight"]
-offset_left = -92.0
-offset_top = -8.0
-offset_right = 92.0
-offset_bottom = 8.0
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -203,13 +203,13 @@ mouse_filter = 2
 shape = SubResource("Sh_inner_hwall")
 
 [node name="NorthWallRight" type="StaticBody2D" parent="."]
-position = Vector2(844, 144)
+position = Vector2(852, 144)
 
 [node name="Sprite" type="ColorRect" parent="NorthWallRight"]
-offset_left = -92.0
-offset_top = -8.0
-offset_right = 92.0
-offset_bottom = 8.0
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -217,13 +217,13 @@ mouse_filter = 2
 shape = SubResource("Sh_inner_hwall")
 
 [node name="SouthWallLeft" type="StaticBody2D" parent="."]
-position = Vector2(116, 224)
+position = Vector2(108, 224)
 
 [node name="Sprite" type="ColorRect" parent="SouthWallLeft"]
-offset_left = -92.0
-offset_top = -8.0
-offset_right = 92.0
-offset_bottom = 8.0
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -231,13 +231,13 @@ mouse_filter = 2
 shape = SubResource("Sh_inner_hwall")
 
 [node name="SouthWallMidLeft" type="StaticBody2D" parent="."]
-position = Vector2(380, 224)
+position = Vector2(388, 224)
 
 [node name="Sprite" type="ColorRect" parent="SouthWallMidLeft"]
-offset_left = -92.0
-offset_top = -8.0
-offset_right = 92.0
-offset_bottom = 8.0
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -245,13 +245,13 @@ mouse_filter = 2
 shape = SubResource("Sh_inner_hwall")
 
 [node name="SouthWallDiv" type="StaticBody2D" parent="."]
-position = Vector2(480, 288)
+position = Vector2(480, 276)
 
 [node name="Sprite" type="ColorRect" parent="SouthWallDiv"]
 offset_left = -8.0
-offset_top = -56.0
+offset_top = -68.0
 offset_right = 8.0
-offset_bottom = 56.0
+offset_bottom = 68.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -259,13 +259,13 @@ mouse_filter = 2
 shape = SubResource("Sh_vert_div")
 
 [node name="SouthWallMidRight" type="StaticBody2D" parent="."]
-position = Vector2(580, 224)
+position = Vector2(572, 224)
 
 [node name="Sprite" type="ColorRect" parent="SouthWallMidRight"]
-offset_left = -92.0
-offset_top = -8.0
-offset_right = 92.0
-offset_bottom = 8.0
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
@@ -273,13 +273,13 @@ mouse_filter = 2
 shape = SubResource("Sh_inner_hwall")
 
 [node name="SouthWallRight" type="StaticBody2D" parent="."]
-position = Vector2(844, 224)
+position = Vector2(852, 224)
 
 [node name="Sprite" type="ColorRect" parent="SouthWallRight"]
-offset_left = -92.0
-offset_top = -8.0
-offset_right = 92.0
-offset_bottom = 8.0
+offset_left = -84.0
+offset_top = -16.0
+offset_right = 84.0
+offset_bottom = 16.0
 color = Color(0.35, 0.22, 0.08, 1)
 mouse_filter = 2
 
