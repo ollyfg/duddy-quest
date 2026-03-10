@@ -28,6 +28,11 @@ var _is_playing: bool = false
 var _pathfinder = null
 
 
+## Returns true while a cinematic sequence is actively playing.
+func is_playing() -> bool:
+	return _is_playing
+
+
 func set_pathfinder(pf) -> void:
 	_pathfinder = pf
 

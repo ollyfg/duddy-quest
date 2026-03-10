@@ -143,6 +143,12 @@ func play_cinematic(sequence: Array, on_finish: Callable) -> void:
 	_cinematic_player.play(sequence, room_manager.current_room, player, dialog_box)
 
 
+## Returns true if a cinematic sequence is currently playing.
+## Used by room_manager to detect first-visit intro conflicts during transitions.
+func is_cinematic_playing() -> bool:
+	return _cinematic_player != null and _cinematic_player.is_playing()
+
+
 func play_cutscene(slides: Array, on_finish: Callable) -> void:
 	var cutscene_scene: PackedScene = load("res://scenes/cutscene.tscn")
 	var cutscene: Node = cutscene_scene.instantiate()
