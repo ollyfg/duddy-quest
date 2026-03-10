@@ -72,6 +72,10 @@ func _ready() -> void:
 	# Shift controls up so they clear the system navigation bar / home
 	# indicator on devices where the viewport fills the full screen height.
 	_apply_safe_area_margins()
+	# Apply mobile camera offset after all nodes are ready so the player
+	# Camera2D is already configured.
+	if visible:
+		call_deferred("_apply_mobile_camera_offset")
 
 
 ## Compensates for the system safe-area bottom inset (navigation bar / home
@@ -168,3 +172,18 @@ func _notification(what: int) -> void:
 func set_ranged_visible(show: bool) -> void:
 	if not _is_dev_tools:
 		_btn_ranged.visible = show
+
+
+## Height of the on-screen controls area in viewport-logical pixels.
+const CONTROLS_HEIGHT: float = 290.0
+
+
+## Tells the player Camera2D to shift downward so the visible game area
+## (above the touch controls) stays centred on the player.
+func _apply_mobile_camera_offset() -> void:
+	var player = get_tree().get_first_node_in_group("player")
+	if player == null or not player.has_method("set_mobile_camera_offset"):
+		return
+	var cam: Camera2D = player.get_node_or_null("Camera2D") as Camera2D
+	var zoom_y: float = cam.zoom.y if cam != null else 2.0
+	player.set_mobile_camera_offset(CONTROLS_HEIGHT / zoom_y)

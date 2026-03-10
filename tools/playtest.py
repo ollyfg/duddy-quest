@@ -16,6 +16,7 @@ Usage (CLI)
     python3 tools/playtest.py release <action>
     python3 tools/playtest.py state
     python3 tools/playtest.py spawn [--room ROOM] [--x X] [--y Y]
+    python3 tools/playtest.py mobile-viewport [on|off]
 
 Available actions:
     move_up  move_down  move_left  move_right
@@ -229,6 +230,18 @@ class PlaytestClient:
         """
         return self._send({"type": "state"})
 
+    def set_mobile_viewport(self, enabled: bool = True) -> dict[str, Any]:
+        """Enable or disable mobile viewport simulation.
+
+        When enabled the game window is resized to 640×770, on-screen touch
+        controls are shown, and the camera is shifted so the visible game area
+        above the controls remains centred on the player.
+
+        When disabled the window shrinks back to 640×480 and the camera offset
+        is removed.
+        """
+        return self._send({"type": "set_mobile_viewport", "enabled": enabled})
+
 
 # ----------------------------------------------------------------------
 # CLI entry-point
@@ -295,6 +308,19 @@ def _build_parser() -> argparse.ArgumentParser:
     spawn_p.add_argument("--x", type=float, default=None, help="Target X position")
     spawn_p.add_argument("--y", type=float, default=None, help="Target Y position")
 
+    # mobile-viewport
+    mv_p = sub.add_parser(
+        "mobile-viewport",
+        help="Enable or disable mobile viewport simulation",
+    )
+    mv_p.add_argument(
+        "enabled",
+        nargs="?",
+        default="on",
+        choices=["on", "off"],
+        help="'on' to enable mobile viewport (default), 'off' to disable",
+    )
+
     return parser
 
 
@@ -331,6 +357,11 @@ def main(argv: list[str] | None = None) -> None:
 
     elif args.command == "spawn":
         result = client.spawn(room=args.room, x=args.x, y=args.y)
+        print(json.dumps(result, indent=2))
+
+    elif args.command == "mobile-viewport":
+        enabled = args.enabled == "on"
+        result = client.set_mobile_viewport(enabled=enabled)
         print(json.dumps(result, indent=2))
 
 

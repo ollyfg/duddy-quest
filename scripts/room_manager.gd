@@ -288,8 +288,11 @@ func _start_room_transition(direction: String, room_name: String, player_pos: Ve
 			old_room.locked_exit_attempted.disconnect(_main.dialog_manager.on_locked_exit_attempted)
 
 	# ── Teleport player; compensate camera so viewport appears stationary ─────
-	var old_player_pos: Vector2 = _player.global_position
 	var new_player_world_pos: Vector2 = room_offset + player_pos
+	# Capture the camera's *actual* screen-centre position before any changes.
+	# This accounts for limit clamping — if the player was near a room edge
+	# the camera may not have been centered on the player.
+	var old_cam_center: Vector2 = cam.get_screen_center_position() if cam != null else _player.global_position
 	_player.global_position = new_player_world_pos
 	_player.cancel_movement()
 	if cam != null:
@@ -298,9 +301,9 @@ func _start_room_transition(direction: String, room_name: String, player_pos: Ve
 		cam.limit_top = -GameConfig.UNLIMITED_CAMERA_LIMIT
 		cam.limit_right = GameConfig.UNLIMITED_CAMERA_LIMIT
 		cam.limit_bottom = GameConfig.UNLIMITED_CAMERA_LIMIT
-		# With the player now at new_player_world_pos, this offset keeps the
-		# camera centered exactly where it was before the teleport.
-		cam.offset = old_player_pos - new_player_world_pos
+		# The camera's world target is: player.global_position + cam.position + cam.offset
+		# We want that to equal old_cam_center so the viewport stays still.
+		cam.offset = old_cam_center - new_player_world_pos - cam.position
 
 	# One physics frame so the new room's collision bodies are registered
 	# before we wire exit signals to the new room.
