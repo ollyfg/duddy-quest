@@ -9,14 +9,11 @@ script = ExtResource("1_lc")
 [node name="Background" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 640.0
-offset_bottom = 480.0
 color = Color(0, 0.18, 0, 0.85)
 
 [node name="HeaderLabel" type="Label" parent="."]
 anchor_right = 1.0
 offset_top = 140.0
-offset_right = 640.0
 offset_bottom = 200.0
 horizontal_alignment = 1
 text = "LEVEL COMPLETE"
@@ -25,7 +22,6 @@ theme_override_font_sizes/font_size = 40
 [node name="TitleLabel" type="Label" parent="."]
 anchor_right = 1.0
 offset_top = 220.0
-offset_right = 640.0
 offset_bottom = 270.0
 horizontal_alignment = 1
 text = ""
@@ -34,7 +30,6 @@ theme_override_font_sizes/font_size = 24
 [node name="ContinueLabel" type="Label" parent="."]
 anchor_right = 1.0
 offset_top = 340.0
-offset_right = 640.0
 offset_bottom = 380.0
 horizontal_alignment = 1
 text = "Press any button to continue"

@@ -166,4 +166,4 @@ detection_range = 200.0
 position = Vector2(192.0, 208.0)
 
 [node name="BusStop" parent="." instance=ExtResource("4_levelend")]
-position = Vector2(896.0, 208.0)
+position = Vector2(800.0, 208.0)
