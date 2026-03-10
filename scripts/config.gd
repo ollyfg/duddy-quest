@@ -70,3 +70,7 @@ const PATROL_ARRIVAL_THRESHOLD: float = 8.0
 
 ## Sentinel camera limit used to allow free camera movement during pan steps.
 const UNLIMITED_CAMERA_LIMIT: int = 100000
+
+## Height (viewport-logical pixels) of the mobile on-screen controls overlay.
+## Used by mobile_controls.gd and dev_tools.gd to compute the camera offset.
+const MOBILE_CONTROLS_HEIGHT: float = 290.0
