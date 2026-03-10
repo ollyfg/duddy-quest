@@ -129,7 +129,7 @@ mouse_filter = 2
 shape = SubResource("Sh_counter")
 
 [node name="Column1" type="StaticBody2D" parent="."]
-position = Vector2(208, 272)
+position = Vector2(256, 336)
 
 [node name="Sprite" type="ColorRect" parent="Column1"]
 offset_left = -16.0

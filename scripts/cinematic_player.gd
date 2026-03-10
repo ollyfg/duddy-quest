@@ -3,6 +3,7 @@ extends Node
 signal sequence_finished
 
 const NavigationUtils = preload("res://scripts/navigation_utils.gd")
+const _PROJECTILE_SCENE: PackedScene = preload("res://scenes/projectile.tscn")
 ## Large limit value used to allow free camera movement during pan steps.
 const UNLIMITED_CAMERA_LIMIT: int = GameConfig.UNLIMITED_CAMERA_LIMIT
 
@@ -10,6 +11,7 @@ const UNLIMITED_CAMERA_LIMIT: int = GameConfig.UNLIMITED_CAMERA_LIMIT
 const KNOWN_STEP_TYPES: Array[String] = [
 	"move_npc", "move_player", "dialog", "set_visible",
 	"wait", "play_cutscene", "pan_camera", "reset_camera", "flash",
+	"spawn_projectile",
 ]
 
 ## Keys that must be present for each step type.
@@ -18,6 +20,7 @@ const STEP_REQUIRED_KEYS: Dictionary = {
 	"move_player": ["to"],
 	"set_visible": ["node"],
 	"pan_camera": ["to"],
+	"spawn_projectile": ["from", "toward"],
 }
 
 var _room: Node = null
@@ -150,6 +153,15 @@ func _run_step(step: Dictionary) -> void:
 			if main_node != null and main_node.has_method("_do_cinematic_flash"):
 				main_node._do_cinematic_flash(flash_color, flash_duration)
 			await get_tree().create_timer(flash_duration + 0.1).timeout
+		"spawn_projectile":
+			var from_node: Node2D = _room.get_node_or_null(step["from"]) as Node2D
+			var toward_node: Node2D = _room.get_node_or_null(step["toward"]) as Node2D
+			if from_node != null and toward_node != null:
+				var projectile: Node = _PROJECTILE_SCENE.instantiate()
+				var dir: Vector2 = (toward_node.global_position - from_node.global_position).normalized()
+				projectile.setup(dir, step.get("enemy", true))
+				get_tree().current_scene.add_child(projectile)
+				(projectile as Node2D).global_position = from_node.global_position
 
 
 func _move_node(node: Node2D, target: Vector2, speed: float) -> void:

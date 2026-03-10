@@ -122,7 +122,7 @@ custom_sprite_color = Color(0.5, 0.4, 0.2, 1)
 dialog_lines = ["Take care of that wand, boy. It chose you."]
 
 [node name="ShelfLeft1" type="StaticBody2D" parent="."]
-position = Vector2(60, 120)
+position = Vector2(64, 128)
 
 [node name="Sprite" type="ColorRect" parent="ShelfLeft1"]
 offset_left = -24.0
@@ -136,7 +136,7 @@ mouse_filter = 2
 shape = SubResource("Sh_shelf_v")
 
 [node name="ShelfLeft2" type="StaticBody2D" parent="."]
-position = Vector2(60, 280)
+position = Vector2(64, 288)
 
 [node name="Sprite" type="ColorRect" parent="ShelfLeft2"]
 offset_left = -24.0
@@ -150,7 +150,7 @@ mouse_filter = 2
 shape = SubResource("Sh_shelf_v")
 
 [node name="ShelfLeft3" type="StaticBody2D" parent="."]
-position = Vector2(60, 440)
+position = Vector2(64, 432)
 
 [node name="Sprite" type="ColorRect" parent="ShelfLeft3"]
 offset_left = -24.0
@@ -164,7 +164,7 @@ mouse_filter = 2
 shape = SubResource("Sh_shelf_h")
 
 [node name="ShelfRight1" type="StaticBody2D" parent="."]
-position = Vector2(580, 120)
+position = Vector2(576, 128)
 
 [node name="Sprite" type="ColorRect" parent="ShelfRight1"]
 offset_left = -24.0
@@ -178,7 +178,7 @@ mouse_filter = 2
 shape = SubResource("Sh_shelf_v")
 
 [node name="ShelfRight2" type="StaticBody2D" parent="."]
-position = Vector2(580, 280)
+position = Vector2(576, 288)
 
 [node name="Sprite" type="ColorRect" parent="ShelfRight2"]
 offset_left = -24.0
@@ -192,7 +192,7 @@ mouse_filter = 2
 shape = SubResource("Sh_shelf_v")
 
 [node name="ShelfRight3" type="StaticBody2D" parent="."]
-position = Vector2(580, 440)
+position = Vector2(576, 432)
 
 [node name="Sprite" type="ColorRect" parent="ShelfRight3"]
 offset_left = -24.0

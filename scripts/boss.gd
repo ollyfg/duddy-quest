@@ -118,6 +118,7 @@ func _fire_burst() -> void:
 		projectile.setup(dir, true)
 		get_tree().current_scene.add_child(projectile)
 		(projectile as Node2D).global_position = global_position
+		(projectile as CharacterBody2D).add_collision_exception_with(self)
 
 
 func _fire_arc_sweep() -> void:
@@ -131,6 +132,7 @@ func _fire_arc_sweep() -> void:
 		projectile.setup(dir, true)
 		get_tree().current_scene.add_child(projectile)
 		(projectile as Node2D).global_position = global_position
+		(projectile as CharacterBody2D).add_collision_exception_with(self)
 
 
 func _fire_deflectable_projectile() -> void:
@@ -142,6 +144,7 @@ func _fire_deflectable_projectile() -> void:
 	projectile.setup(dir, true)
 	get_tree().current_scene.add_child(projectile)
 	(projectile as Node2D).global_position = global_position
+	(projectile as CharacterBody2D).add_collision_exception_with(self)
 
 
 ## Called when a reflected projectile hits this boss.

@@ -510,6 +510,8 @@ func _fire_projectile() -> void:
 	# as the player regardless of the NPC's position in the hierarchy.
 	get_tree().current_scene.add_child(projectile)
 	(projectile as Node2D).global_position = global_position
+	# Prevent the projectile from colliding with the NPC that fired it.
+	(projectile as CharacterBody2D).add_collision_exception_with(self)
 
 
 func _collect_patrol_points_from_children() -> void:
