@@ -54,10 +54,9 @@ func _ready() -> void:
 	canvas.add_child(hint)
 
 
-func _is_unlocked(index: int) -> bool:
-	# Level 1 (0) is always unlocked; further levels require
-	# the previous level to be completed.
-	return index == 0 or GameState.is_complete(LEVEL_LIST[index - 1]["id"])
+func _is_unlocked(_index: int) -> bool:
+	# HACK: all levels unlocked during development.
+	return true
 
 
 func _update_list() -> void:

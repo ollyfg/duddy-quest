@@ -136,6 +136,8 @@ signal interaction_requested
 signal player_detected(dialog: String)
 ## Emitted each time this hostile NPC's HitArea contacts the player.
 signal player_hit
+## Emitted whenever this NPC takes damage (after HP is reduced).
+signal damaged
 
 const KNOCKBACK_SPEED: float = GameConfig.NPC_KNOCKBACK_SPEED
 const KNOCKBACK_THRESHOLD: float = 5.0
@@ -565,6 +567,7 @@ func take_damage(amount: int) -> void:
 	hp -= amount
 	var base_color: Color = HOSTILE_COLOR if is_hostile else FRIENDLY_COLOR
 	CombatUtils.flash_damage(sprite, DAMAGE_FLASH_COLOR, base_color)
+	damaged.emit()
 	if hp <= 0:
 		queue_free()
 
