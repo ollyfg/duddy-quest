@@ -46,6 +46,12 @@ const _BTN_ICONS: Dictionary = {
 func _ready() -> void:
 	_is_dev_tools = "--dev-tools" in OS.get_cmdline_user_args()
 	visible = DisplayServer.is_touchscreen_available() or _is_dev_tools
+	# On non-touchscreen devices (desktop), the controls area is invisible so
+	# shrink the logical canvas and OS window back to just the game viewport to
+	# avoid an empty black strip below the room.
+	if not DisplayServer.is_touchscreen_available() and not _is_dev_tools:
+		get_window().content_scale_size = Vector2i(640, 480)
+		DisplayServer.window_set_size(Vector2i(640, 480))
 	# Set SVG icons on each button and clear the placeholder text.
 	for btn_name: String in _BTN_ACTIONS:
 		var btn: Button = _overlay.get_node(btn_name)

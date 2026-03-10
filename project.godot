@@ -23,9 +23,9 @@ config/run/main_scene="res://scenes/title_screen.tscn"
 [display]
 
 window/size/viewport_width=640
-window/size/viewport_height=480
+window/size/viewport_height=770
 window/size/window_width_override=640
-window/size/window_height_override=520
+window/size/window_height_override=770
 window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
 
