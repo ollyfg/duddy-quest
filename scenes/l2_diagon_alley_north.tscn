@@ -28,6 +28,8 @@ size = Vector2(32, 32)
 script = ExtResource("1_room")
 flag_east = "l2_has_wizard_money"
 flag_east_message = "You'll need wizard money before the shops will serve you."
+flag_north = "l2_has_wand"
+flag_north_message = "This alley looks dangerous, I don't think I should go in there."
 
 [node name="Floor" type="ColorRect" parent="."]
 offset_left = 0.0

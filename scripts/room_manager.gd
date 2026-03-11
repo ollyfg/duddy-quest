@@ -455,4 +455,4 @@ func _wire_npc_signals(npc: Node, room_name: String) -> void:
 		npc.player_hit.connect(_main.dialog_manager.on_petunia_hit_player)
 	# Leaky Cauldron patrons: trigger bar fight when any patron is attacked.
 	if room_name == "l2_leaky_cauldron" and npc.name.begins_with("Patron"):
-		npc.damaged.connect(_main._on_patron_damaged)
+		npc.damaged.connect(_main._on_patron_damaged.bind(npc))

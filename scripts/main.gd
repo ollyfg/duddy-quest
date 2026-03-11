@@ -308,7 +308,7 @@ func _do_cinematic_flash(flash_color: Color, duration: float) -> void:
 
 ## Called when any wizard patron in the Leaky Cauldron takes damage.
 ## Triggers the bar fight cinematic once.
-func _on_patron_damaged() -> void:
+func _on_patron_damaged(patron: Node) -> void:
 	if GameState.has_flag("l2_bar_fight_triggered"):
 		return
 	if is_cinematic_playing() or dialog_box.is_active():
@@ -318,19 +318,25 @@ func _on_patron_damaged() -> void:
 	for npc in room_manager.current_room.get_npcs():
 		if npc.name.begins_with("Patron"):
 			npc.invincible = true
-	_play_bar_fight_cinematic()
+	_play_bar_fight_cinematic(patron)
 
 
 ## Bar fight cinematic: the wizard patrons brawl while Tom tells Dudley to stay back.
-func _play_bar_fight_cinematic() -> void:
+func _play_bar_fight_cinematic(patron: Node) -> void:
 	var room: Node = room_manager.current_room
 	var rp: Vector2 = room.global_position
+	var patron_name: String = patron.npc_name if patron.npc_name != "" else "Wizard"
 	dialog_manager.set_dialog_active(true)
 	play_cinematic([
+		{"type": "dialog", "speaker": patron_name, "lines": [
+			"Who was that? It was that Dudley again, wasn't it?",
+			"I'll show you!",
+		]},
 		{"type": "dialog", "speaker": "Tom", "lines": [
 			"Oi! Stay back, lad! Don't get in the middle of this!",
 		]},
 		{"type": "move_player", "to": rp + Vector2(80.0, 240.0), "speed": 150.0},
+		{"type": "pan_camera", "to": Vector2(320.0, 320.0), "duration": 0.8},
 		{"type": "move_npc", "npc": "NPCs/Patron1", "to": rp + Vector2(256.0, 304.0), "speed": 120.0},
 		{"type": "move_npc", "npc": "NPCs/Patron2", "to": rp + Vector2(384.0, 320.0), "speed": 120.0},
 		{"type": "spawn_projectile", "from": "NPCs/Patron1", "toward": "NPCs/Patron2"},
@@ -351,6 +357,7 @@ func _play_bar_fight_cinematic() -> void:
 		{"type": "spawn_projectile", "from": "NPCs/Patron1", "toward": "NPCs/Patron2"},
 		{"type": "flash", "color": Color(1.0, 0.2, 0.2, 0.7), "duration": 0.2},
 		{"type": "wait", "duration": 0.3},
+		{"type": "reset_camera", "duration": 0.6},
 		{"type": "dialog", "speaker": "Tom", "lines": [
 			"*sigh* Every blessed time...",
 			"Right, you lot — OUT! I just mopped these floors!",
