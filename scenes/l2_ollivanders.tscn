@@ -136,7 +136,7 @@ mouse_filter = 2
 shape = SubResource("Sh_shelf_v")
 
 [node name="ShelfLeft2" type="StaticBody2D" parent="."]
-position = Vector2(64, 288)
+position = Vector2(64, 352)
 
 [node name="Sprite" type="ColorRect" parent="ShelfLeft2"]
 offset_left = -24.0
